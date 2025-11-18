@@ -434,18 +434,7 @@
   </header>
 
   <main>
-    <div class="controls controls-rowwrap" role="toolbar" aria-label="Chart controls">
-      <button id="labelsBtn" class="toggle" aria-pressed="true">Labels: On</button>
-      <button id="refreshBtn" class="toggle">
-        <span class="btn-label">Refresh Avatars</span>
-        <span class="cooldown-bar"></span>
-      </button>
-      <button id="clearBtn" class="toggle">Clear @ Handles</button>
-      <button id="resetLabelsBtn" class="toggle">Default Labels</button>
-      <button id="fmkLabelsBtn" class="toggle">FMK Labels</button>
-      <button id="themeBtn" class="toggle">Theme: Dark</button>
-    </div>
-
+    
     <div class="instruction">
       <ul>
         <li>Click each cell/avatar to enter an <span class="x-symbol">X</span>/Twitter handle (with or without @).</li>
@@ -453,11 +442,22 @@
         <li>Copy and paste the text at the bottom too.</li>
         <li>Labels for columns and rows also editable if you want to make a custom alignment chart (or click
           the <b>FMK Labels</b> button above for a quick format change).</li>
-        <li>Sometimes avatars won't load from <a href="https://unavatar.io/">unavatar.io</a> so a placeholder from <a
+          <li>Sometimes avatars won't load from <a href="https://unavatar.io/">unavatar.io</a> so a placeholder from <a
             href="https://www.dicebear.com/">dicebear.com</a> will be displayed instead.</li>
-      </ul>
-    </div>
-
+          </ul>
+        </div>
+        
+        <div class="controls controls-rowwrap" role="toolbar" aria-label="Chart controls">
+          <button id="labelsBtn" class="toggle" aria-pressed="true">Labels: On</button>
+          <button id="refreshBtn" class="toggle">
+            <span class="btn-label">Refresh Avatars</span>
+            <span class="cooldown-bar"></span>
+          </button>
+          <button id="clearBtn" class="toggle">Clear @ Handles</button>
+          <button id="resetLabelsBtn" class="toggle">Default Labels</button>
+          <button id="fmkLabelsBtn" class="toggle">FMK Labels</button>
+          <button id="themeBtn" class="toggle">Theme: Dark</button>
+        </div>
 
     <div class="board" id="board" aria-label="Alignment grid">
       <!-- Corner -->
