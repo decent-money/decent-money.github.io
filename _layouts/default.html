@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ page.title | escape }} | {{ site.title | escape }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {% if page.description %}
+    <meta name="description" content="{{ page.description | escape }}">
+    {% else %}
+    <meta name="description" content="{{ site.description | escape }}">
+    {% endif %}
+
+    <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <div class="brand">
+          <span class="brand-title">{{ site.title }}</span>
+          <span class="brand-subtitle">{{ site.description }}</span>
+        </div>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle dark mode">
+          <span class="theme-toggle-icon" aria-hidden="true">◎</span>
+          <span class="theme-toggle-text">Dark</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="site-main">
+      <div class="container">
+        {{ content }}
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>© {{ site.time | date: "%Y" }} {{ site.title }}</p>
+      </div>
+    </footer>
+
+    <script src="{{ '/assets/js/theme-toggle.js' | relative_url }}"></script>
+  </body>
+</html>

@@ -1,0 +1,316 @@
+---
+---
+
+/* =========
+   Core theme
+   ========= */
+
+:root {
+  /* Use dark mode by default */
+  color-scheme: dark;
+
+  --bg: #0a0414;
+  --bg-elevated: #1b0828;
+  --bg-soft: #28103a;
+
+  --text: #d0c9df;
+  --text-muted: #a38bbf;
+
+  --accent: #ff4bde;   /* neon pink */
+  --accent-soft: #b37bc3;
+  --accent-cyan: #32f5ff;
+
+  --border-subtle: rgba(255, 255, 255, 0.08);
+
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular,
+    Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  --radius-lg: 18px;
+  --radius-md: 10px;
+  --shadow-soft: 0 0 30px rgba(0, 0, 0, 0.7);
+}
+
+/* Light mode overrides */
+html[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f8f5ff;
+  --bg-elevated: #ffffff;
+  --bg-soft: #efe6ff;
+
+  --text: #1b0828;
+  --text-muted: #5c267f;
+
+  --accent: #b7008a;
+  --accent-soft: #dba4ff;
+  --accent-cyan: #0084a6;
+
+  --border-subtle: rgba(0, 0, 0, 0.07);
+}
+
+/* Optional: respect user system preference on first load */
+@media (prefers-color-scheme: light) {
+  html:not([data-theme]) {
+    color-scheme: light;
+  }
+}
+
+/* =========
+   Base
+   ========= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  background:
+    radial-gradient(circle at top left, rgba(255, 75, 222, 0.25), transparent 55%),
+    radial-gradient(circle at bottom right, rgba(50, 245, 255, 0.18), transparent 60%),
+    linear-gradient(180deg, #120019, var(--bg));
+  color: var(--text);
+  line-height: 1.7;
+}
+
+/* A bit of “rain” texture using subtle noise-ish gradient stripes */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.08) 0,
+      rgba(255, 255, 255, 0.0) 40%
+    );
+  mix-blend-mode: screen;
+  opacity: 0.25;
+  background-size: 2px 40px;
+}
+
+/* =========
+   Layout
+   ========= */
+
+.container {
+  width: min(960px, 100% - 2.5rem);
+  margin-inline: auto;
+}
+
+/* Header */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(16px);
+  background: linear-gradient(
+      to bottom,
+      rgba(10, 4, 20, 0.95),
+      rgba(10, 4, 20, 0.7)
+    );
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 0.9rem;
+  gap: 1rem;
+}
+
+.brand-title {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  color: var(--accent-cyan);
+}
+
+.brand-subtitle {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Theme toggle button */
+
+.theme-toggle {
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 0.25rem 0.8rem;
+  background: radial-gradient(circle at top, #ff4bde33, #00000055);
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.theme-toggle-icon {
+  font-size: 0.9rem;
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
+}
+
+/* Main */
+
+.site-main {
+  padding-block: 2.5rem 3rem;
+}
+
+.site-footer {
+  border-top: 1px solid var(--border-subtle);
+  padding-block: 1.5rem 2rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* =========
+   Typography
+   ========= */
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+h1 {
+  font-size: clamp(2.1rem, 4vw, 2.7rem);
+  margin-bottom: 0.3rem;
+  color: var(--accent);
+}
+
+h2 {
+  font-size: 1.4rem;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--accent-soft);
+}
+
+h3 {
+  font-size: 1.1rem;
+  margin-top: 1.7rem;
+  margin-bottom: 0.4rem;
+}
+
+p {
+  margin-block: 0.6rem 1rem;
+}
+
+/* A card style for content */
+.site-main .container > *:first-child {
+  margin-top: 0;
+}
+
+.site-main .container {
+  background: linear-gradient(
+    135deg,
+    rgba(24, 7, 38, 0.95),
+    rgba(11, 5, 30, 0.98)
+  );
+  border-radius: var(--radius-lg);
+  padding: 2.2rem 2rem;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Links */
+
+a {
+  color: var(--accent-cyan);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(50, 245, 255, 0.4);
+}
+
+a:hover {
+  border-bottom-color: rgba(255, 75, 222, 0.8);
+  color: var(--accent);
+}
+
+/* Lists */
+
+ul,
+ol {
+  padding-left: 1.4rem;
+}
+
+/* Code */
+
+code,
+pre {
+  font-family: var(--font-mono);
+}
+
+code {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.1rem 0.35rem;
+  border-radius: 999px;
+  font-size: 0.85em;
+}
+
+pre {
+  background: #140421;
+  border-radius: var(--radius-md);
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  border: 1px solid var(--border-subtle);
+}
+
+/* Buttons / badges */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.2rem;
+  border-radius: 999px;
+  border: none;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.78rem;
+  background: linear-gradient(90deg, var(--accent), var(--accent-cyan));
+  color: #050208;
+  box-shadow: 0 0 18px rgba(255, 75, 222, 0.58);
+}
+
+/* Responsive tweaks */
+
+@media (max-width: 640px) {
+  .site-main .container {
+    padding: 1.5rem 1.2rem;
+  }
+
+  .header-inner {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .brand-subtitle {
+    max-width: 12rem;
+  }
+}

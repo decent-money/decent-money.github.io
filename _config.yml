@@ -1,3 +1,14 @@
-theme: jekyll-theme-minimal
-title: dm2k9.net
-description: Under construction.
+title: "dm2k9.net"
+description: "A cyber space."
+url: "https://dm2k9.net"
+baseurl: ""   # for a project page, set this to "/repo-name"
+
+# We’re hand-rolling the theme, so no remote theme here
+theme: null
+
+markdown: kramdown
+
+# Make sure Jekyll sees our assets
+sass:
+  sass_dir: assets/css
+  style: compressed
