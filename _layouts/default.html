@@ -14,14 +14,21 @@
     <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
   </head>
   <body>
-    <header class="site-header">
-      <div class="container header-inner">
-        <div class="brand">
-          <span class="brand-title">{{ site.title }}</span>
-          <span class="brand-subtitle">{{ site.description }}</span>
-        </div>
-      </div>
-    </header>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand-logo" href="{{ '/' | relative_url }}">
+      <span class="brand-text">
+        <span class="brand-title">DM2K9.net</span>
+      </span>
+    </a>
+
+    <nav class="site-nav">
+      <a href="{{ '/projects.html' | relative_url }}"
+         class="{% if page.url == '/projects.html' %}site-nav-active{% endif %}">Projects</a>
+    </nav>
+  </div>
+</header>
+
 
     <main class="site-main">
       <div class="container">
@@ -29,10 +36,16 @@
       </div>
     </main>
 
-    <footer class="site-footer">
-      <div class="container">
-        <p>© {{ site.time | date: "%Y" }} {{ site.title }}</p>
-      </div>
-    </footer>
+<footer class="site-footer">
+  <div class="container site-footer-inner">
+    <div>© {{ site.time | date: "%Y" }} Decent Money</div>
+    <div class="footer-links">
+      <a href="https://github.com/decent-money" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://x.com/decentmoney2009" target="_blank" rel="noopener">𝕏</a>
+      <a href="npub10k0zrnsujm856xrvx7ftw2m66xsx39em620slh4eecympt5833pq97rf0x">nostr</a>
+    </div>
+  </div>
+</footer>
+
   </body>
 </html>
