@@ -44,17 +44,29 @@ title: dm2k9.net
 
   </head>
   <body>
-    <div class="wrapper">
+<section class="post-list">
 
-      <section>
+  <ul class="post-list-items">
+    {% for post in site.posts %}
+      <li class="post-list-item">
+        <a href="{{ post.url | relative_url }}" class="post-list-title">
+          {{ post.title }}
+        </a>
+        <div class="post-list-meta">
+          <time datetime="{{ post.date | date_to_xmlschema }}">
+            {{ post.date | date: "%Y-%m-%d" }}
+          </time>
+          {% if post.description %}
+            <span class="post-list-description">
+              — {{ post.description }}
+            </span>
+          {% endif %}
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+</section>
 
-      <h1 id="decent-moneygithubio">Title test</h1>
-<p>Test</p>
-
-
-      </section>
-    </div>
-    <script src="/assets/js/scale.fix.js"></script>
   </body>
 </html>
 
