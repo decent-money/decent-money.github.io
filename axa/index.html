@@ -348,6 +348,24 @@
       /* a little breathing room above bottom edge */
     }
 
+    .copy-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.15rem;
+    }
+
+    .char-counter {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    .char-counter.over-limit {
+      color: #dc2626;
+      /* red when over 240 */
+    }
+
     #handlesText {
       margin: 0;
       text-align: center;
@@ -433,7 +451,7 @@
   </header>
 
   <main>
-    
+
     <div class="instruction">
       <ul>
         <li>Click each cell/avatar to enter an <span class="x-symbol">X</span>/Twitter handle (with or without @).</li>
@@ -441,22 +459,22 @@
         <li>Copy and paste the text at the bottom too.</li>
         <li>Labels for columns and rows also editable if you want to make a custom alignment chart (or click
           the <b>FMK Labels</b> button above for a quick format change).</li>
-          <li>Sometimes avatars won't load from <a href="https://unavatar.io/">unavatar.io</a> so a placeholder from <a
+        <li>Sometimes avatars won't load from <a href="https://unavatar.io/">unavatar.io</a> so a placeholder from <a
             href="https://www.dicebear.com/">dicebear.com</a> will be displayed instead.</li>
-          </ul>
-        </div>
-        
-        <div class="controls controls-rowwrap" role="toolbar" aria-label="Chart controls">
-          <button id="labelsBtn" class="toggle" aria-pressed="true">Labels: On</button>
-          <button id="refreshBtn" class="toggle">
-            <span class="btn-label">Refresh Avatars</span>
-            <span class="cooldown-bar"></span>
-          </button>
-          <button id="clearBtn" class="toggle">Clear @ Handles</button>
-          <button id="resetLabelsBtn" class="toggle">Default Labels</button>
-          <button id="fmkLabelsBtn" class="toggle">FMK Labels</button>
-          <button id="themeBtn" class="toggle">Theme: Dark</button>
-        </div>
+      </ul>
+    </div>
+
+    <div class="controls controls-rowwrap" role="toolbar" aria-label="Chart controls">
+      <button id="labelsBtn" class="toggle" aria-pressed="true">Labels: On</button>
+      <button id="refreshBtn" class="toggle">
+        <span class="btn-label">Refresh Avatars</span>
+        <span class="cooldown-bar"></span>
+      </button>
+      <button id="clearBtn" class="toggle">Clear @ Handles</button>
+      <button id="resetLabelsBtn" class="toggle">Default Labels</button>
+      <button id="fmkLabelsBtn" class="toggle">FMK Labels</button>
+      <button id="themeBtn" class="toggle">Theme: Dark</button>
+    </div>
 
     <div class="board" id="board" aria-label="Alignment grid">
       <!-- Corner -->
@@ -542,10 +560,16 @@
 
     <div class="handles-row">
       <p id="handlesText"></p>
-      <button id="copyHandlesBtn" class="icon-button" type="button" aria-label="Copy handles to clipboard"
-        title="Copy handles">
-        Copy 📋
-      </button>
+
+      <div class="copy-group">
+        <button id="copyHandlesBtn" class="icon-button" type="button" aria-label="Copy handles to clipboard"
+          title="Copy handles">
+          Copy 📋
+        </button>
+        <div id="charCounter" class="char-counter">0 / 280</div>
+      </div>
+    </div>
+
     </div>
 
   </main>
@@ -555,6 +579,9 @@
     const DEFAULT_MID_HANDLE = 'decentmoney2009'; // without @
     const DEFAULT_COLS = ['Lawful', 'Neutral', 'Chaotic'];
     const DEFAULT_ROWS = ['Good', 'Neutral', 'Evil'];
+    const charCounter = document.getElementById('charCounter');
+    const CHAR_LIMIT = 280;
+
     let colTitles = JSON.parse(localStorage.getItem('alignment_col_titles') || 'null') || [...DEFAULT_COLS];
     let rowTitles = JSON.parse(localStorage.getItem('alignment_row_titles') || 'null') || [...DEFAULT_ROWS];
     function saveTitles() { localStorage.setItem('alignment_col_titles', JSON.stringify(colTitles)); localStorage.setItem('alignment_row_titles', JSON.stringify(rowTitles)); }
@@ -608,27 +635,37 @@
       const colLine = `${colTitles[0]} | ${colTitles[1]} | ${colTitles[2]}`;
       const rowLine = `${rowTitles[0]} | ${rowTitles[1]} | ${rowTitles[2]}`;
 
-      // Two-line header: Columns 𝕏 Rows
+      // Two-line header: Columns 𝕏 Rows (using X_SYMBOL)
       const alignmentHeader = `${colLine} ${X_SYMBOL} ${rowLine}`;
 
       // Build handle list
+      // Build handle list with placeholder @ for empty cells
       const handles = [...document.querySelectorAll('.cell')]
-        .map(c => c.dataset.handle || '')
-        .filter(Boolean)
-        .map(h => '@' + h)
+        .map(c => {
+          const h = c.dataset.handle?.trim();
+          return h ? '@' + h : '@';   // <-- placeholder @
+        })
         .join(' ');
+
 
       // Always include suffix URL
       const suffix = 'dm2k9.net/axa';
-      const handleLine = handles ? `${handles} ${suffix}` : suffix;
+      const handleLine = handles ? `${handles}\n\n${suffix}` : suffix;
 
       // Final text block shown under the chart
-      handlesText.textContent = `${alignmentHeader}\n\n${handleLine}`;
+      const fullText = `${alignmentHeader}\n\n${handleLine}`;
+      handlesText.textContent = fullText;
+
+      // Character counter logic
+      if (charCounter) {
+        const len = fullText.length;
+        charCounter.textContent = `${len} / ${CHAR_LIMIT}`;
+        charCounter.classList.toggle('over-limit', len > CHAR_LIMIT);
+      }
 
       // Resizing flow remains intact
       requestAnimationFrame(sizeBoard);
     }
-
 
 
     const copyHandlesBtn = document.getElementById('copyHandlesBtn');
