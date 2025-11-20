@@ -1,42 +1,38 @@
 ---
 ---
 
-/* =========
-   Core theme
-   ========= */
+/* =========================================
+   1. SETTINGS (COLOURS, RADII, FONTS)
+   ========================================= */
 
 :root {
   /* Solid Vaporwave Night Palette */
-  --bg: #0a0414;
-  --bg-elevated: #1d0930;
-  --bg-soft: #2a1042;
+  --bg: #0a0414;          /* page background */
+  --bg-elevated: #1d0930; /* content panels */
+  --bg-soft: #2a1042;     /* chips, minor panels */
 
   --text: #d7c6f7;
   --text-muted: #a88dc9;
 
-  --accent: #ff5edc;
-  --accent-cyan: #32f5ff;
+  --accent: #ff5edc;      /* pink from signs */
+  --accent-cyan: #32f5ff; /* teal signage */
 
   --border-subtle: rgba(255, 255, 255, 0.10);
 
   --radius-lg: 18px;
   --radius-md: 10px;
 
-  --font-sans: system-ui, "Helvetica Neue", sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, monospace;
+  --shadow-soft: 0 0 30px rgba(0, 0, 0, 0.7);
+
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
 }
 
-
-/* Optional: respect user system preference on first load */
-@media (prefers-color-scheme: light) {
-  html:not([data-theme]) {
-    color-scheme: light;
-  }
-}
-
-/* =========
-   Base
-   ========= */
+/* =========================================
+   2. BASE ELEMENTS
+   ========================================= */
 
 *,
 *::before,
@@ -53,102 +49,48 @@ body {
 body {
   min-height: 100vh;
   font-family: var(--font-sans);
-  background: var(--bg);
+  background: var(--bg); /* solid, no gradients */
   color: var(--text);
   line-height: 1.7;
 }
 
-/* =========
-   Layout
-   ========= */
+/* Optional: very subtle noise/rain, can remove if you want totally flat */
+/*
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.14) 0,
+    rgba(255, 255, 255, 0) 40%
+  );
+  background-size: 2px 40px;
+  mix-blend-mode: screen;
+}*/
 
-.container {
-  width: min(960px, 100% - 2.5rem);
-  margin-inline: auto;
-}
-
-/* Header */
-
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-background: var(--bg);
-backdrop-filter: none;
-
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.neon-accent {
-  border: 1px solid var(--accent);
-  box-shadow: 0 0 8px rgba(255, 94, 220, 0.5);
-}
-
-
-.header-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-block: 0.9rem;
-  gap: 1rem;
-}
-
-.brand-title {
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 0.85rem;
+a {
   color: var(--accent-cyan);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(50, 245, 255, 0.4);
 }
 
-.brand-subtitle {
+a:hover {
+  color: var(--accent);
+  border-bottom-color: rgba(255, 94, 220, 0.8);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
   display: block;
-  font-size: 0.8rem;
-  color: var(--text-muted);
 }
 
-/* Theme toggle button */
-
-.theme-toggle {
-  border: 1px solid var(--border-subtle);
-  border-radius: 999px;
-  padding: 0.25rem 0.8rem;
-  background: radial-gradient(circle at top, #ff4bde33, #00000055);
-  color: var(--text);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  cursor: pointer;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-}
-
-.theme-toggle-icon {
-  font-size: 0.9rem;
-}
-
-.theme-toggle:focus-visible {
-  outline: 2px solid var(--accent-cyan);
-  outline-offset: 2px;
-}
-
-/* Main */
-
-.site-main {
-  padding-block: 2.5rem 3rem;
-}
-
-.site-footer {
-  border-top: 1px solid var(--border-subtle);
-  padding-block: 1.5rem 2rem;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-/* =========
-   Typography
-   ========= */
+/* =========================================
+   3. TYPOGRAPHY
+   ========================================= */
 
 h1,
 h2,
@@ -168,7 +110,7 @@ h2 {
   font-size: 1.4rem;
   margin-top: 2rem;
   margin-bottom: 0.5rem;
-  color: var(--accent-soft);
+  color: var(--accent-cyan);
 }
 
 h3 {
@@ -179,84 +121,244 @@ h3 {
 
 p {
   margin-block: 0.6rem 1rem;
-}
-
-/* A card style for content */
-.site-main .container > *:first-child {
-  margin-top: 0;
-}
-
-.site-main .container {
-  background: var(--bg-elevated);
-  border-radius: var(--radius-lg);
-  padding: 2.2rem 2rem;
-  box-shadow: 0 0 12px rgba(255, 94, 220, 0.12);
-  border: 1px solid rgba(255, 94, 220, 0.15);
-}
-
-
-
-/* Links */
-
-a {
-  color: var(--accent-cyan);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(50, 245, 255, 0.4);
-}
-
-a:hover {
-  border-bottom-color: rgba(255, 75, 222, 0.8);
-  color: var(--accent);
-}
-
-/* Lists */
-
-ul,
-ol {
-  padding-left: 1.4rem;
-}
-
-/* Code */
-
-code,
-pre {
-  font-family: var(--font-mono);
+  color: var(--text);
 }
 
 code {
-  background: rgba(0, 0, 0, 0.3);
+  font-family: var(--font-mono);
+  background: rgba(0, 0, 0, 0.4);
   padding: 0.1rem 0.35rem;
   border-radius: 999px;
   font-size: 0.85em;
 }
 
 pre {
-  background: #140421;
+  font-family: var(--font-mono);
+  background: var(--bg-soft);
   border-radius: var(--radius-md);
   padding: 1rem 1.2rem;
   overflow-x: auto;
   border: 1px solid var(--border-subtle);
 }
 
-/* Buttons / badges */
+/* =========================================
+   4. LAYOUT (HEADER, MAIN, FOOTER)
+   ========================================= */
 
-.button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1.2rem;
-  border-radius: 999px;
-  border: none;
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.78rem;
-  background: linear-gradient(90deg, var(--accent), var(--accent-cyan));
-  color: #050208;
-  box-shadow: 0 0 18px rgba(255, 75, 222, 0.58);
+.container {
+  width: min(960px, 100% - 2.5rem);
+  margin-inline: auto;
 }
 
-/* Responsive tweaks */
+/* Header */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 0.8rem;
+  gap: 1rem;
+}
+
+/* Main content panel */
+
+.site-main {
+  padding-block: 2.5rem 3rem;
+}
+
+.site-main .container {
+  background: var(--bg-elevated);      /* <-- solid colour instead of gradient */
+  border-radius: var(--radius-lg);
+  padding: 2.2rem 2rem;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Footer */
+
+.site-footer {
+  border-top: 1px solid var(--border-subtle);
+  padding-block: 1.5rem 2rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.site-footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* =========================================
+   5. COMPONENTS
+   ========================================= */
+
+/* Brand / logo */
+
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+
+.brand-logo-img {
+  height: 40px;
+  width: auto;
+  filter: drop-shadow(0 0 10px rgba(255, 94, 220, 0.6));
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  color: var(--accent-cyan);
+}
+
+.brand-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Hero block on home page (optional) */
+
+.hero {
+  text-align: center;
+  padding: 3.5rem 1rem 2rem;
+}
+
+.hero-logo {
+  margin-inline: auto;
+  height: 120px;
+  width: auto;
+  filter: drop-shadow(0 0 14px rgba(255, 94, 220, 0.55));
+}
+
+.hero-tagline {
+  margin-top: 1.75rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.hero-tagline span:first-child {
+  color: var(--accent);
+}
+
+.hero-tagline span:last-child {
+  color: var(--accent-cyan);
+}
+
+/* Navigation */
+
+.site-nav {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.site-nav a {
+  color: var(--text-muted);
+  border-bottom: none;
+}
+
+.site-nav a:hover,
+.site-nav a.site-nav-active {
+  color: var(--accent-cyan);
+}
+
+/* Posts */
+
+/* Post list on home */
+
+.post-list {
+  margin-top: 2.5rem;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 1.5rem;
+}
+
+.post-list-items {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.post-list-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.post-list-item:last-child {
+  border-bottom: none;
+}
+
+.post-list-title {
+  font-weight: 600;
+  color: var(--accent-cyan);
+  border-bottom: none;
+}
+
+.post-list-title:hover {
+  color: var(--accent);
+}
+
+.post-list-meta {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.post-list-meta time {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+.post-list-description {
+  margin-left: 0.4rem;
+}
+
+
+/* Footer links */
+
+.footer-links {
+  display: inline-flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  border-bottom: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.footer-links a:hover {
+  color: var(--accent-cyan);
+}
+
+/* =========================================
+   6. UTILITIES & RESPONSIVE TWEAKS
+   ========================================= */
 
 @media (max-width: 640px) {
   .site-main .container {
@@ -264,11 +366,16 @@ pre {
   }
 
   .header-inner {
-    flex-direction: row;
+    flex-direction: column;
     align-items: flex-start;
   }
 
   .brand-subtitle {
-    max-width: 12rem;
+    max-width: 14rem;
+  }
+
+  .site-footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
