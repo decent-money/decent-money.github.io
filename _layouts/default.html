@@ -21,11 +21,6 @@
         <span class="brand-title">DM2K9.net</span>
       </span>
     </a>
-
-    <nav class="site-nav">
-      <a href="{{ '/projects.html' | relative_url }}"
-         class="{% if page.url == '/projects.html' %}site-nav-active{% endif %}">Projects</a>
-    </nav>
   </div>
 </header>
 
@@ -42,10 +37,34 @@
     <div class="footer-links">
       <a href="https://github.com/decent-money" target="_blank" rel="noopener">GitHub</a>
       <a href="https://x.com/decentmoney2009" target="_blank" rel="noopener">𝕏</a>
-      <a href="npub10k0zrnsujm856xrvx7ftw2m66xsx39em620slh4eecympt5833pq97rf0x">nostr</a>
+      <a id="nostrCopyLink"
+         href="#"
+         title="Click or tap to copy"
+         aria-label="npub10k0zrnsujm856xrvx7ftw2m66xsx39em620slh4eecympt5833pq97rf0x"
+         data-npub="npub10k0zrnsujm856xrvx7ftw2m66xsx39em620slh4eecympt5833pq97rf0x">nostr</a>
     </div>
   </div>
 </footer>
 
+<script>
+  (() => {
+    const link = document.getElementById('nostrCopyLink');
+    if (!link || !navigator.clipboard) return;
+    const npub = link.dataset.npub;
+    const original = link.textContent;
+    let resetTimer;
+
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      navigator.clipboard.writeText(npub).then(() => {
+        link.textContent = 'npub copied';
+        clearTimeout(resetTimer);
+        resetTimer = setTimeout(() => {
+          link.textContent = original;
+        }, 1200);
+      });
+    });
+  })();
+</script>
   </body>
 </html>
