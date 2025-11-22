@@ -1,0 +1,1087 @@
+
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --ink: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #0ea5e9;
+      --grid: #1f2937;
+      /* Row label colours (by index): 0 = top, 1 = middle, 2 = bottom */
+      --good: #3b82f6;
+      /* blue for top row */
+      --neutral: #9ca3af;
+      /* grey for middle row */
+      --evil: #dc2626;
+      /* red for bottom row */
+      --shadow: rgba(0, 0, 0, .35);
+      --chip-bg: #0b1220;
+      --border: #243045;
+      --header-grad-1: rgba(17, 24, 39, .6);
+      --header-grad-2: rgba(17, 24, 39, .2);
+    }
+
+    .light {
+      --bg: #f4f6fb;
+      --panel: #ffffff;
+      --ink: #0b1220;
+      --muted: #6b7280;
+      --accent: #0284c7;
+      --grid: #e5e7eb;
+      --shadow: rgba(0, 0, 0, .15);
+      --chip-bg: #f3f4f6;
+      --border: #d1d5db;
+      --header-grad-1: rgba(255, 255, 255, .8);
+      --header-grad-2: rgba(255, 255, 255, .6);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      /* allow vertical scroll */
+      overflow-y: auto;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      /* allow content (chart + handles) to extend and be scrollable */
+      overflow: visible;
+      padding: .5rem;
+      gap: .5rem;
+    }
+
+
+    header {
+      padding: .5rem .5rem;
+      border-bottom: 1px solid var(--grid);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: .5rem;
+      background: linear-gradient(180deg, var(--header-grad-1), var(--header-grad-2));
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(0.95rem, 2.4vw, 1.25rem);
+      font-weight: 650;
+    }
+
+    /* Compact, single-line, horizontally scrollable controls for phones */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      padding: 0.25rem;
+    }
+
+    .controls::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .controls::-webkit-scrollbar-thumb {
+      background: var(--grid);
+      border-radius: 999px;
+    }
+
+    .toggle {
+      border: 1px solid var(--border);
+      background: var(--chip-bg);
+      color: var(--ink);
+      padding: 0.35rem 0.6rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex: 0 1 auto;
+      white-space: nowrap;
+      transition: background 0.2s ease;
+    }
+
+    .toggle:hover {
+      background: color-mix(in oklab, var(--chip-bg) 70%, var(--ink) 10%);
+    }
+
+
+    /* Row that wraps neatly on narrow screens */
+    .controls-rowwrap {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      margin: 0 0 0.5rem 0;
+      padding: 0.25rem;
+    }
+
+    /* Keep buttons sized to content, not full width */
+    .controls-rowwrap .toggle {
+      flex: 0 0 auto;
+      white-space: nowrap;
+      padding: 0.35rem 0.6rem;
+    }
+
+    /* Make sure no earlier mobile rules force a column or 100% width */
+    @media (max-width: 600px) {
+      .controls-rowwrap {
+        flex-direction: row !important;
+      }
+
+      .controls-rowwrap .toggle {
+        width: auto !important;
+      }
+    }
+
+    .instruction {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--muted);
+      width: 100%;
+      max-width: 700px;
+    }
+
+    .instruction ul {
+      margin: 0;
+      padding-left: 1.2rem;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: auto repeat(3, 1fr);
+      grid-template-rows: auto repeat(3, 1fr);
+      gap: clamp(0.6rem, 2vw, 1.1rem);
+      /* was 0.5rem */
+      width: var(--board-size);
+      height: var(--board-size);
+      position: relative;
+    }
+
+    .board-watermark {
+      position: absolute;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      color: var(--muted);
+      opacity: 0.35;
+      pointer-events: none;
+      /* don’t block clicks on cells */
+      white-space: nowrap;
+    }
+
+
+    .hdr {
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      color: var(--muted);
+      user-select: none;
+      padding: .2rem .4rem;
+      border-radius: 8px;
+    }
+
+    .hdr[role="button"] {
+      cursor: text;
+      border: 1px dashed transparent;
+    }
+
+    .hdr[role="button"]:hover {
+      border-color: var(--border);
+    }
+
+    .hdr.row {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(180deg);
+    }
+
+    /* 1) Tighter corners on cells */
+    .cell {
+      border-radius: 8px;
+      /* was 14px */
+      position: relative;
+      border: 1px solid var(--grid);
+      background: var(--panel);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .alignment {
+      position: absolute;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-transform: uppercase;
+      font-weight: 800;
+      line-height: 1.1;
+      white-space: nowrap;
+      /* single line */
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 92%;
+      pointer-events: none;
+      font-size: var(--alignment-font-size, 12px);
+      /* NEW: shared size */
+    }
+
+    .cell[data-row-index="0"] .alignment {
+      color: var(--good);
+    }
+
+    .cell[data-row-index="1"] .alignment {
+      color: var(--neutral);
+    }
+
+    .cell[data-row-index="2"] .alignment {
+      color: var(--evil);
+    }
+
+    /* 4) Avatar stays centered; size set by JS */
+    .content {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+    }
+
+    .avatar {
+      border-radius: 50%;
+      border: 2px solid var(--grid);
+      object-fit: cover;
+      transition: transform 0.2s ease, width 0.2s ease, height 0.2s ease;
+    }
+
+
+    .handle {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-weight: 700;
+      white-space: nowrap;
+      /* single line */
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 92%;
+      transition: none;
+      color: var(--ink);
+      text-align: center;
+    }
+
+    .handle a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .handle a:link,
+    .handle a:visited,
+    .handle a:hover,
+    .handle a:active {
+      color: inherit;
+      text-decoration: underline;
+    }
+
+    .placeholder {
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .inline-edit {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+
+    .inline-edit span.at {
+      color: #6b7280;
+      font-weight: 700;
+    }
+
+    .inline-edit input {
+      padding: .4rem .5rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--chip-bg);
+      color: var(--ink);
+      outline: none;
+      width: 8rem;
+    }
+
+    .inline-edit input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 35%, transparent);
+    }
+
+    .handles-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      margin-top: 0.25rem;
+      padding-bottom: 0.5rem;
+      /* a little breathing room above bottom edge */
+    }
+
+    .copy-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.15rem;
+    }
+
+    .char-counter {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    .char-counter.over-limit {
+      color: #dc2626;
+      /* red when over 240 */
+    }
+
+    #handlesText {
+      margin: 0;
+      text-align: center;
+      font-size: 1rem;
+      color: var(--ink);
+      word-wrap: break-word;
+      max-width: 80vw;
+      line-height: 1.6;
+    }
+
+    .icon-button {
+      border: 1px solid var(--border);
+      background: var(--chip-bg);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 0.25rem 0.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-button:hover {
+      background: color-mix(in oklab, var(--chip-bg) 70%, var(--ink) 10%);
+    }
+
+    .icon-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+
+    /* Make toggle buttons able to host an inner bar */
+    .toggle {
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Optional: visual disabled state */
+    .toggle[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* The cooldown bar inside the refresh button */
+    .cooldown-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      width: 0;
+      background: var(--accent);
+      pointer-events: none;
+      opacity: 0;
+      /* NEW: invisible until cooldown starts */
+    }
+
+
+    /* When cooling: animate the bar from 0% to 100% over the cooldown */
+    .refresh-cooling .cooldown-bar {
+      opacity: 1;
+      animation: cooldownFill 60000ms linear forwards;
+    }
+
+
+    @keyframes cooldownFill {
+      from {
+        width: 0%;
+      }
+
+      to {
+        width: 100%;
+      }
+    }
+  </style>
+
+<body>
+  <header>
+    <h1>Allies <span class="x-symbol">X</span> Axis (A<span class="x-symbol">X</span>A) Alignment Chart — <span
+        class="x-symbol">X</span> (Twitter) Handles</h1>
+  </header>
+
+  <main>
+
+    <div class="instruction">
+      <ul>
+        <li>Click each cell/avatar to enter an <span class="x-symbol">X</span>/Twitter handle (with or without @).</li>
+        <li>Screen shot the chart and paste into your <span class="x-symbol">X</span> post.</li>
+        <li>Copy and paste the text at the bottom too.</li>
+        <li>Labels for columns and rows also editable if you want to make a custom alignment chart (or click
+          the <b>FMK Labels</b> button above for a quick format change).</li>
+        <li>Sometimes avatars won't load from <a href="https://unavatar.io/">unavatar.io</a> so a placeholder from <a
+            href="https://www.dicebear.com/">dicebear.com</a> will be displayed instead.</li>
+      </ul>
+    </div>
+
+    <div class="controls controls-rowwrap" role="toolbar" aria-label="Chart controls">
+      <button id="labelsBtn" class="toggle" aria-pressed="true">Labels: On</button>
+      <button id="refreshBtn" class="toggle">
+        <span class="btn-label">Refresh Avatars</span>
+        <span class="cooldown-bar"></span>
+      </button>
+      <button id="clearBtn" class="toggle">Clear @ Handles</button>
+      <button id="resetLabelsBtn" class="toggle">Default Labels</button>
+      <button id="fmkLabelsBtn" class="toggle">FMK Labels</button>
+    </div>
+
+    <div class="board" id="board" aria-label="Alignment grid">
+      <!-- Corner -->
+      <div class="hdr" aria-hidden="true"></div>
+      <!-- Column headers (editable) -->
+      <div id="col-0" class="hdr col" role="button" style="grid-column: 2; grid-row: 1;">Lawful</div>
+      <div id="col-1" class="hdr col" role="button" style="grid-column: 3; grid-row: 1;">Neutral</div>
+      <div id="col-2" class="hdr col" role="button" style="grid-column: 4; grid-row: 1;">Chaotic</div>
+
+      <!-- Row headers (editable) -->
+      <div id="row-0" class="hdr row" role="button" style="grid-column: 1; grid-row: 2;">Good</div>
+      <div id="row-1" class="hdr row" role="button" style="grid-column: 1; grid-row: 3;">Neutral</div>
+      <div id="row-2" class="hdr row" role="button" style="grid-column: 1; grid-row: 4;">Evil</div>
+
+      <!-- Cells -->
+      <div class="cell" id="cell-lg" data-row-index="0" data-col-index="0" role="gridcell"
+        style="grid-column: 2; grid-row: 2;">
+        <span class="alignment"></span>
+        <div class="content">
+          <div class="placeholder">Click to add</div>
+        </div>
+      </div>
+      <div class="cell" id="cell-ng" data-row-index="0" data-col-index="1" role="gridcell"
+        style="grid-column: 3; grid-row: 2;">
+        <span class="alignment"></span>
+        <div class="content">
+          <div class="placeholder">Click to add</div>
+        </div>
+      </div>
+      <div class="cell" id="cell-cg" data-row-index="0" data-col-index="2" role="gridcell"
+        style="grid-column: 4; grid-row: 2;">
+        <span class="alignment"></span>
+        <div class="content">
+          <div class="placeholder">Click to add</div>
+        </div>
+      </div>
+
+      <div class="cell" id="cell-ln" data-row-index="1" data-col-index="0" role="gridcell"
+        style="grid-column: 2; grid-row: 3;">
+        <span class="alignment"></span>
+        <div class="content">
+          <div class="placeholder">Click to add</div>
+        </div>
+      </div>
+      <div class="cell" id="cell-nn" data-row-index="1" data-col-index="1" role="gridcell"
+        style="grid-column: 3; grid-row: 3;">
+        <span class="alignment"></span>
+        <div class="content">
+          <div class="placeholder">Click to add</div>
+        </div>
+      </div>
+      <div class="cell" id="cell-cn" data-row-index="1" data-col-index="2" role="gridcell"
+        style="grid-column: 4; grid-row: 3;">
+        <span class="alignment"></span>
+        <div class="content">
+          <div class="placeholder">Click to add</div>
+        </div>
+      </div>
+
+      <div class="cell" id="cell-le" data-row-index="2" data-col-index="0" role="gridcell"
+        style="grid-column: 2; grid-row: 4;">
+        <span class="alignment"></span>
+        <div class="content">
+          <div class="placeholder">Click to add</div>
+        </div>
+      </div>
+      <div class="cell" id="cell-ne" data-row-index="2" data-col-index="1" role="gridcell"
+        style="grid-column: 3; grid-row: 4;">
+        <span class="alignment"></span>
+        <div class="content">
+          <div class="placeholder">Click to add</div>
+        </div>
+      </div>
+      <div class="cell" id="cell-ce" data-row-index="2" data-col-index="2" role="gridcell"
+        style="grid-column: 4; grid-row: 4;">
+        <span class="alignment"></span>
+        <div class="content">
+          <div class="placeholder">Click to add</div>
+        </div>
+      </div>
+      <div id="boardWatermark" class="board-watermark">dm2k9.net/axa</div>
+    </div>
+
+    <div class="handles-row">
+      <p id="handlesText"></p>
+
+      <div class="copy-group">
+        <button id="copyHandlesBtn" class="icon-button" type="button" aria-label="Copy handles to clipboard"
+          title="Copy handles">
+          Copy 📋
+        </button>
+        <div id="charCounter" class="char-counter">0 / 280</div>
+      </div>
+    </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    // ==== Defaults & persisted titles ====
+    const DEFAULT_MID_HANDLE = 'decentmoney2009'; // without @
+    const DEFAULT_COLS = ['Lawful', 'Neutral', 'Chaotic'];
+    const DEFAULT_ROWS = ['Good', 'Neutral', 'Evil'];
+    const charCounter = document.getElementById('charCounter');
+    const CHAR_LIMIT = 280;
+
+    let colTitles = JSON.parse(localStorage.getItem('alignment_col_titles') || 'null') || [...DEFAULT_COLS];
+    let rowTitles = JSON.parse(localStorage.getItem('alignment_row_titles') || 'null') || [...DEFAULT_ROWS];
+    function saveTitles() { localStorage.setItem('alignment_col_titles', JSON.stringify(colTitles)); localStorage.setItem('alignment_row_titles', JSON.stringify(rowTitles)); }
+
+    function supportsChar(char) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      ctx.font = '16px sans-serif';
+      const baseline = ctx.measureText('m').width;
+      return ctx.measureText(char).width !== baseline;
+    }
+
+    // Use blackletter 𝕏 if supported, fall back to normal X otherwise
+    const X_SYMBOL = supportsChar('𝕏') ? '𝕏' : 'X';
+    // TEST MODE: pretend 𝕏 is unsupported
+    //const X_SYMBOL = 'X';
+
+
+    function applyXSymbolFallback() {
+      document.querySelectorAll('.x-symbol').forEach(el => {
+        el.textContent = X_SYMBOL;
+      });
+    }
+
+
+    // ==== Utilities ====
+    function parseHandle(value) { if (!value) return ''; let v = value.trim(); try { if (/^https?:\/\//i.test(v)) { const u = new URL(v); const h = u.hostname.replace(/^www\./, '').toLowerCase(); if (h.endsWith('x.com') || h.endsWith('twitter.com')) v = u.pathname.split('/').filter(Boolean)[0] || ''; } } catch { } v = v.replace(/^@+/, '').split(/[/?#]/)[0].replace(/[^a-zA-Z0-9_]/g, ''); return v; }
+
+
+    function avatarURL(handle) {
+      const encodedHandle = encodeURIComponent(handle);
+
+      // Fallback avatar provider (avatar.vercel.sh in your example)
+      //const fallbackBase = `https://avatar.vercel.sh/${encodedHandle}?size=400`;
+      const fallbackBase = `https://api.dicebear.com/7.x/thumbs/svg?seed=${encodedHandle}`;
+
+      const fallbackParam = encodeURIComponent(fallbackBase);
+
+      // unavatar with X provider + fallback
+      return `https://unavatar.io/x/${encodedHandle}?fallback=${fallbackParam}`;
+    }
+
+
+    const profileURL = h => `https://x.com/${encodeURIComponent(h)}`;
+
+    // ==== Handles line ====
+    const handlesText = document.getElementById('handlesText');
+
+    function updateHandlesText() {
+      // Read existing column/row titles
+      const colLine = `${colTitles[0]} | ${colTitles[1]} | ${colTitles[2]}`;
+      const rowLine = `${rowTitles[0]} | ${rowTitles[1]} | ${rowTitles[2]}`;
+
+      // Two-line header: Columns 𝕏 Rows (using X_SYMBOL)
+      const alignmentHeader = `${colLine} ${X_SYMBOL} ${rowLine}`;
+
+      // Build handle list
+      // Build handle list with placeholder @ for empty cells
+      const handles = [...document.querySelectorAll('.cell')]
+        .map(c => {
+          const h = c.dataset.handle?.trim();
+          return h ? '@' + h : '@';   // <-- placeholder @
+        })
+        .join(' ');
+
+
+      // Always include suffix URL
+      const suffix = 'dm2k9.net/axa';
+      const handleLine = handles ? `${handles}\n\n${suffix}` : suffix;
+
+      // Final text block shown under the chart
+      const fullText = `${alignmentHeader}\n\n${handleLine}`;
+      handlesText.textContent = fullText;
+
+      // Character counter logic
+      if (charCounter) {
+        const len = fullText.length;
+        charCounter.textContent = `${len} / ${CHAR_LIMIT}`;
+        charCounter.classList.toggle('over-limit', len > CHAR_LIMIT);
+      }
+
+      // Resizing flow remains intact
+      requestAnimationFrame(sizeBoard);
+    }
+
+
+    const copyHandlesBtn = document.getElementById('copyHandlesBtn');
+
+    async function copyHandlesToClipboard() {
+      const text = (handlesText.textContent || '').trim();
+      if (!text) return; // nothing to copy
+
+      // Disable briefly to avoid double-taps
+      copyHandlesBtn.disabled = true;
+
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          // Fallback for older browsers
+          const temp = document.createElement('textarea');
+          temp.value = text;
+          temp.style.position = 'fixed';
+          temp.style.opacity = '0';
+          document.body.appendChild(temp);
+          temp.select();
+          document.execCommand('copy');
+          document.body.removeChild(temp);
+        }
+
+        // Simple visual feedback: temporarily change icon
+        const original = copyHandlesBtn.textContent;
+        copyHandlesBtn.textContent = '✓';
+        setTimeout(() => {
+          copyHandlesBtn.textContent = original;
+          copyHandlesBtn.disabled = false;
+        }, 1000);
+      } catch {
+        // If copying fails, just re-enable the button
+        copyHandlesBtn.disabled = false;
+      }
+    }
+
+    copyHandlesBtn.addEventListener('click', copyHandlesToClipboard);
+
+
+    function sizeBoard() {
+      const headerH = document.querySelector('header').offsetHeight;
+      const instructionH = document.querySelector('.instruction').offsetHeight + 6;
+      const padding = 16; // main padding + breathing room
+
+      // Only reserve space for header + instruction.
+      // The handles line can extend below and be reachable via scroll.
+      const availH = window.innerHeight - headerH - instructionH - padding;
+      const availW = window.innerWidth - padding;
+
+      const size = Math.max(260, Math.min(availW, availH)); // 260px minimum for small phones
+
+      const board = document.getElementById('board');
+      board.style.setProperty('--board-size', size + 'px');
+      board.style.width = size + 'px';
+      board.style.height = size + 'px';
+
+      document.querySelectorAll('.cell').forEach(adjustSizes);
+      positionWatermark();
+    }
+
+
+    window.addEventListener('resize', sizeBoard, { passive: true });
+
+    // ==== Alignment labels (include True X when row == col) ====
+    function setAlignmentLabel(cell) {
+      const r = Number(cell.dataset.rowIndex);
+      const c = Number(cell.dataset.colIndex);
+      const span = cell.querySelector('.alignment');
+      const col = (colTitles[c] || '').trim();
+      const row = (rowTitles[r] || '').trim();
+      if (col.toLowerCase() === row.toLowerCase()) span.textContent = `True ${row}`; else span.textContent = `${col} ${row}`;
+    }
+    function renderAllAlignmentLabels() { document.querySelectorAll('.cell').forEach(setAlignmentLabel); }
+
+    // ==== Rendering cells ====
+    function adjustSizes(cell) {
+      const content = cell.querySelector('.content');
+      const avatar = content.querySelector('.avatar');
+      const handle = cell.querySelector('.handle');
+      const label = cell.querySelector('.alignment');
+
+      if (!avatar) return;
+
+      const rect = cell.getBoundingClientRect();
+      const base = Math.min(rect.width, rect.height);
+
+      // Handle font-size based on cell size
+      const handleSize = Math.max(10, base * 0.08);
+      if (handle) {
+        handle.style.fontSize = `${handleSize}px`;
+      }
+
+      const padTopBottom = 10;
+
+      // Measure the “natural” label height, even if we might hide it,
+      // so we know how much vertical space it would have taken.
+      let naturalLabelH = padTopBottom;
+      if (label) {
+        // if currently hidden, temporarily show to measure
+        const prevDisplay = label.style.display;
+        if (!labelsVisible) label.style.display = '';
+        naturalLabelH = label.offsetHeight + padTopBottom;
+        if (!labelsVisible) label.style.display = prevDisplay;
+      }
+
+      // Actual reserved height for label area depends on visibility
+      const reservedLabelH = labelsVisible ? naturalLabelH : 4;
+      const handleH = handle ? (handle.offsetHeight + padTopBottom) : padTopBottom;
+
+      const availW = rect.width * 0.94;
+      const availH = rect.height - reservedLabelH - handleH;
+
+      const size = Math.max(32, Math.min(availW, availH));
+      avatar.style.width = `${size}px`;
+      avatar.style.height = `${size}px`;
+
+      // When labels are hidden, shift avatar up by half of the label area
+      // so it occupies more of the top space and clears the handle.
+      const shiftY = labelsVisible ? 0 : naturalLabelH / 2;
+      avatar.style.transform = `translateY(${-shiftY}px)`;
+    }
+
+    function positionWatermark() {
+      const board = document.getElementById('board');
+      const watermark = document.getElementById('boardWatermark');
+      const midCell = document.getElementById('cell-nn'); // middle cell of middle row
+      const rightCell = document.getElementById('cell-cn'); // right cell of middle row
+
+      if (!board || !watermark || !midCell || !rightCell) return;
+
+      const boardRect = board.getBoundingClientRect();
+      const midRect = midCell.getBoundingClientRect();
+      const rightRect = rightCell.getBoundingClientRect();
+
+      // Horizontal gap between middle and right cells
+      const gapLeft = midRect.right;
+      const gapRight = rightRect.left;
+      const gapWidth = Math.max(0, gapRight - gapLeft);
+
+      // Vertical center of the middle row
+      const centerY = (midRect.top + midRect.bottom) / 2;
+
+      // Font size based on cell height so it roughly matches handle size
+      const cellHeight = midRect.height;
+      const fontSize = Math.max(10, cellHeight * 0.08); // similar to handle font sizing
+      watermark.style.fontSize = `${fontSize}px`;
+
+      // Reset position & transform to measure actual text width
+      watermark.style.left = '0px';
+      watermark.style.top = '0px';
+      watermark.style.transform = 'none';
+
+      const wmRect = watermark.getBoundingClientRect();
+      const textWidth = wmRect.width;
+
+      // If text is wider than gap, just center it on the gap center
+      const gapCenterX = gapLeft + gapWidth / 2;
+      let left;
+      if (textWidth <= gapWidth) {
+        // Perfectly center the text inside the gap
+        left = gapLeft + (gapWidth - textWidth) / 2;
+      } else {
+        // Fallback: center on the gap center so it doesn't drift too far right
+        left = gapCenterX - textWidth / 2;
+      }
+
+      // Position relative to board
+      watermark.style.left = `${left - boardRect.left}px`;
+      watermark.style.top = `${centerY - boardRect.top}px`;
+
+      // Vertically center, no horizontal shift; rotate to match vertical style
+      watermark.style.transform = 'translateY(-50%) rotate(180deg)';
+    }
+
+
+
+    function renderCell(cell) {
+      setAlignmentLabel(cell);
+      const content = cell.querySelector('.content');
+      const handle = cell.dataset.handle || '';
+      content.innerHTML = '';
+      if (!handle) { const ph = document.createElement('div'); ph.className = 'placeholder'; ph.textContent = 'Click to add'; content.appendChild(ph); updateHandlesText(); return; }
+
+      const img = document.createElement('img');
+      img.className = 'avatar';
+      img.alt = `@${handle}`;
+      img.dataset.handle = handle;
+      img.src = avatarURL(handle);
+
+
+      const p = document.createElement('div'); p.className = 'handle'; p.innerHTML = `<a href="${profileURL(handle)}" target="_blank" rel="noopener noreferrer">@${handle}</a>`;
+      p.querySelector('a').addEventListener('click', e => e.stopPropagation());
+      content.append(img, p);
+      adjustSizes(cell);
+      updateHandlesText();
+    }
+
+    function editCell(cell) {
+      const content = cell.querySelector('.content');
+      const current = cell.dataset.handle || '';
+      content.innerHTML = '';
+      const wrap = document.createElement('div'); wrap.className = 'inline-edit';
+      const at = document.createElement('span'); at.className = 'at'; at.textContent = '@';
+      const input = document.createElement('input'); input.type = 'text'; input.value = current;
+      wrap.append(at, input); content.append(wrap); input.focus(); input.select();
+      function commit() { cell.dataset.handle = parseHandle(input.value); renderCell(cell); saveAll(); }
+      input.addEventListener('blur', commit);
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') renderCell(cell); });
+    }
+
+    // Wire cell interactions
+    document.querySelectorAll('.cell').forEach(cell => {
+      setAlignmentLabel(cell);
+      renderCell(cell);
+      cell.addEventListener('click', e => { if (e.target.classList.contains('alignment')) return; editCell(cell); });
+    });
+
+    // ==== Editable headers ====
+    function editHeader(kind, index) {
+      const id = `${kind}-${index}`;
+      const el = document.getElementById(id);
+      if (!el) return;
+      const current = (kind === 'col' ? colTitles[index] : rowTitles[index]);
+      const wrap = document.createElement('div');
+      wrap.className = 'hdr hdr-edit' + (kind === 'row' ? ' row' : '');
+      const input = document.createElement('input');
+      input.type = 'text'; input.value = current; input.size = Math.max(4, Math.min(14, current.length));
+      el.replaceWith(wrap); wrap.appendChild(input); input.focus(); input.select();
+      function commit() { const val = (input.value || '').trim() || current; if (kind === 'col') { colTitles[index] = val; } else { rowTitles[index] = val; } saveTitles(); const display = document.createElement('div'); display.id = id; display.className = 'hdr ' + (kind === 'row' ? 'row' : 'col'); display.setAttribute('role', 'button'); display.textContent = val; wrap.replaceWith(display); hookHeader(display); renderAllAlignmentLabels(); updateHandlesText(); }
+      function cancel() { const display = document.createElement('div'); display.id = id; display.className = 'hdr ' + (kind === 'row' ? 'row' : 'col'); display.setAttribute('role', 'button'); display.textContent = current; wrap.replaceWith(display); hookHeader(display); }
+      input.addEventListener('blur', commit);
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') cancel(); });
+    }
+
+    function hookHeader(el) {
+      if (el.id.startsWith('col-')) { const i = Number(el.id.split('-')[1]); el.addEventListener('click', () => editHeader('col', i)); }
+      if (el.id.startsWith('row-')) { const i = Number(el.id.split('-')[1]); el.addEventListener('click', () => editHeader('row', i)); }
+    }
+    document.querySelectorAll('.hdr.col, .hdr.row').forEach(hookHeader);
+
+    // ==== Persistence of handles ====
+    function saveAll() { const data = {}; document.querySelectorAll('.cell').forEach(c => data[c.id] = c.dataset.handle || ''); localStorage.setItem('alignment_handles', JSON.stringify(data)); }
+    function loadAll() {
+      const r = localStorage.getItem('alignment_handles');
+
+      // No key at all → first visit
+      if (!r) {
+        return { hasKey: false, hasAny: false };
+      }
+
+      try {
+        const d = JSON.parse(r);
+        let hasAny = false;
+
+        Object.entries(d).forEach(([id, h]) => {
+          const c = document.getElementById(id);
+          if (c) {
+            c.dataset.handle = h || '';
+            if (h) hasAny = true;
+            renderCell(c);
+          }
+        });
+
+        return { hasKey: true, hasAny };
+      } catch {
+        // If parsing fails, treat as no usable data
+        return { hasKey: false, hasAny: false };
+      }
+    }
+
+
+    // ==== Header buttons ====
+
+    const labelsBtn = document.getElementById('labelsBtn');
+
+    // global flag for visibility of alignment labels
+    let labelsVisible = (localStorage.getItem('alignment_labels') || 'on') === 'on';
+
+    function setLabels(on) {
+      labelsVisible = on;
+
+      document.querySelectorAll('.alignment').forEach(a => {
+        a.style.display = on ? '' : 'none';
+      });
+
+      labelsBtn.setAttribute('aria-pressed', on);
+      labelsBtn.textContent = `Labels: ${on ? 'On' : 'Off'}`;
+      localStorage.setItem('alignment_labels', on ? 'on' : 'off');
+
+      // recalculate board & avatar sizes whenever labels are shown/hidden
+      sizeBoard();
+    }
+
+    labelsBtn.addEventListener('click', () => setLabels(!labelsVisible));
+
+    // apply initial state from localStorage
+    setLabels(labelsVisible);
+
+
+    const refreshBtn = document.getElementById('refreshBtn');
+
+    function refreshAvatars() {
+      document.querySelectorAll('.cell').forEach(cell => {
+        const handle = cell.dataset.handle || '';
+        if (!handle) return;
+
+        const img = cell.querySelector('.avatar');
+        if (img) {
+          // Force a fresh fetch (bust unavatar cache by adding a timestamp)
+          const base = avatarURL(handle);
+          const sep = base.includes('?') ? '&' : '?';
+          img.src = `${base}${sep}t=${Date.now()}`;
+        } else {
+          renderCell(cell);
+        }
+      });
+    }
+
+    const COOLDOWN_MS = 60000;
+    let refreshCooldownTimeout = null;
+
+    function startRefreshCooldown() {
+      // Disable button and add class for visual state
+      refreshBtn.disabled = true;
+      refreshBtn.classList.add('refresh-cooling');
+
+      const bar = refreshBtn.querySelector('.cooldown-bar');
+      if (bar) {
+        bar.style.animation = 'none';
+        void bar.offsetWidth;          // reset animation
+        bar.style.opacity = '1';       // NEW: ensure visible during cooldown
+        bar.style.animation = `cooldownFill ${COOLDOWN_MS}ms linear forwards`;
+      }
+
+
+      // Re-enable after cooldown
+      if (refreshCooldownTimeout) {
+        clearTimeout(refreshCooldownTimeout);
+      }
+      refreshCooldownTimeout = setTimeout(() => {
+        refreshBtn.disabled = false;
+        refreshBtn.classList.remove('refresh-cooling');
+
+        if (bar) {
+          // Stop animation and hide the bar completely
+          bar.style.animation = 'none';
+          bar.style.width = '0';
+          bar.style.opacity = '0';
+        }
+
+      }, COOLDOWN_MS);
+
+    }
+
+    // Replace the old listener with this:
+    refreshBtn.addEventListener('click', () => {
+      if (refreshBtn.disabled) return;  // ignore spam clicks during cooldown
+      refreshAvatars();
+      startRefreshCooldown();
+    });
+
+
+
+
+    const clearBtn = document.getElementById('clearBtn');
+    clearBtn.addEventListener('click', () => { document.querySelectorAll('.cell').forEach(cell => { cell.dataset.handle = ''; renderCell(cell); }); saveAll(); updateHandlesText(); });
+
+    const resetLabelsBtn = document.getElementById('resetLabelsBtn');
+    resetLabelsBtn.addEventListener('click', () => { colTitles = [...DEFAULT_COLS]; rowTitles = [...DEFAULT_ROWS]; saveTitles(); document.getElementById('col-0').textContent = colTitles[0]; document.getElementById('col-1').textContent = colTitles[1]; document.getElementById('col-2').textContent = colTitles[2]; document.getElementById('row-0').textContent = rowTitles[0]; document.getElementById('row-1').textContent = rowTitles[1]; document.getElementById('row-2').textContent = rowTitles[2]; renderAllAlignmentLabels(); updateHandlesText(); });
+
+    const fmkLabelsBtn = document.getElementById('fmkLabelsBtn');
+
+    fmkLabelsBtn.addEventListener('click', () => {
+      // Set new FMK titles
+      colTitles = ['Trust', 'Doubt', 'Fear'];
+      rowTitles = ['Fuck', 'Marry', 'Kill'];
+
+      // Persist them
+      saveTitles();
+
+      // Update header elements in the DOM
+      document.getElementById('col-0').textContent = colTitles[0];
+      document.getElementById('col-1').textContent = colTitles[1];
+      document.getElementById('col-2').textContent = colTitles[2];
+
+      document.getElementById('row-0').textContent = rowTitles[0];
+      document.getElementById('row-1').textContent = rowTitles[1];
+      document.getElementById('row-2').textContent = rowTitles[2];
+
+      // Rebuild cell alignment labels (including True X logic)
+      renderAllAlignmentLabels();
+      updateHandlesText();
+    });
+
+
+    // ==== Initial paint ====
+    renderAllAlignmentLabels();
+
+    const handleState = loadAll();
+
+    // Default middle handle appears if:
+    // 1) user has never saved handles before (first visit), OR
+    // 2) user has saved before but currently all handles are empty (after clearing)
+    if (!handleState.hasKey || !handleState.hasAny) {
+      const midCell = document.getElementById('cell-nn'); // center cell
+      if (midCell) {
+        midCell.dataset.handle = DEFAULT_MID_HANDLE;
+        renderCell(midCell);
+        saveAll();
+        updateHandlesText();
+      }
+    }
+
+    applyXSymbolFallback();
+
+    function kick() {
+      sizeBoard();
+      requestAnimationFrame(sizeBoard);
+    }
+    kick();
+
+
+  </script>
+</body>
