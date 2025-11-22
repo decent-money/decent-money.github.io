@@ -175,6 +175,10 @@ pre {
 }
 
 .site-main .container {
+  width: fit-content;
+  max-width: calc(100% - 2.5rem);
+  min-width: min(960px, calc(100% - 2.5rem));
+  margin-inline: auto;
   background: var(--bg-elevated);      /* <-- solid colour instead of gradient */
   border-radius: var(--radius-lg);
   padding: 2.2rem 2rem;
@@ -377,5 +381,28 @@ pre {
   .site-footer-inner {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 1190px) {
+  /* On very narrow viewports, drop the container box but keep its children */
+  .site-main .container {
+    display: contents;
+    background: none;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+  }
+
+  /* Add breathing room when the container box is removed */
+  .site-main {
+    padding-inline: 1.2rem;
+  }
+
+  .site-main > * {
+    max-width: 100%;
   }
 }
