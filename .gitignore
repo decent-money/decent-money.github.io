@@ -1,3 +1,7 @@
 _site/
 *.map
 .DS_Store
+.jekyll-cache/
+.vscode/
+index_BU.html
+Gemfile.lock
