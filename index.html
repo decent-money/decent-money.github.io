@@ -3,70 +3,57 @@ layout: default
 title: dm2k9.net
 ---
 
-<!DOCTYPE html>
-<html lang="en-US">
-  <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<section class="stacked-grid">
+  <div class="stacked-section">
+    <div class="stacked-header">
+      <p class="eyebrow">Projects</p>
+    </div>
+    {% assign featured_pages = site.pages | where_exp: 'page', 'page.show_on_home == true' | sort: 'date' | reverse %}
+    <div class="stacked-list">
+      {% for page in featured_pages %}
+        <article class="stacked-tile">
+          <a class="stacked-link" href="{{ page.url | relative_url }}">
+            <div class="tile-topline">
+              <time class="tile-date" datetime="{{ page.date | date_to_xmlschema }}">
+                {{ page.date | date: "%Y-%m-%d" }}
+              </time>
+            </div>
+            <h3 class="tile-title">{{ page.title }}</h3>
+            {% if page.summary %}
+              <p class="tile-summary">{{ page.summary }}</p>
+            {% endif %}
+          </a>
+        </article>
+      {% endfor %}
+      {% if featured_pages == empty %}
+        <div class="stacked-empty">No projects or pages published yet.</div>
+      {% endif %}
+    </div>
+  </div>
 
-<!-- Begin Jekyll SEO tag v2.8.0 -->
-<title>decent-money.github.io | dm2k9.net</title>
-<meta name="generator" content="Jekyll v3.10.0" />
-<meta property="og:title" content="decent-money.github.io" />
-<meta property="og:locale" content="en_US" />
-<meta name="description" content="Under construction." />
-<meta property="og:description" content="Under construction." />
-<link rel="canonical" href="https://decent-money.github.io/" />
-<meta property="og:url" content="https://decent-money.github.io/" />
-<meta property="og:site_name" content="dm2k9.net" />
-<meta property="og:type" content="website" />
-<meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="decent-money.github.io" />
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebSite","description":"Under construction.","headline":"decent-money.github.io","name":"dm2k9.net","url":"https://decent-money.github.io/"}</script>
-<!-- End Jekyll SEO tag -->
-
-    <link rel="stylesheet" href="/assets/css/style.css?v=55eb787df44aa8a3a12b990489ca06850df2bbde">
-    <!--[if lt IE 9]>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
-    <![endif]-->
-    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
-
-<!-- Setup Google Analytics -->
-
-
-
-<!-- You can set your favicon here -->
-<!-- link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" -->
-
-<!-- end custom head snippets -->
-
-  </head>
-  <body>
-<section class="post-list">
-
-  <ul class="post-list-items">
-    {% for post in site.posts %}
-      <li class="post-list-item">
-        <a href="{{ post.url | relative_url }}" class="post-list-title">
-          {{ post.title }}
-        </a>
-        <div class="post-list-meta">
-          <time datetime="{{ post.date | date_to_xmlschema }}">
-            {{ post.date | date: "%Y-%m-%d" }}
-          </time>
-          {% if post.description %}
-            <span class="post-list-description">
-              — {{ post.description }}
-            </span>
-          {% endif %}
-        </div>
-      </li>
-    {% endfor %}
-  </ul>
+  <div class="stacked-section">
+    <div class="stacked-header">
+      <p class="eyebrow">Posts</p>
+    </div>
+    <div class="stacked-list">
+      {% for post in site.posts %}
+        <article class="stacked-tile">
+          <a class="stacked-link" href="{{ post.url | relative_url }}">
+            <div class="tile-topline">
+              <time class="tile-date" datetime="{{ post.date | date_to_xmlschema }}">
+                {{ post.date | date: "%Y-%m-%d" }}
+              </time>
+            </div>
+            <h3 class="tile-title">{{ post.title }}</h3>
+            {% if post.description %}
+              <p class="tile-summary">{{ post.description }}</p>
+            {% endif %}
+          </a>
+        </article>
+      {% endfor %}
+      {% if site.posts == empty %}
+        <div class="stacked-empty">No posts published yet.</div>
+      {% endif %}
+    </div>
+  </div>
 </section>
-
-  </body>
-</html>
-
