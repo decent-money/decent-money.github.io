@@ -34,6 +34,14 @@
 <footer class="site-footer">
   <div class="container site-footer-inner">
     <div>© {{ site.time | date: "%Y" }} Decent Money</div>
+    <div class="footer-lightning-wrap">
+      <span class="footer-lightning-prefix">Tip/Zap:</span>
+      <a id="lightningLink"
+         class="footer-lightning"
+         href="lightning:greyfox3@primal.net"
+         data-ln="greyfox3@primal.net"
+         rel="nofollow">⚡ greyfox3@primal.net</a>
+    </div>
     <div class="footer-links">
       <a href="https://github.com/decent-money" target="_blank" rel="noopener">GitHub</a>
       <a href="https://x.com/decentmoney2009" target="_blank" rel="noopener">𝕏</a>
@@ -63,6 +71,50 @@
           link.textContent = original;
         }, 1200);
       });
+    });
+  })();
+
+  (() => {
+    const lnLink = document.getElementById('lightningLink');
+    if (!lnLink) return;
+
+    const addr = lnLink.dataset.ln;
+    const original = lnLink.textContent;
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent || ''
+    );
+    let resetTimer;
+
+    lnLink.addEventListener('click', e => {
+      e.preventDefault();
+      const lightningUrl = `lightning:${addr}`;
+
+      if (isMobile) {
+        window.location.href = lightningUrl;
+        return;
+      }
+
+      const showCopied = () => {
+        lnLink.textContent = '⚡ copied lightning address';
+        clearTimeout(resetTimer);
+        resetTimer = setTimeout(() => {
+          lnLink.textContent = original;
+        }, 1200);
+      };
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(addr).then(showCopied);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = addr;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showCopied();
+      }
     });
   })();
 </script>

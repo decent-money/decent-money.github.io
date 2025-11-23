@@ -511,6 +511,31 @@ pre {
   color: var(--accent-cyan);
 }
 
+.footer-lightning {
+  color: var(--accent-cyan);
+  text-decoration: none;
+  border-bottom: none;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.footer-lightning-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.footer-lightning-prefix {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.footer-lightning:hover,
+.footer-lightning:focus-visible {
+  color: var(--accent);
+}
+
 /* =========================================
    6. UTILITIES & RESPONSIVE TWEAKS
    ========================================= */
