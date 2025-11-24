@@ -353,6 +353,10 @@
       gap: 0.15rem;
     }
 
+    .copy-group .icon-button {
+      min-width: 81.2667px;
+    }
+
     .char-counter {
       font-size: 0.75rem;
       color: var(--muted);
@@ -717,7 +721,8 @@
         }
 
         // Simple visual feedback: temporarily change icon
-        const original = copyHandlesBtn.textContent;
+        const original = copyHandlesBtn.dataset.label || copyHandlesBtn.textContent;
+        copyHandlesBtn.dataset.label = original;
         copyHandlesBtn.textContent = '✓';
         setTimeout(() => {
           copyHandlesBtn.textContent = original;
