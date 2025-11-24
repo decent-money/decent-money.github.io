@@ -306,15 +306,18 @@
       font-size: .9rem;
     }
 
+    .plain-text {
+      color: var(--ink);
+      font-weight: 700;
+      text-align: center;
+      max-width: 90%;
+      word-break: break-word;
+    }
+
     .inline-edit {
       display: flex;
       align-items: center;
       gap: .4rem;
-    }
-
-    .inline-edit span.at {
-      color: #6b7280;
-      font-weight: 700;
     }
 
     .inline-edit input {
@@ -447,7 +450,7 @@
 
     <div class="instruction">
       <ul>
-        <li>Click each cell/avatar to enter an <span class="x-symbol">X</span>/Twitter handle (with or without @).</li>
+        <li>Click a cell and type: start with <code>@</code> for an <span class="x-symbol">X</span>/Twitter handle (avatar + link), or leave out <code>@</code> for plain text.</li>
         <li>Screen shot the chart and paste into your <span class="x-symbol">X</span> post.</li>
         <li>Copy and paste the text at the bottom too.</li>
         <li>Labels for columns and rows also editable if you want to make a custom alignment chart (or click
@@ -463,7 +466,7 @@
         <span class="btn-label">Refresh Avatars</span>
         <span class="cooldown-bar"></span>
       </button>
-      <button id="clearBtn" class="toggle">Clear @ Handles</button>
+      <button id="clearBtn" class="toggle">Clear Entries</button>
       <button id="resetLabelsBtn" class="toggle">Default Labels</button>
       <button id="fmkLabelsBtn" class="toggle">FMK Labels</button>
     </div>
@@ -574,6 +577,9 @@
     const charCounter = document.getElementById('charCounter');
     const CHAR_LIMIT = 280;
 
+    // Track a stable viewport height to avoid iOS/Android browser chrome causing jumps
+    let stableViewportHeight = window.innerHeight;
+
     let colTitles = JSON.parse(localStorage.getItem('alignment_col_titles') || 'null') || [...DEFAULT_COLS];
     let rowTitles = JSON.parse(localStorage.getItem('alignment_row_titles') || 'null') || [...DEFAULT_ROWS];
     function saveTitles() { localStorage.setItem('alignment_col_titles', JSON.stringify(colTitles)); localStorage.setItem('alignment_row_titles', JSON.stringify(rowTitles)); }
@@ -600,7 +606,27 @@
 
 
     // ==== Utilities ====
-    function parseHandle(value) { if (!value) return ''; let v = value.trim(); try { if (/^https?:\/\//i.test(v)) { const u = new URL(v); const h = u.hostname.replace(/^www\./, '').toLowerCase(); if (h.endsWith('x.com') || h.endsWith('twitter.com')) v = u.pathname.split('/').filter(Boolean)[0] || ''; } } catch { } v = v.replace(/^@+/, '').split(/[/?#]/)[0].replace(/[^a-zA-Z0-9_]/g, ''); return v; }
+    function parseHandle(value) {
+      if (!value) return '';
+      const raw = value.trim();
+      if (!raw.startsWith('@')) return '';
+
+      let v = raw.replace(/^@+/, '');
+
+      // Allow a URL after the @, but still require the explicit @ prefix
+      try {
+        if (/^https?:\/\//i.test(v)) {
+          const u = new URL(v);
+          const h = u.hostname.replace(/^www\./, '').toLowerCase();
+          if (h.endsWith('x.com') || h.endsWith('twitter.com')) {
+            v = u.pathname.split('/').filter(Boolean)[0] || '';
+          }
+        }
+      } catch { /* ignore URL parse errors */ }
+
+      v = v.split(/[/?#]/)[0].replace(/[^a-zA-Z0-9_]/g, '');
+      return v;
+    }
 
 
     function avatarURL(handle) {
@@ -630,12 +656,16 @@
       // Two-line header: Columns 𝕏 Rows (using X_SYMBOL)
       const alignmentHeader = `${colLine} ${X_SYMBOL} ${rowLine}`;
 
-      // Build handle list
-      // Build handle list with placeholder @ for empty cells
+      // Build handle/text list; placeholder ? for empty slots
       const handles = [...document.querySelectorAll('.cell')]
         .map(c => {
-          const h = c.dataset.handle?.trim();
-          return h ? '@' + h : '@';   // <-- placeholder @
+          const raw = (c.dataset.raw || '').trim();
+          if (!raw) return '?';
+          if (raw.startsWith('@')) {
+            const h = parseHandle(raw);
+            return h ? '@' + h : '?';
+          }
+          return raw;
         })
         .join(' ');
 
@@ -700,14 +730,20 @@
     copyHandlesBtn.addEventListener('click', copyHandlesToClipboard);
 
 
+    const isMobileViewport = () => window.matchMedia('(max-width: 900px)').matches;
+
     function sizeBoard() {
       const headerH = document.querySelector('header').offsetHeight;
       const instructionH = document.querySelector('.instruction').offsetHeight + 6;
       const padding = 16; // main padding + breathing room
 
-      // Only reserve space for header + instruction.
-      // The handles line can extend below and be reachable via scroll.
-      const availH = window.innerHeight - headerH - instructionH - padding;
+      // Use a stable viewport height on mobile to avoid address bar resize jumps
+      const viewportH = isMobileViewport()
+        ? Math.max(stableViewportHeight, window.innerHeight)
+        : window.innerHeight;
+
+      // Only reserve space for header + instruction; handles can scroll below.
+      const availH = viewportH - headerH - instructionH - padding;
       const availW = window.innerWidth - padding;
 
       const size = Math.max(260, Math.min(availW, availH)); // 260px minimum for small phones
@@ -722,7 +758,18 @@
     }
 
 
-    window.addEventListener('resize', sizeBoard, { passive: true });
+    window.addEventListener('resize', () => {
+      // Update stable height when the viewport grows (e.g., chrome hidden)
+      if (window.innerHeight > stableViewportHeight) {
+        stableViewportHeight = window.innerHeight;
+      }
+      sizeBoard();
+    }, { passive: true });
+
+    window.addEventListener('orientationchange', () => {
+      stableViewportHeight = window.innerHeight;
+      sizeBoard();
+    });
 
     // ==== Alignment labels (include True X when row == col) ====
     function setAlignmentLabel(cell) {
@@ -739,8 +786,18 @@
     function adjustSizes(cell) {
       const content = cell.querySelector('.content');
       const avatar = content.querySelector('.avatar');
+      const plain = content.querySelector('.plain-text');
       const handle = cell.querySelector('.handle');
       const label = cell.querySelector('.alignment');
+
+      // Plain text cells: size text relative to cell
+      if (plain && !avatar) {
+        const rect = cell.getBoundingClientRect();
+        const base = Math.min(rect.width, rect.height);
+        const fontSize = Math.max(12, base * 0.14);
+        plain.style.fontSize = `${fontSize}px`;
+        return;
+      }
 
       if (!avatar) return;
 
@@ -840,33 +897,72 @@
     function renderCell(cell) {
       setAlignmentLabel(cell);
       const content = cell.querySelector('.content');
-      const handle = cell.dataset.handle || '';
+      const raw = (cell.dataset.raw || '').trim();
       content.innerHTML = '';
-      if (!handle) { const ph = document.createElement('div'); ph.className = 'placeholder'; ph.textContent = 'Click to add'; content.appendChild(ph); updateHandlesText(); return; }
 
-      const img = document.createElement('img');
-      img.className = 'avatar';
-      img.alt = `@${handle}`;
-      img.dataset.handle = handle;
-      img.src = avatarURL(handle);
+      if (!raw) {
+        const ph = document.createElement('div');
+        ph.className = 'placeholder';
+        ph.textContent = 'Click to add';
+        content.appendChild(ph);
+        updateHandlesText();
+        return;
+      }
 
+      const handle = parseHandle(raw);
 
-      const p = document.createElement('div'); p.className = 'handle'; p.innerHTML = `<a href="${profileURL(handle)}" target="_blank" rel="noopener noreferrer">@${handle}</a>`;
-      p.querySelector('a').addEventListener('click', e => e.stopPropagation());
-      content.append(img, p);
+      // If prefixed with @ and parsed, render as X handle with avatar/link
+      if (raw.startsWith('@') && handle) {
+        const img = document.createElement('img');
+        img.className = 'avatar';
+        img.alt = `@${handle}`;
+        img.dataset.handle = handle;
+        img.src = avatarURL(handle);
+
+        const p = document.createElement('div');
+        p.className = 'handle';
+        p.innerHTML = `<a href="${profileURL(handle)}" target="_blank" rel="noopener noreferrer">@${handle}</a>`;
+        p.querySelector('a').addEventListener('click', e => e.stopPropagation());
+        content.append(img, p);
+        adjustSizes(cell);
+        updateHandlesText();
+        return;
+      }
+
+      // Otherwise, treat as plain text
+      const text = document.createElement('div');
+      text.className = 'plain-text';
+      text.textContent = raw;
+      content.appendChild(text);
       adjustSizes(cell);
       updateHandlesText();
     }
 
     function editCell(cell) {
       const content = cell.querySelector('.content');
-      const current = cell.dataset.handle || '';
+      const current = cell.dataset.raw || '';
       content.innerHTML = '';
-      const wrap = document.createElement('div'); wrap.className = 'inline-edit';
-      const at = document.createElement('span'); at.className = 'at'; at.textContent = '@';
-      const input = document.createElement('input'); input.type = 'text'; input.value = current;
-      wrap.append(at, input); content.append(wrap); input.focus(); input.select();
-      function commit() { cell.dataset.handle = parseHandle(input.value); renderCell(cell); saveAll(); }
+      const wrap = document.createElement('div');
+      wrap.className = 'inline-edit';
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = current;
+      input.placeholder = 'Start with @ for X handle';
+      wrap.append(input);
+      content.append(wrap);
+      input.focus();
+      input.select();
+      function commit() {
+        const raw = (input.value || '').trim();
+        if (raw.startsWith('@')) {
+          const h = parseHandle(raw);
+          cell.dataset.raw = h ? `@${h}` : '';
+        } else {
+          cell.dataset.raw = raw;
+        }
+        renderCell(cell);
+        saveAll();
+      }
       input.addEventListener('blur', commit);
       input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') renderCell(cell); });
     }
@@ -902,7 +998,13 @@
     document.querySelectorAll('.hdr.col, .hdr.row').forEach(hookHeader);
 
     // ==== Persistence of handles ====
-    function saveAll() { const data = {}; document.querySelectorAll('.cell').forEach(c => data[c.id] = c.dataset.handle || ''); localStorage.setItem('alignment_handles', JSON.stringify(data)); }
+    function saveAll() {
+      const data = { __v: 2 };
+      document.querySelectorAll('.cell').forEach(c => {
+        data[c.id] = { raw: c.dataset.raw || '' };
+      });
+      localStorage.setItem('alignment_handles', JSON.stringify(data));
+    }
     function loadAll() {
       const r = localStorage.getItem('alignment_handles');
 
@@ -913,13 +1015,22 @@
 
       try {
         const d = JSON.parse(r);
+        const isV2 = d && d.__v === 2;
         let hasAny = false;
 
         Object.entries(d).forEach(([id, h]) => {
+          if (id === '__v') return;
           const c = document.getElementById(id);
           if (c) {
-            c.dataset.handle = h || '';
-            if (h) hasAny = true;
+            let raw = '';
+            if (isV2 && h && typeof h.raw === 'string') {
+              raw = h.raw;
+            } else if (!isV2 && typeof h === 'string') {
+              // Legacy data: stored bare handle; prefix @
+              raw = h ? `@${h}` : '';
+            }
+            c.dataset.raw = raw;
+            if (raw) hasAny = true;
             renderCell(c);
           }
         });
@@ -964,7 +1075,8 @@
 
     function refreshAvatars() {
       document.querySelectorAll('.cell').forEach(cell => {
-        const handle = cell.dataset.handle || '';
+        const raw = (cell.dataset.raw || '').trim();
+        const handle = raw.startsWith('@') ? parseHandle(raw) : '';
         if (!handle) return;
 
         const img = cell.querySelector('.avatar');
@@ -1026,7 +1138,11 @@
 
 
     const clearBtn = document.getElementById('clearBtn');
-    clearBtn.addEventListener('click', () => { document.querySelectorAll('.cell').forEach(cell => { cell.dataset.handle = ''; renderCell(cell); }); saveAll(); updateHandlesText(); });
+    clearBtn.addEventListener('click', () => {
+      document.querySelectorAll('.cell').forEach(cell => { cell.dataset.raw = ''; renderCell(cell); });
+      saveAll();
+      updateHandlesText();
+    });
 
     const resetLabelsBtn = document.getElementById('resetLabelsBtn');
     resetLabelsBtn.addEventListener('click', () => { colTitles = [...DEFAULT_COLS]; rowTitles = [...DEFAULT_ROWS]; saveTitles(); document.getElementById('col-0').textContent = colTitles[0]; document.getElementById('col-1').textContent = colTitles[1]; document.getElementById('col-2').textContent = colTitles[2]; document.getElementById('row-0').textContent = rowTitles[0]; document.getElementById('row-1').textContent = rowTitles[1]; document.getElementById('row-2').textContent = rowTitles[2]; renderAllAlignmentLabels(); updateHandlesText(); });
@@ -1067,7 +1183,7 @@
     if (!handleState.hasKey || !handleState.hasAny) {
       const midCell = document.getElementById('cell-nn'); // center cell
       if (midCell) {
-        midCell.dataset.handle = DEFAULT_MID_HANDLE;
+        midCell.dataset.raw = `@${DEFAULT_MID_HANDLE}`;
         renderCell(midCell);
         saveAll();
         updateHandlesText();
