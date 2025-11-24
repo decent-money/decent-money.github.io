@@ -368,6 +368,13 @@
       /* red when over 240 */
     }
 
+    .handles-wrapper {
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 0.9rem 1rem 0.6rem;
+      background: color-mix(in oklab, var(--panel) 92%, transparent);
+    }
+
     #handlesText {
       margin: 0;
       text-align: center;
@@ -556,14 +563,16 @@
       </div>
       <div id="boardWatermark" class="board-watermark">dm2k9.net/axa</div>
     </div>
-
+<p></p>
     <div class="handles-row">
-      <p id="handlesText"></p>
+      <div class="handles-wrapper">
+        <p id="handlesText"></p>
+      </div>
 
       <div class="copy-group">
         <button id="copyHandlesBtn" class="icon-button" type="button" aria-label="Copy handles to clipboard"
           title="Copy handles">
-          Copy 📋
+          Copy
         </button>
         <div id="charCounter" class="char-counter">0 / 280</div>
       </div>
