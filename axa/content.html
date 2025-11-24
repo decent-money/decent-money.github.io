@@ -232,12 +232,13 @@
       transform: translateX(-50%);
       text-transform: uppercase;
       font-weight: 800;
-      line-height: 1.1;
+      line-height: 1.15;
       white-space: nowrap;
-      /* single line */
       overflow: hidden;
       text-overflow: ellipsis;
       max-width: 92%;
+      text-align: center;
+      display: block;
       pointer-events: none;
       font-size: var(--alignment-font-size, 12px);
       /* NEW: shared size */
@@ -575,6 +576,8 @@
     const DEFAULT_ROWS = ['Good', 'Neutral', 'Evil'];
     const charCounter = document.getElementById('charCounter');
     const CHAR_LIMIT = 280;
+    const ALIGN_FONT_MIN = 11;
+    const ALIGN_FONT_MAX = 18;
 
     // Track a stable viewport height to avoid iOS/Android browser chrome causing jumps
     let stableViewportHeight = window.innerHeight;
@@ -731,6 +734,62 @@
 
     const isMobileViewport = () => window.matchMedia('(max-width: 900px)').matches;
 
+    function fitAllAlignmentLabels() {
+      const labels = Array.from(document.querySelectorAll('.alignment'));
+      if (!labels.length) return;
+
+      // Hide all labels if toggled off
+      if (!labelsVisible) {
+        labels.forEach(l => { l.style.display = 'none'; });
+        return;
+      }
+
+      labels.forEach(l => {
+        l.style.display = 'block';
+        l.style.whiteSpace = 'nowrap';
+        l.style.webkitLineClamp = '';
+        l.style.webkitBoxOrient = '';
+      });
+
+      const cells = labels.map(l => l.closest('.cell')).filter(Boolean);
+      if (!cells.length) return;
+
+      // Use the smallest cell size to determine a uniform font size
+      const minBase = Math.min(...cells.map(c => {
+        const r = c.getBoundingClientRect();
+        return Math.min(r.width, r.height);
+      }));
+
+      let size = Math.min(ALIGN_FONT_MAX, Math.max(ALIGN_FONT_MIN, minBase * 0.11));
+      const avail = c => c.getBoundingClientRect().width * 0.9;
+
+      const applySize = () => {
+        labels.forEach(l => {
+          l.style.fontSize = `${size}px`;
+          l.style.setProperty('--alignment-font-size', `${size}px`);
+        });
+      };
+
+      const fitsAllSingleLine = () => labels.every((l, i) => l.scrollWidth <= avail(cells[i]));
+
+      applySize();
+      let guard = 40;
+      while (!fitsAllSingleLine() && size > ALIGN_FONT_MIN && guard--) {
+        size -= 0.5;
+        applySize();
+      }
+
+      // Allow wrapping only when needed after hitting minimum size
+      labels.forEach((l, i) => {
+        if (l.scrollWidth > avail(cells[i])) {
+          l.style.whiteSpace = 'normal';
+          l.style.display = '-webkit-box';
+          l.style.webkitBoxOrient = 'vertical';
+          l.style.webkitLineClamp = '2';
+        }
+      });
+    }
+
     function sizeBoard() {
       const headerH = document.querySelector('header').offsetHeight;
       const instructionH = document.querySelector('.instruction').offsetHeight + 6;
@@ -752,7 +811,8 @@
       board.style.width = size + 'px';
       board.style.height = size + 'px';
 
-      document.querySelectorAll('.cell').forEach(adjustSizes);
+      fitAllAlignmentLabels();
+      updateAvatarSizes();
       positionWatermark();
     }
 
@@ -780,28 +840,93 @@
       if (col.toLowerCase() === row.toLowerCase()) span.textContent = `True ${row}`; else span.textContent = `${col} ${row}`;
     }
     function renderAllAlignmentLabels() { document.querySelectorAll('.cell').forEach(setAlignmentLabel); }
+    function refreshAlignmentLabels() {
+      renderAllAlignmentLabels();
+      fitAllAlignmentLabels();
+    }
+
+    function fitLabel(label, rect, base, padTopBottom = 10) {
+      if (!label) return { height: 0 };
+      if (!labelsVisible) {
+        label.style.display = 'none';
+        return { height: 0 };
+      }
+
+      const avail = rect.width * 0.9;
+      const size = Math.min(ALIGN_FONT_MAX, Math.max(ALIGN_FONT_MIN, base * 0.11));
+
+      // Start with single-line, consistent size
+      label.style.whiteSpace = 'nowrap';
+      label.style.display = 'block';
+      label.style.webkitLineClamp = '';
+      label.style.webkitBoxOrient = '';
+      label.style.fontSize = `${size}px`;
+      label.style.setProperty('--alignment-font-size', `${size}px`);
+
+      // If the single line overflows, allow up to two lines
+      if (label.scrollWidth > avail) {
+        label.style.whiteSpace = 'normal';
+        label.style.display = '-webkit-box';
+        label.style.webkitBoxOrient = 'vertical';
+        label.style.webkitLineClamp = '2';
+      }
+
+      return { height: label.offsetHeight + padTopBottom };
+    }
+
+    function measureAvatarSize(cell) {
+      const content = cell.querySelector('.content');
+      const avatar = content.querySelector('.avatar');
+      const handle = cell.querySelector('.handle');
+      const label = cell.querySelector('.alignment');
+      if (!avatar) return null;
+
+      const rect = cell.getBoundingClientRect();
+      const base = Math.min(rect.width, rect.height);
+
+      // Ensure handle size is measured based on cell size
+      const handleSize = Math.max(10, base * 0.08);
+      if (handle) handle.style.fontSize = `${handleSize}px`;
+
+      const padTopBottom = 10;
+      const { height: fittedLabelH } = fitLabel(label, rect, base, padTopBottom);
+
+      const reservedLabelH = labelsVisible ? fittedLabelH : 4;
+      const handleH = handle ? (handle.offsetHeight + padTopBottom) : padTopBottom;
+
+      const availW = rect.width * 0.94;
+      const availH = rect.height - reservedLabelH - handleH;
+
+      return Math.max(32, Math.min(availW, availH));
+    }
+
+    function updateAvatarSizes() {
+      const cells = Array.from(document.querySelectorAll('.cell'));
+      if (!cells.length) return;
+      const sizes = cells.map(measureAvatarSize).filter(s => typeof s === 'number');
+      const minSize = sizes.length ? Math.min(...sizes) : null;
+      cells.forEach(cell => adjustSizes(cell, minSize));
+    }
 
     // ==== Rendering cells ====
-    function adjustSizes(cell) {
+    function adjustSizes(cell, uniformSize) {
       const content = cell.querySelector('.content');
       const avatar = content.querySelector('.avatar');
       const plain = content.querySelector('.plain-text');
       const handle = cell.querySelector('.handle');
       const label = cell.querySelector('.alignment');
+      const rect = cell.getBoundingClientRect();
+      const base = Math.min(rect.width, rect.height);
 
       // Plain text cells: size text relative to cell
       if (plain && !avatar) {
-        const rect = cell.getBoundingClientRect();
-        const base = Math.min(rect.width, rect.height);
         const fontSize = Math.max(12, base * 0.14);
         plain.style.fontSize = `${fontSize}px`;
+        fitLabel(label, rect, base);
         return;
       }
 
       if (!avatar) return;
-
-      const rect = cell.getBoundingClientRect();
-      const base = Math.min(rect.width, rect.height);
 
       // Handle font-size based on cell size
       const handleSize = Math.max(10, base * 0.08);
@@ -810,32 +935,22 @@
       }
 
       const padTopBottom = 10;
-
-      // Measure the “natural” label height, even if we might hide it,
-      // so we know how much vertical space it would have taken.
-      let naturalLabelH = padTopBottom;
-      if (label) {
-        // if currently hidden, temporarily show to measure
-        const prevDisplay = label.style.display;
-        if (!labelsVisible) label.style.display = '';
-        naturalLabelH = label.offsetHeight + padTopBottom;
-        if (!labelsVisible) label.style.display = prevDisplay;
-      }
+      const { height: fittedLabelH } = fitLabel(label, rect, base, padTopBottom);
 
       // Actual reserved height for label area depends on visibility
-      const reservedLabelH = labelsVisible ? naturalLabelH : 4;
+      const reservedLabelH = labelsVisible ? fittedLabelH : 4;
       const handleH = handle ? (handle.offsetHeight + padTopBottom) : padTopBottom;
 
       const availW = rect.width * 0.94;
       const availH = rect.height - reservedLabelH - handleH;
 
-      const size = Math.max(32, Math.min(availW, availH));
-      avatar.style.width = `${size}px`;
-      avatar.style.height = `${size}px`;
+      const computedSize = Math.max(32, Math.min(availW, availH));
+      const finalSize = uniformSize || computedSize;
+      avatar.style.width = `${finalSize}px`;
+      avatar.style.height = `${finalSize}px`;
 
-      // When labels are hidden, shift avatar up by half of the label area
-      // so it occupies more of the top space and clears the handle.
-      const shiftY = labelsVisible ? 0 : naturalLabelH / 2;
+      // When labels are hidden, lift avatar up by half the handle block
+      const shiftY = labelsVisible ? 0 : handleH / 2;
       avatar.style.transform = `translateY(${-shiftY}px)`;
     }
 
@@ -923,7 +1038,7 @@
         p.innerHTML = `<a href="${profileURL(handle)}" target="_blank" rel="noopener noreferrer">@${handle}</a>`;
         p.querySelector('a').addEventListener('click', e => e.stopPropagation());
         content.append(img, p);
-        adjustSizes(cell);
+        updateAvatarSizes();
         updateHandlesText();
         return;
       }
@@ -933,7 +1048,7 @@
       text.className = 'plain-text';
       text.textContent = raw;
       content.appendChild(text);
-      adjustSizes(cell);
+      updateAvatarSizes();
       updateHandlesText();
     }
 
@@ -984,7 +1099,7 @@
       const input = document.createElement('input');
       input.type = 'text'; input.value = current; input.size = Math.max(4, Math.min(14, current.length));
       el.replaceWith(wrap); wrap.appendChild(input); input.focus(); input.select();
-      function commit() { const val = (input.value || '').trim() || current; if (kind === 'col') { colTitles[index] = val; } else { rowTitles[index] = val; } saveTitles(); const display = document.createElement('div'); display.id = id; display.className = 'hdr ' + (kind === 'row' ? 'row' : 'col'); display.setAttribute('role', 'button'); display.textContent = val; wrap.replaceWith(display); hookHeader(display); renderAllAlignmentLabels(); updateHandlesText(); }
+      function commit() { const val = (input.value || '').trim() || current; if (kind === 'col') { colTitles[index] = val; } else { rowTitles[index] = val; } saveTitles(); const display = document.createElement('div'); display.id = id; display.className = 'hdr ' + (kind === 'row' ? 'row' : 'col'); display.setAttribute('role', 'button'); display.textContent = val; wrap.replaceWith(display); hookHeader(display); refreshAlignmentLabels(); updateHandlesText(); sizeBoard(); }
       function cancel() { const display = document.createElement('div'); display.id = id; display.className = 'hdr ' + (kind === 'row' ? 'row' : 'col'); display.setAttribute('role', 'button'); display.textContent = current; wrap.replaceWith(display); hookHeader(display); }
       input.addEventListener('blur', commit);
       input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') cancel(); });
@@ -1144,7 +1259,7 @@
     });
 
     const resetLabelsBtn = document.getElementById('resetLabelsBtn');
-    resetLabelsBtn.addEventListener('click', () => { colTitles = [...DEFAULT_COLS]; rowTitles = [...DEFAULT_ROWS]; saveTitles(); document.getElementById('col-0').textContent = colTitles[0]; document.getElementById('col-1').textContent = colTitles[1]; document.getElementById('col-2').textContent = colTitles[2]; document.getElementById('row-0').textContent = rowTitles[0]; document.getElementById('row-1').textContent = rowTitles[1]; document.getElementById('row-2').textContent = rowTitles[2]; renderAllAlignmentLabels(); updateHandlesText(); });
+    resetLabelsBtn.addEventListener('click', () => { colTitles = [...DEFAULT_COLS]; rowTitles = [...DEFAULT_ROWS]; saveTitles(); document.getElementById('col-0').textContent = colTitles[0]; document.getElementById('col-1').textContent = colTitles[1]; document.getElementById('col-2').textContent = colTitles[2]; document.getElementById('row-0').textContent = rowTitles[0]; document.getElementById('row-1').textContent = rowTitles[1]; document.getElementById('row-2').textContent = rowTitles[2]; refreshAlignmentLabels(); updateHandlesText(); sizeBoard(); });
 
     const fmkLabelsBtn = document.getElementById('fmkLabelsBtn');
 
@@ -1172,7 +1287,7 @@
 
 
     // ==== Initial paint ====
-    renderAllAlignmentLabels();
+    refreshAlignmentLabels();
 
     const handleState = loadAll();
 
