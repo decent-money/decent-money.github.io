@@ -2,7 +2,13 @@
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="utf-8">
-    <title>{{ page.title | escape }} | {{ site.title | escape }}</title>
+    {% assign _site_title = site.title | escape %}
+    {% assign _page_title = page.title | default: site.title | escape %}
+    {% if page.url == "/" %}
+    <title>{{ _site_title }}</title>
+    {% else %}
+    <title>{{ _page_title }} | {{ _site_title }}</title>
+    {% endif %}
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     {% if page.description %}
@@ -35,7 +41,7 @@
   <div class="container site-footer-inner">
     <div>© {{ site.time | date: "%Y" }} Decent Money</div>
     <div class="footer-lightning-wrap">
-      <span class="footer-lightning-prefix">Tip/Zap:</span>
+      <span class="footer-lightning-prefix">Tip/Zap with Bitcoin:</span>
       <a id="lightningLink"
          class="footer-lightning"
          href="lightning:greyfox3@primal.net"
