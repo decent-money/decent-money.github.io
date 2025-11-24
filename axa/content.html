@@ -927,16 +927,21 @@
       const content = cell.querySelector('.content');
       const avatar = content.querySelector('.avatar');
       const plain = content.querySelector('.plain-text');
+      const placeholder = content.querySelector('.placeholder');
       const handle = cell.querySelector('.handle');
       const label = cell.querySelector('.alignment');
       const rect = cell.getBoundingClientRect();
       const base = Math.min(rect.width, rect.height);
 
-      // Plain text cells: size text relative to cell
-      if (plain && !avatar) {
-        const fontSize = Math.max(12, base * 0.14);
-        plain.style.fontSize = `${fontSize}px`;
-        fitLabel(label, rect, base);
+      // Plain text or placeholder cells: size and center text relative to cell
+      const textContent = plain || placeholder;
+      if (textContent && !avatar) {
+        const fontSize = Math.max(12, base * (plain ? 0.14 : 0.12));
+        textContent.style.fontSize = `${fontSize}px`;
+        const { height: fittedLabelH } = fitLabel(label, rect, base);
+        // Center text within remaining space when labels show; otherwise center cell
+        const shiftY = labelsVisible ? fittedLabelH / 2 : 0;
+        textContent.style.transform = `translateY(${shiftY}px)`;
         return;
       }
 
