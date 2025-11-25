@@ -7,12 +7,12 @@ title: dm2k9.net
 {% assign latest_page = featured_pages | first %}
 {% assign latest_post = site.posts | first %}
 {% if latest_page %}
-  {% assign latest_page_ts = latest_page.date | date: "%s" %}
+  {% assign latest_page_ts = latest_page.date | date: "%s" | plus: 0 %}
 {% else %}
   {% assign latest_page_ts = 0 %}
 {% endif %}
 {% if latest_post %}
-  {% assign latest_post_ts = latest_post.date | date: "%s" %}
+  {% assign latest_post_ts = latest_post.date | date: "%s" | plus: 0 %}
 {% else %}
   {% assign latest_post_ts = 0 %}
 {% endif %}
