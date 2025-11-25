@@ -191,11 +191,12 @@
     .hdr {
       display: grid;
       place-items: center;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--muted);
       user-select: none;
-      padding: .2rem .4rem;
+      padding: .3rem .55rem;
       border-radius: 8px;
+      font-size: 1.05rem;
     }
 
     .hdr[role="button"] {
@@ -486,14 +487,14 @@
       <!-- Corner -->
       <div class="hdr" aria-hidden="true"></div>
       <!-- Column headers (editable) -->
-      <div id="col-0" class="hdr col" role="button" style="grid-column: 2; grid-row: 1;">Lawful</div>
-      <div id="col-1" class="hdr col" role="button" style="grid-column: 3; grid-row: 1;">Neutral</div>
-      <div id="col-2" class="hdr col" role="button" style="grid-column: 4; grid-row: 1;">Chaotic</div>
+      <div id="col-0" class="hdr col" role="button" style="grid-column: 2; grid-row: 1; margin-bottom: -10px;">Lawful</div>
+      <div id="col-1" class="hdr col" role="button" style="grid-column: 3; grid-row: 1; margin-bottom: -10px;">Neutral</div>
+      <div id="col-2" class="hdr col" role="button" style="grid-column: 4; grid-row: 1; margin-bottom: -10px;">Chaotic</div>
 
       <!-- Row headers (editable) -->
-      <div id="row-0" class="hdr row" role="button" style="grid-column: 1; grid-row: 2;">Good</div>
-      <div id="row-1" class="hdr row" role="button" style="grid-column: 1; grid-row: 3;">Neutral</div>
-      <div id="row-2" class="hdr row" role="button" style="grid-column: 1; grid-row: 4;">Evil</div>
+      <div id="row-0" class="hdr row" role="button" style="grid-column: 1; grid-row: 2; margin-right: -10px;">Good</div>
+      <div id="row-1" class="hdr row" role="button" style="grid-column: 1; grid-row: 3; margin-right: -10px;">Neutral</div>
+      <div id="row-2" class="hdr row" role="button" style="grid-column: 1; grid-row: 4; margin-right: -10px;">Evil</div>
 
       <!-- Cells -->
       <div class="cell" id="cell-lg" data-row-index="0" data-col-index="0" role="gridcell"
@@ -1118,7 +1119,7 @@
       const input = document.createElement('input');
       input.type = 'text'; input.value = current; input.size = Math.max(4, Math.min(14, current.length));
       el.replaceWith(wrap); wrap.appendChild(input); input.focus(); input.select();
-      function commit() { const val = (input.value || '').trim() || current; if (kind === 'col') { colTitles[index] = val; } else { rowTitles[index] = val; } saveTitles(); const display = document.createElement('div'); display.id = id; display.className = 'hdr ' + (kind === 'row' ? 'row' : 'col'); display.setAttribute('role', 'button'); display.textContent = val; wrap.replaceWith(display); hookHeader(display); refreshAlignmentLabels(); updateHandlesText(); sizeBoard(); }
+      function commit() { const val = (input.value || '').trim() || current; if (kind === 'col') { colTitles[index] = val; } else { rowTitles[index] = val; } saveTitles(); const display = document.createElement('div'); display.id = id; display.className = 'hdr ' + (kind === 'row' ? 'row' : 'col'); display.setAttribute('role', 'button'); display.textContent = val; wrap.replaceWith(display); display.style.cssText = (kind === 'row') ? 'grid-column: 1; grid-row: ' + (index + 2) + '; margin-right: -10px;' : 'grid-column: ' + (index + 2) + '; grid-row: 1; margin-bottom: -10px;'; hookHeader(display); refreshAlignmentLabels(); updateHandlesText(); sizeBoard(); }
       function cancel() { const display = document.createElement('div'); display.id = id; display.className = 'hdr ' + (kind === 'row' ? 'row' : 'col'); display.setAttribute('role', 'button'); display.textContent = current; wrap.replaceWith(display); hookHeader(display); }
       input.addEventListener('blur', commit);
       input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') cancel(); });
