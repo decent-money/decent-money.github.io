@@ -736,9 +736,11 @@
             const h = parseHandle(raw);
             return h ? '@' + h : '?';
           }
-          return raw;
+          // Plain text entries get a trailing comma for separation
+          return `${raw},`;
         })
-        .join(' ');
+        .join(' ')
+        .replace(/\s+,/g, ','); // clean any stray space before commas
 
 
       // Always include suffix URL
