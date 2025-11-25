@@ -593,6 +593,61 @@
     const ALIGN_FONT_MIN = 11;
     const ALIGN_FONT_MAX = 18;
 
+    const FONT_MAP = {
+      'helvetica': '"Helvetica", "Arial", sans-serif',
+      'arial': '"Arial", "Helvetica", sans-serif',
+      'arial black': '"Arial Black", "Arial Black", "Arial", sans-serif',
+      'tahoma': '"Tahoma", "Geneva", sans-serif',
+      'trebuchet ms': '"Trebuchet MS", "Tahoma", "Geneva", sans-serif',
+      'lucida sans': '"Lucida Sans", "Lucida Sans Unicode", "Lucida Grande", sans-serif',
+      'lucida grande': '"Lucida Grande", "Lucida Sans Unicode", sans-serif',
+      'gill sans': '"Gill Sans", "Gill Sans MT", "Calibri", sans-serif',
+      'optima': '"Optima", "Segoe UI", sans-serif',
+      'didot': '"Didot", "Georgia", serif',
+      'palatino': '"Palatino", "Palatino Linotype", "Book Antiqua", serif',
+      'palatino linotype': '"Palatino Linotype", "Palatino", "Book Antiqua", serif',
+      'book antiqua': '"Book Antiqua", "Palatino", serif',
+      'candara': '"Candara", "Segoe UI", sans-serif',
+      'century gothic': '"Century Gothic", "Apple Gothic", sans-serif',
+      'franklin gothic': '"Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif',
+      'rockwell': '"Rockwell", "Georgia", serif',
+      'bahnschrift': '"Bahnschrift", "Segoe UI", sans-serif',
+      'segoe ui': '"Segoe UI", "Tahoma", sans-serif',
+      'segoe print': '"Segoe Print", "Comic Sans MS", cursive',
+      'segoe script': '"Segoe Script", "Comic Sans MS", cursive',
+      'segoe ui emoji': '"Segoe UI Emoji", "Segoe UI Symbol", "Segoe UI", sans-serif',
+      'segoe ui symbol': '"Segoe UI Symbol", "Segoe UI", sans-serif',
+      'cambria': '"Cambria", "Georgia", serif',
+      'constantia': '"Constantia", "Georgia", serif',
+      'corbel': '"Corbel", "Segoe UI", sans-serif',
+      'menlo': '"Menlo", "Monaco", "Consolas", "Liberation Mono", monospace',
+      'monaco': '"Monaco", "Consolas", "Menlo", monospace',
+      'lucida console': '"Lucida Console", "Lucida Sans Typewriter", monospace',
+      'andale mono': '"Andale Mono", "Monaco", monospace',
+      'calibri': '"Calibri", "Segoe UI", sans-serif',
+      'comic sans': '"Comic Sans MS", "Comic Sans", cursive',
+      'comic sans ms': '"Comic Sans MS", "Comic Sans", cursive',
+      'comicsans': '"Comic Sans MS", "Comic Sans", cursive',
+      'courier': '"Courier New", Courier, monospace',
+      'courier new': '"Courier New", Courier, monospace',
+      'times new roman': '"Times New Roman", Times, serif',
+      'impact': '"Impact", "Haettenschweiler", "Arial Narrow Bold", sans-serif',
+      'wingdings': '"Wingdings", "Zapf Dingbats", fantasy',
+      'windings': '"Wingdings", "Zapf Dingbats", fantasy',
+      'papyrus': '"Papyrus", fantasy',
+      'chiller': '"Chiller", fantasy',
+      'verdana': '"Verdana", "Geneva", sans-serif',
+      'georgia': '"Georgia", serif',
+      'garamond': '"Garamond", serif',
+      'consolas': '"Consolas", "Monaco", monospace'
+    };
+
+    function fontFamilyFor(text) {
+      if (!text) return '';
+      const key = text.toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+      return FONT_MAP[key] || '';
+    }
+
     // Track a stable viewport height to avoid iOS/Android browser chrome causing jumps
     let stableViewportHeight = window.innerHeight;
 
@@ -943,6 +998,14 @@
         // Center text within remaining space when labels show; otherwise center cell
         const shiftY = labelsVisible ? fittedLabelH / 2 : 0;
         textContent.style.transform = `translateY(${shiftY}px)`;
+
+        // Apply matching font for plain text, reset for placeholders
+        if (plain && textContent === plain) {
+          const ff = fontFamilyFor(textContent.textContent);
+          textContent.style.fontFamily = ff || '';
+        } else {
+          textContent.style.fontFamily = '';
+        }
         return;
       }
 
