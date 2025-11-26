@@ -4,11 +4,12 @@ url: "https://dm2k9.net"
 baseurl: ""   # for a project page, set this to "/repo-name"
 
 # Branding / social defaults
-logo: "/dm2k9_logo.png"
-og_image: "/dm2k9_logo.png"   # default social preview image; override per page with og_image or social_image
+logo: "/dm2k9_logo.jpg"
+og_image: "/dm2k9_logo.jpg"   # default social preview image; override per page with og_image or social_image
 social_image_width: 1200
 social_image_height: 630
 twitter_username: "@decentmoney2009"
+image_alt: "dm2k9.net"
 
 # We’re hand-rolling the theme, so no remote theme here
 theme: null
