@@ -3,6 +3,10 @@ description: "A cyber space."
 url: "https://dm2k9.net"
 baseurl: ""   # for a project page, set this to "/repo-name"
 
+# Branding / social defaults
+logo: "/dm2k9_logo.png"
+og_image: "/dm2k9_logo.png"   # default social preview image; override per page with og_image or social_image
+
 # We’re hand-rolling the theme, so no remote theme here
 theme: null
 
