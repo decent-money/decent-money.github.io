@@ -176,6 +176,56 @@
       position: relative;
     }
 
+    .board-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .resizer-wrap {
+      position: absolute;
+      bottom: -30px;
+      right: -30px;
+      width: max-content;
+      height: 18px;
+    }
+
+    .board-resizer {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      bottom: 0;
+      right: 0;
+      border: 1px solid var(--grid);
+      border-radius: 4px;
+      background: color-mix(in oklab, var(--panel) 75%, transparent);
+      cursor: nwse-resize;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.35);
+    }
+
+    .board-resizer::after {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      border-right: 1px solid var(--muted);
+      border-bottom: 1px solid var(--muted);
+      opacity: 0.7;
+    }
+
+    .board-resizer:active {
+      border-color: var(--accent);
+    }
+
+    .resizer-label {
+      position: absolute;
+      bottom: 3px;
+      right: 26px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      white-space: nowrap;
+      user-select: none;
+      pointer-events: none;
+    }
+
     .board-watermark {
       position: absolute;
       writing-mode: vertical-rl;
@@ -483,6 +533,7 @@
       <button id="fmkLabelsBtn" class="toggle">FMK Labels</button>
     </div>
 
+    <div class="board-wrapper">
     <div class="board" id="board" aria-label="Alignment grid">
       <!-- Corner -->
       <div class="hdr" aria-hidden="true"></div>
@@ -563,6 +614,11 @@
         </div>
       </div>
       <div id="boardWatermark" class="board-watermark">dm2k9.net/axa</div>
+    </div>
+    <div class="resizer-wrap">
+      <div class="board-resizer" id="boardResizer" aria-label="Resize board" title="Drag to resize"></div>
+      <div class="resizer-label">Drag to resize</div>
+    </div>
     </div>
 <p></p>
     <div class="handles-row">
@@ -650,6 +706,7 @@
 
     // Track a stable viewport height to avoid iOS/Android browser chrome causing jumps
     let stableViewportHeight = window.innerHeight;
+    let userBoardSize = null; // manual override set by drag-resize
 
     let colTitles = JSON.parse(localStorage.getItem('alignment_col_titles') || 'null') || [...DEFAULT_COLS];
     let rowTitles = JSON.parse(localStorage.getItem('alignment_row_titles') || 'null') || [...DEFAULT_ROWS];
@@ -862,10 +919,25 @@
       });
     }
 
+    function applyBoardSize(size) {
+      const board = document.getElementById('board');
+      board.style.setProperty('--board-size', size + 'px');
+      board.style.width = size + 'px';
+      board.style.height = size + 'px';
+      fitAllAlignmentLabels();
+      updateAvatarSizes();
+      positionWatermark();
+    }
+
     function sizeBoard() {
       const headerH = document.querySelector('header').offsetHeight;
       const instructionH = document.querySelector('.instruction').offsetHeight + 6;
       const padding = 16; // main padding + breathing room
+
+      if (userBoardSize) {
+        applyBoardSize(userBoardSize);
+        return;
+      }
 
       // Use a stable viewport height on mobile to avoid address bar resize jumps
       const viewportH = isMobileViewport()
@@ -878,14 +950,7 @@
 
       const size = Math.max(260, Math.min(availW, availH)); // 260px minimum for small phones
 
-      const board = document.getElementById('board');
-      board.style.setProperty('--board-size', size + 'px');
-      board.style.width = size + 'px';
-      board.style.height = size + 'px';
-
-      fitAllAlignmentLabels();
-      updateAvatarSizes();
-      positionWatermark();
+      applyBoardSize(size);
     }
 
 
@@ -978,6 +1043,55 @@
       const sizes = cells.map(measureAvatarSize).filter(s => typeof s === 'number');
       const minSize = sizes.length ? Math.min(...sizes) : null;
       cells.forEach(cell => adjustSizes(cell, minSize));
+    }
+
+    function initBoardResizer() {
+      const board = document.getElementById('board');
+      const handle = document.getElementById('boardResizer');
+      if (!board || !handle) return;
+
+      let dragging = false;
+      let startSize = 0;
+      let startX = 0;
+      let startY = 0;
+
+      const clampSize = s => Math.max(220, Math.min(1400, s));
+
+      const onMove = e => {
+        if (!dragging) return;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const deltaX = clientX - startX;
+        const deltaY = clientY - startY;
+        const delta = Math.max(deltaX, deltaY);
+        const newSize = clampSize(startSize + delta);
+        userBoardSize = newSize;
+        applyBoardSize(newSize);
+      };
+
+      const onUp = () => {
+        dragging = false;
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onUp);
+        window.removeEventListener('touchmove', onMove);
+        window.removeEventListener('touchend', onUp);
+      };
+
+      const onDown = e => {
+        e.preventDefault();
+        const rect = board.getBoundingClientRect();
+        startSize = rect.width;
+        startX = e.touches ? e.touches[0].clientX : e.clientX;
+        startY = e.touches ? e.touches[0].clientY : e.clientY;
+        dragging = true;
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+        window.addEventListener('touchmove', onMove, { passive: true });
+        window.addEventListener('touchend', onUp);
+      };
+
+      handle.addEventListener('mousedown', onDown);
+      handle.addEventListener('touchstart', onDown, { passive: true });
     }
 
     // ==== Rendering cells ====
@@ -1374,27 +1488,28 @@
     // ==== Initial paint ====
     refreshAlignmentLabels();
 
-    const handleState = loadAll();
+      const handleState = loadAll();
 
-    // Default middle handle appears if:
-    // 1) user has never saved handles before (first visit), OR
-    // 2) user has saved before but currently all handles are empty (after clearing)
-    if (!handleState.hasKey || !handleState.hasAny) {
-      const midCell = document.getElementById('cell-nn'); // center cell
-      if (midCell) {
-        midCell.dataset.raw = `@${DEFAULT_MID_HANDLE}`;
-        renderCell(midCell);
-        saveAll();
-        updateHandlesText();
+      // Default middle handle appears if:
+      // 1) user has never saved handles before (first visit), OR
+      // 2) user has saved before but currently all handles are empty (after clearing)
+      if (!handleState.hasKey || !handleState.hasAny) {
+        const midCell = document.getElementById('cell-nn'); // center cell
+        if (midCell) {
+          midCell.dataset.raw = `@${DEFAULT_MID_HANDLE}`;
+          renderCell(midCell);
+          saveAll();
+          updateHandlesText();
+        }
       }
-    }
 
-    applyXSymbolFallback();
+      applyXSymbolFallback();
+      initBoardResizer();
 
-    function kick() {
-      sizeBoard();
-      requestAnimationFrame(sizeBoard);
-    }
+      function kick() {
+        sizeBoard();
+        requestAnimationFrame(sizeBoard);
+      }
     kick();
 
 
