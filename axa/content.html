@@ -809,29 +809,33 @@
       const alignmentHeader = `${colLine} ${X_SYMBOL} ${rowLine}`;
 
       // Build handle/text list; placeholder ? for empty slots
-      const handles = [...document.querySelectorAll('.cell')]
-        .map(c => {
-          const raw = (c.dataset.raw || '').trim();
-          if (!raw) return '?';
-          if (raw.startsWith('@')) {
-            const h = parseHandle(raw);
-            return h ? '@' + h : '?';
-          }
-          const img = parseImageEntry(raw);
-          if (img) {
-            const cellIndex = () => {
-              const r = Number(c.dataset.rowIndex);
-              const cIdx = Number(c.dataset.colIndex);
-              return r * 3 + cIdx + 1;
-            };
-            const lbl = img.label || `Img${cellIndex()}`;
-            return `${lbl},`;
-          }
-          // Plain text entries get a trailing comma for separation
-          return `${raw},`;
-        })
-        .join(' ')
-        .replace(/\s+,/g, ','); // clean any stray space before commas
+      const entries = [...document.querySelectorAll('.cell')].map(c => {
+        const raw = (c.dataset.raw || '').trim();
+        if (!raw) return '?,';
+        if (raw.startsWith('@')) {
+          const h = parseHandle(raw);
+          return h ? `@${h},` : '?';
+        }
+        const img = parseImageEntry(raw);
+        if (img) {
+          const cellIndex = () => {
+            const r = Number(c.dataset.rowIndex);
+            const cIdx = Number(c.dataset.colIndex);
+            return r * 3 + cIdx + 1;
+          };
+          const lbl = img.label || `Img${cellIndex()}`;
+          return `${lbl},`;
+        }
+        // Plain text entries get a trailing comma for separation
+        return `${raw},`;
+      });
+
+      // Remove trailing comma on the last cell entry
+      if (entries.length) {
+        entries[entries.length - 1] = entries[entries.length - 1].replace(/,+$/, '');
+      }
+
+      const handles = entries.join(' ').replace(/\s+,/g, ','); // clean any stray space before commas
 
 
       // Always include suffix URL
