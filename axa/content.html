@@ -308,19 +308,27 @@
     }
 
     /* 4) Avatar stays centered; size set by JS */
-    .content {
-      width: 100%;
-      height: 100%;
-      display: grid;
-      place-items: center;
-    }
+.content {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
 
-    .avatar {
-      border-radius: 50%;
-      border: 2px solid var(--grid);
-      object-fit: cover;
-      transition: transform 0.2s ease, width 0.2s ease, height 0.2s ease;
-    }
+.avatar {
+  border-radius: 50%;
+  border: 2px solid var(--grid);
+  object-fit: cover;
+  transition: transform 0.2s ease, width 0.2s ease, height 0.2s ease;
+}
+
+.custom-image {
+  border-radius: 10px;
+  border: none;
+  object-fit: contain;
+  background: var(--panel);
+  transition: transform 0.2s ease, width 0.2s ease, height 0.2s ease;
+}
 
 
     .handle {
@@ -513,6 +521,7 @@
     <div class="instruction">
       <ul>
         <li>Click a cell and type: start with <code>@</code> for an <span class="x-symbol">X</span>/Twitter handle with avatar, or leave out <code>@</code> for plain text.</li>
+        <li>Paste an image URL (direct or with query params) and optionally add a label after a <code>|</code> delimiter (e.g. <code>https://example.com/pic.png|Your Label</code>).</li>
         <li>Screen shot the chart and paste into your <span class="x-symbol">X</span> post.</li>
         <li>Copy and paste the text at the bottom too to tag people and make AXA post searchable.</li>
         <li>Labels for columns and rows also editable if you want to make a custom alignment chart (or click
@@ -756,6 +765,21 @@
       return v;
     }
 
+    const IMAGE_EXT_RE = /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i;
+
+    function parseImageEntry(value) {
+      if (!value) return null;
+      const parts = value.split('|');
+      const url = (parts.shift() || '').trim();
+      if (!/^https?:\/\//i.test(url)) return null;
+      const urlNoQuery = url.split('?')[0];
+      const hasExt = IMAGE_EXT_RE.test(urlNoQuery);
+      const hasHint = /width=|height=|image|img|format=|jpeg|jpg|png|gif|webp/i.test(url);
+      const label = parts.join('|').trim();
+      if (!hasExt && !hasHint && !label) return null; // avoid treating arbitrary links as images
+      return { url, label };
+    }
+
 
     function avatarURL(handle) {
       const encodedHandle = encodeURIComponent(handle);
@@ -792,6 +816,16 @@
           if (raw.startsWith('@')) {
             const h = parseHandle(raw);
             return h ? '@' + h : '?';
+          }
+          const img = parseImageEntry(raw);
+          if (img) {
+            const cellIndex = () => {
+              const r = Number(c.dataset.rowIndex);
+              const cIdx = Number(c.dataset.colIndex);
+              return r * 3 + cIdx + 1;
+            };
+            const lbl = img.label || `Img${cellIndex()}`;
+            return `${lbl},`;
           }
           // Plain text entries get a trailing comma for separation
           return `${raw},`;
@@ -1013,7 +1047,7 @@
 
     function measureAvatarSize(cell) {
       const content = cell.querySelector('.content');
-      const avatar = content.querySelector('.avatar');
+      const avatar = content.querySelector('.avatar, .custom-image');
       const handle = cell.querySelector('.handle');
       const label = cell.querySelector('.alignment');
       if (!avatar) return null;
@@ -1097,7 +1131,7 @@
     // ==== Rendering cells ====
     function adjustSizes(cell, uniformSize) {
       const content = cell.querySelector('.content');
-      const avatar = content.querySelector('.avatar');
+      const avatar = content.querySelector('.avatar, .custom-image');
       const plain = content.querySelector('.plain-text');
       const placeholder = content.querySelector('.placeholder');
       const handle = cell.querySelector('.handle');
@@ -1223,6 +1257,12 @@
       }
 
       const handle = parseHandle(raw);
+      const imageEntry = parseImageEntry(raw);
+      const cellIndex = () => {
+        const r = Number(cell.dataset.rowIndex);
+        const c = Number(cell.dataset.colIndex);
+        return r * 3 + c + 1; // 1..9 in row-major order
+      };
 
       // If prefixed with @ and parsed, render as X handle with avatar/link
       if (raw.startsWith('@') && handle) {
@@ -1237,6 +1277,24 @@
         p.innerHTML = `<a href="${profileURL(handle)}" target="_blank" rel="noopener noreferrer">@${handle}</a>`;
         p.querySelector('a').addEventListener('click', e => e.stopPropagation());
         content.append(img, p);
+        updateAvatarSizes();
+        updateHandlesText();
+        return;
+      }
+
+      // Image URL (with optional label after '|')
+      if (imageEntry) {
+        const labelText = imageEntry.label || `Img${cellIndex()}`;
+        const img = document.createElement('img');
+        img.className = 'custom-image';
+        img.src = imageEntry.url;
+        img.alt = labelText;
+
+        const label = document.createElement('div');
+        label.className = 'handle image-label';
+        label.textContent = labelText;
+
+        content.append(img, label);
         updateAvatarSizes();
         updateHandlesText();
         return;
@@ -1260,7 +1318,7 @@
       const input = document.createElement('input');
       input.type = 'text';
       input.value = current;
-      input.placeholder = 'Start with @ for X handle';
+      input.placeholder = 'Start with @ for X handle, or paste image URL|label';
       wrap.append(input);
       content.append(wrap);
       input.focus();
@@ -1270,6 +1328,11 @@
         if (raw.startsWith('@')) {
           const h = parseHandle(raw);
           cell.dataset.raw = h ? `@${h}` : '';
+        } else if (parseImageEntry(raw)) {
+          // Normalize: url|label (label optional)
+          const entry = parseImageEntry(raw);
+          const rebuilt = entry.url + (entry.label ? `|${entry.label}` : '');
+          cell.dataset.raw = rebuilt;
         } else {
           cell.dataset.raw = raw;
         }
