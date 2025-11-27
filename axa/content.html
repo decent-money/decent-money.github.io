@@ -165,16 +165,16 @@
       padding-left: 1.2rem;
     }
 
-    .board {
-      display: grid;
-      grid-template-columns: auto repeat(3, 1fr);
-      grid-template-rows: auto repeat(3, 1fr);
-      gap: clamp(0.6rem, 2vw, 1.1rem);
-      /* was 0.5rem */
-      width: var(--board-size);
-      height: var(--board-size);
-      position: relative;
-    }
+.board {
+  display: grid;
+  grid-template-columns: auto repeat(3, 1fr);
+  grid-template-rows: auto repeat(3, 1fr);
+  gap: var(--board-gap, clamp(0.6rem, 2vw, 1.1rem));
+  /* was 0.5rem */
+  width: var(--board-size);
+  height: var(--board-size);
+  position: relative;
+}
 
     .board-wrapper {
       position: relative;
@@ -966,6 +966,16 @@
       board.style.setProperty('--board-size', size + 'px');
       board.style.width = size + 'px';
       board.style.height = size + 'px';
+      // Scale gaps a bit tighter on smaller boards
+      const gap = (() => {
+        const minSize = 260;
+        const maxSize = 900;
+        const t = Math.max(0, Math.min(1, (size - minSize) / (maxSize - minSize)));
+        const minGap = 0.6;
+        const maxGap = 1.1;
+        return (minGap + (maxGap - minGap) * t).toFixed(3) + 'rem';
+      })();
+      board.style.setProperty('--board-gap', gap);
       fitAllAlignmentLabels();
       updateAvatarSizes();
       positionWatermark();
