@@ -82,7 +82,9 @@
          rel="nofollow">⚡ greyfox3@primal.net</a>
     </div>
     <div class="footer-links">
-      <a href="https://decent-money.github.io/" target="_blank" rel="noopener">Mirror</a>
+      <a class="mirror-link" href="https://decent-money.github.io/" target="_blank" rel="noopener">
+        <span class="mirror-text">Mirror</span>
+      </a>
       <a href="https://github.com/decent-money" target="_blank" rel="noopener">GitHub</a>
       <a href="https://x.com/decentmoney2009" target="_blank" rel="noopener">𝕏</a>
       <a id="nostrCopyLink"
@@ -156,6 +158,24 @@
         showCopied();
       }
     });
+  })();
+
+  (() => {
+    const mirror = document.querySelector('.mirror-link');
+    if (!mirror) return;
+    const text = mirror.querySelector('.mirror-text');
+    if (!text) return;
+    const states = [
+      'normal',            // no transform
+      'mirror-h',          // horizontal flip, reversed order
+      'mirror-h-order',    // horizontal flip, normal order
+      'mirror-v',          // vertical flip, normal order
+      'mirror-v-reverse',  // vertical flip, reversed order
+      'mirror-hv',         // both flips, reversed order
+      'mirror-hv-order'    // both flips, normal order
+    ];
+    const choice = states[Math.floor(Math.random() * states.length)];
+    if (choice !== 'normal') text.classList.add(choice);
   })();
 </script>
   </body>

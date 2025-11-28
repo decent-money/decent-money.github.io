@@ -536,6 +536,47 @@ pre {
   color: var(--accent);
 }
 
+.mirror-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: none;
+}
+
+.mirror-link .mirror-text {
+  display: inline-block;
+}
+
+.mirror-text.mirror-h {
+  transform: scaleX(-1);
+}
+
+.mirror-text.mirror-v {
+  transform: scaleY(-1);
+}
+
+.mirror-text.mirror-h-order {
+  transform: scaleX(-1);
+  direction: rtl;
+  unicode-bidi: bidi-override;
+}
+
+.mirror-text.mirror-v-reverse {
+  transform: scaleY(-1);
+  direction: rtl;
+  unicode-bidi: bidi-override;
+}
+
+.mirror-text.mirror-hv {
+  transform: scale(-1, -1);
+}
+
+.mirror-text.mirror-hv-order {
+  transform: scale(-1, -1);
+  direction: rtl;
+  unicode-bidi: bidi-override;
+}
+
 /* =========================================
    6. UTILITIES & RESPONSIVE TWEAKS
    ========================================= */
