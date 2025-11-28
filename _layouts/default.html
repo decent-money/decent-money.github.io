@@ -82,7 +82,12 @@
          rel="nofollow">⚡ greyfox3@primal.net</a>
     </div>
     <div class="footer-links">
-      <a class="mirror-link" href="https://decent-money.github.io/" target="_blank" rel="noopener">
+      <a class="mirror-link"
+         data-primary="https://dm2k9.net"
+         data-mirror="https://decent-money.github.io/"
+         href="https://decent-money.github.io/"
+         target="_blank"
+         rel="noopener">
         <span class="mirror-text">Mirror</span>
       </a>
       <a href="https://github.com/decent-money" target="_blank" rel="noopener">GitHub</a>
@@ -163,6 +168,13 @@
   (() => {
     const mirror = document.querySelector('.mirror-link');
     if (!mirror) return;
+
+    const primary = mirror.dataset.primary || 'https://dm2k9.net';
+    const secondary = mirror.dataset.mirror || 'https://decent-money.github.io/';
+    const host = window.location.hostname;
+    const onMirror = host.includes('decent-money.github.io');
+    mirror.href = onMirror ? primary : secondary;
+
     const text = mirror.querySelector('.mirror-text');
     if (!text) return;
     const states = [
