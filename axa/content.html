@@ -104,8 +104,9 @@
     }
 
     .toggle {
+      position: relative;
       border: 1px solid var(--border);
-      background: var(--chip-bg);
+      background: linear-gradient(120deg, rgba(255, 94, 220, 0.18), rgba(50, 245, 255, 0.18), rgba(255, 94, 220, 0.18));
       color: var(--ink);
       padding: 0.35rem 0.6rem;
       border-radius: 999px;
@@ -115,12 +116,53 @@
       flex: 0 1 auto;
       white-space: nowrap;
       transition: background 0.2s ease;
+      font-family: var(--font-sans);
+      overflow: hidden;
     }
 
     .toggle:hover {
       background: color-mix(in oklab, var(--chip-bg) 70%, var(--ink) 10%);
     }
 
+    /* Shimmer border for primary call-to-action */
+    .toggle.cta::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: linear-gradient(120deg, rgba(255, 94, 220, 0.6), rgba(50, 245, 255, 0.6), rgba(255, 94, 220, 0.6));
+      opacity: 0;
+      animation: shimmer 5s ease-in-out infinite;
+      z-index: 0;
+    }
+
+    .toggle.cta {
+      z-index: 1;
+      font-size: 1.1rem;
+      padding: 0.55rem 1.2rem;
+    }
+
+    .toggle.cta span {
+      position: relative;
+      z-index: 1;
+      font-size: 1.1em;
+      white-space: nowrap;
+    }
+
+    @keyframes shimmer {
+      0%, 60% {
+        opacity: 0;
+        transform: translateX(-120%);
+      }
+      65%, 82% {
+        opacity: 0.9;
+        transform: translateX(120%);
+      }
+      100% {
+        opacity: 0;
+        transform: translateX(120%);
+      }
+    }
 
     /* Row that wraps neatly on narrow screens */
     .controls-rowwrap {
@@ -158,6 +200,7 @@
       color: var(--muted);
       width: 100%;
       max-width: 700px;
+      text-align: left;
     }
 
     .instruction ul {
@@ -179,22 +222,24 @@
     .board-wrapper {
       position: relative;
       display: inline-block;
+      box-sizing: border-box;
     }
 
     .resizer-wrap {
-      position: absolute;
-      bottom: -30px;
-      right: -30px;
-      width: max-content;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+      margin-top: 16px;
+      width: 100%;
       height: 18px;
+      position: relative;
     }
 
     .board-resizer {
-      position: absolute;
+      position: relative;
       width: 18px;
       height: 18px;
-      bottom: 0;
-      right: 0;
       border: 1px solid var(--grid);
       border-radius: 4px;
       background: color-mix(in oklab, var(--panel) 75%, transparent);
@@ -216,9 +261,7 @@
     }
 
     .resizer-label {
-      position: absolute;
-      bottom: 3px;
-      right: 26px;
+      position: static;
       font-size: 0.8rem;
       color: var(--muted);
       white-space: nowrap;
@@ -238,16 +281,19 @@
     }
 
 
-    .hdr {
-      display: grid;
-      place-items: center;
-      font-weight: 800;
-      color: var(--muted);
-      user-select: none;
-      padding: .3rem .55rem;
-      border-radius: 8px;
-      font-size: 1.05rem;
-    }
+.hdr {
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  color: var(--muted);
+  user-select: none;
+  padding: .3rem .55rem;
+  border-radius: 8px;
+  font-size: 2.1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
     .hdr[role="button"] {
       cursor: text;
@@ -330,6 +376,17 @@
   transition: transform 0.2s ease, width 0.2s ease, height 0.2s ease;
 }
 
+.image-unavailable {
+  display: none;
+  position: absolute;
+  inset: 0;
+  place-items: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-align: center;
+  pointer-events: none;
+}
+
 
     .handle {
       position: absolute;
@@ -380,6 +437,15 @@
       gap: .4rem;
     }
 
+    .inline-edit.image-edit {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .inline-edit.image-edit input {
+      width: 100%;
+    }
+
     .inline-edit input {
       padding: .4rem .5rem;
       border-radius: 10px;
@@ -397,12 +463,21 @@
 
     .handles-row {
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 0.4rem;
       margin-top: 0.25rem;
       padding-bottom: 0.5rem;
       /* a little breathing room above bottom edge */
+    }
+
+    .handles-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
     }
 
     .copy-group {
@@ -412,26 +487,86 @@
       gap: 0.15rem;
     }
 
+    .copy-note {
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-top: 0.1rem;
+    }
+
     .copy-group .icon-button {
       min-width: 81.2667px;
     }
 
-    .char-counter {
-      font-size: 0.75rem;
-      color: var(--muted);
-      line-height: 1;
+    .share-button {
+      border: 1px solid var(--border);
+      background: var(--chip-bg);
+      color: var(--accent-cyan);
+      border-radius: 999px;
+      padding: 0.35rem 0.8rem;
+      cursor: pointer;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      text-decoration: none;
+      font-family: var(--font-sans);
     }
 
-    .char-counter.over-limit {
-      color: #dc2626;
-      /* red when over 240 */
+    .share-button:hover {
+      background: color-mix(in oklab, var(--chip-bg) 70%, var(--ink) 10%);
+    }
+
+    .download-button {
+      border: 1px solid var(--border);
+      background: var(--chip-bg);
+      color: var(--accent);
+      border-radius: 999px;
+      padding: 0.35rem 0.8rem;
+      cursor: pointer;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      text-decoration: none;
+      font-family: var(--font-sans);
+    }
+
+    .download-button:hover {
+      background: color-mix(in oklab, var(--chip-bg) 70%, var(--ink) 10%);
+    }
+
+.char-counter {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1;
+  align-self: flex-end;
+  margin-top: 0.35rem;
+}
+
+.char-counter.over-limit {
+  color: #dc2626;
+  /* red when over 240 */
     }
 
     .handles-wrapper {
+      width: var(--board-size);
+      max-width: 100%;
+      box-sizing: border-box;
       border: 1px dashed rgba(255, 255, 255, 0.15);
       border-radius: 14px;
       padding: 0.9rem 1rem 0.6rem;
       background: color-mix(in oklab, var(--panel) 92%, transparent);
+    }
+
+    .frame-wrap {
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 16px;
+      box-sizing: border-box;
+      display: inline-block;
+      position: relative;
     }
 
     #handlesText {
@@ -440,6 +575,7 @@
       font-size: 1rem;
       color: var(--ink);
       word-wrap: break-word;
+      white-space: pre-wrap;
       max-width: 80vw;
       line-height: 1.6;
     }
@@ -518,18 +654,16 @@
 
   <main>
 
-    <div class="instruction">
+    <div class="instruction" style="margin-left: 0; text-align: left; max-width: none;">
       <ul>
         <li>You can add 3 main types of content to each cell:</li>
         <ul>
           <li><strong><span class="x-symbol">X</span> accounts:</strong> Type an <span class="x-symbol">X</span> handle including the @. Displays the avatar (if possible, or a placeholder).</li>
           <li><strong>Plain text:</strong> Type any text you want to display. Keep it short.</li>
-          <li><strong>Images (+label):</strong> Paste an image URL followed by the pipe character | for an optional text label.</li>
+          <li><strong>Images (+label):</strong> Paste an image from your clipboard (NOT image URL addresses, actual image data). After pasting image, add an optional custom label.</li>
         </ul>
         <li>Labels for columns and rows also editable if you want to make a custom alignment chart (or click
-          the <strong>FMK Labels</strong> button above for a quick format change).</li>
-       <li>Screen shot the chart and paste into your <span class="x-symbol">X</span> post.</li>
-        <li>Copy and paste the text at the bottom too to tag people and make AXA post searchable.</li>
+          the <strong>FMK Labels</strong> button for a quick format change).</li>
       </ul>
       <p><strong>Note:</strong> Sometimes <span class="x-symbol">X</span> avatars won't load from <a href="https://unavatar.io/">unavatar.io</a> so a placeholder from <a
           href="https://www.dicebear.com/">dicebear.com</a> will be displayed instead.</p>
@@ -546,6 +680,7 @@
       <button id="fmkLabelsBtn" class="toggle">FMK Labels</button>
     </div>
 
+    <div class="frame-wrap">
     <div class="board-wrapper">
     <div class="board" id="board" aria-label="Alignment grid">
       <!-- Corner -->
@@ -628,26 +763,27 @@
       </div>
       <div id="boardWatermark" class="board-watermark">dm2k9.net/axa</div>
     </div>
+    </div> <!-- end board-wrapper -->
     <div class="resizer-wrap">
-      <div class="board-resizer" id="boardResizer" aria-label="Resize board" title="Drag to resize"></div>
       <div class="resizer-label">Drag to resize</div>
+      <div class="board-resizer" id="boardResizer" aria-label="Resize board" title="Drag to resize"></div>
     </div>
-    </div>
-<p></p>
-    <div class="handles-row">
+    <div class="handles-row" style="margin-top: 1.75rem;">
       <div class="handles-wrapper">
         <p id="handlesText"></p>
       </div>
-
-      <div class="copy-group">
-        <button id="copyHandlesBtn" class="icon-button" type="button" aria-label="Copy handles to clipboard"
-          title="Copy handles">
-          Copy
-        </button>
-        <div id="charCounter" class="char-counter">0 / 280</div>
-      </div>
+      <div id="charCounter" class="char-counter">0 / 280</div>
     </div>
+    </div> <!-- end frame-wrap -->
 
+    <div class="handles-actions" style="margin-top: 0.75rem;">
+      <div class="copy-group">
+        <button id="copyHandlesBtn" class="toggle cta" type="button" aria-label="Copy grid, start X post"
+          title="Copy grid, start X post">
+          <span>Copy grid, start 𝕏 post...</span>
+        </button>
+        <span class="copy-note">and paste clipboard contents into 𝕏 post.</span>
+      </div>
     </div>
 
   </main>
@@ -720,6 +856,7 @@
     // Track a stable viewport height to avoid iOS/Android browser chrome causing jumps
     let stableViewportHeight = window.innerHeight;
     let userBoardSize = null; // manual override set by drag-resize
+    const PLACEHOLDER_IMG = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="100%" height="100%" fill="%232a1042"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23a88dc9" font-size="20">image</text></svg>')}`;
 
     let colTitles = JSON.parse(localStorage.getItem('alignment_col_titles') || 'null') || [...DEFAULT_COLS];
     let rowTitles = JSON.parse(localStorage.getItem('alignment_row_titles') || 'null') || [...DEFAULT_ROWS];
@@ -775,13 +912,20 @@
       if (!value) return null;
       const parts = value.split('|');
       const url = (parts.shift() || '').trim();
-      if (!/^https?:\/\//i.test(url)) return null;
+      // Only allow pasted data URLs (no external links)
+      if (!/^data:image\//i.test(url)) return null;
       const urlNoQuery = url.split('?')[0];
       const hasExt = IMAGE_EXT_RE.test(urlNoQuery);
       const hasHint = /width=|height=|image|img|format=|jpeg|jpg|png|gif|webp/i.test(url);
       const label = parts.join('|').trim();
-      if (!hasExt && !hasHint && !label) return null; // avoid treating arbitrary links as images
+      if (!hasExt && !hasHint && !label && !/^data:image\//i.test(url)) return null; // avoid treating arbitrary links as images
       return { url, label };
+    }
+
+    function showImageUnavailable(el) {
+      if (!el) return;
+      const msg = el.querySelector('.image-unavailable');
+      if (msg) msg.style.display = 'grid';
     }
 
 
@@ -803,6 +947,59 @@
 
     // ==== Handles line ====
     const handlesText = document.getElementById('handlesText');
+    const handlesWrapper = document.querySelector('.handles-wrapper');
+
+    function syncHandlesWidth() {
+      const board = document.getElementById('board');
+      if (!board || !handlesWrapper) return;
+      const w = board.getBoundingClientRect().width;
+      handlesWrapper.style.width = `${w}px`;
+      handlesWrapper.style.maxWidth = '100%';
+      handlesWrapper.style.boxSizing = 'border-box';
+    }
+
+    function fitHeadersResponsive() {
+      const colHeaders = Array.from(document.querySelectorAll('.hdr.col'));
+      const rowHeaders = Array.from(document.querySelectorAll('.hdr.row'));
+      const all = [...colHeaders, ...rowHeaders];
+      if (!all.length) return;
+      const base = 2.1; // rem
+      const min = 0.7;
+      const step = 0.05;
+
+      const measureFit = el => {
+        let size = base;
+        el.style.fontSize = `${size}rem`;
+        while (size > min && (el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight)) {
+          size -= step;
+          el.style.fontSize = `${size}rem`;
+        }
+        return size;
+      };
+
+      const sizes = all.map(measureFit);
+      const finalSize = Math.max(min, Math.min(...sizes));
+      all.forEach(h => (h.style.fontSize = `${finalSize}rem`));
+    }
+
+    function countForX(text) {
+      if (!text) return 0;
+      const weight = str => Array.from(str).reduce((sum, ch) => {
+        const cp = ch.codePointAt(0);
+        return sum + (cp > 0xffff ? 2 : 1); // emoji/astral count as 2
+      }, 0);
+
+      let total = weight(text);
+
+      // Rough URL detection; X counts any URL as 23 characters
+      const urlRe = /(?:https?:\/\/|www\.)\S+|(?:\S+\.\S+\/\S*)/gi;
+      const seen = text.match(urlRe) || [];
+      seen.forEach(url => {
+        total -= weight(url);
+        total += 23; // X t.co length
+      });
+      return total;
+    }
 
     function updateHandlesText() {
       // Read existing column/row titles
@@ -852,7 +1049,8 @@
 
       // Character counter logic
       if (charCounter) {
-        const len = fullText.length;
+        const textForCount = handlesText.textContent || '';
+        const len = countForX(textForCount);
         charCounter.textContent = `${len} / ${CHAR_LIMIT}`;
         charCounter.classList.toggle('over-limit', len > CHAR_LIMIT);
       }
@@ -865,42 +1063,227 @@
     const copyHandlesBtn = document.getElementById('copyHandlesBtn');
 
     async function copyHandlesToClipboard() {
-      const text = (handlesText.textContent || '').trim();
-      if (!text) return; // nothing to copy
-
-      // Disable briefly to avoid double-taps
+      const text = handlesText.textContent || '';
       copyHandlesBtn.disabled = true;
 
       try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(text);
-        } else {
-          // Fallback for older browsers
-          const temp = document.createElement('textarea');
-          temp.value = text;
-          temp.style.position = 'fixed';
-          temp.style.opacity = '0';
-          document.body.appendChild(temp);
-          temp.select();
-          document.execCommand('copy');
-          document.body.removeChild(temp);
+        let imageBlob = null;
+        try {
+          imageBlob = await downloadScreenshot(true);
+        } catch (e) {
+          console.warn('Image capture failed; copying text only', e);
         }
 
-        // Simple visual feedback: temporarily change icon
+        let copied = false;
+
+        // Preferred: single item with both image and text (if supported)
+        if (navigator.clipboard && navigator.clipboard.write && window.ClipboardItem && (imageBlob || text)) {
+          const payload = {};
+          if (imageBlob) payload[imageBlob.type] = imageBlob;
+          if (text) payload['text/plain'] = new Blob([text], { type: 'text/plain' });
+          try {
+            await navigator.clipboard.write([new ClipboardItem(payload)]);
+            copied = true;
+          } catch (err) {
+            console.warn('Combined clipboard write failed, trying fallbacks', err);
+          }
+        }
+
+        // Fallback: image-only if available and supported
+        if (!copied && imageBlob && navigator.clipboard && navigator.clipboard.write && window.ClipboardItem) {
+          try {
+            await navigator.clipboard.write([new ClipboardItem({ [imageBlob.type]: imageBlob })]);
+            copied = true;
+          } catch (err) {
+            console.warn('Image-only clipboard write failed', err);
+          }
+        }
+
+        // Fallback: text-only
+        if (!copied && text) {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+            copied = true;
+          } else {
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            temp.style.position = 'fixed';
+            temp.style.opacity = '0';
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            copied = true;
+          }
+        }
+
         const original = copyHandlesBtn.dataset.label || copyHandlesBtn.textContent;
         copyHandlesBtn.dataset.label = original;
-        copyHandlesBtn.textContent = '✓';
+        copyHandlesBtn.textContent = copied ? '✓' : 'Copy failed';
+        if (copied) copyHandlesBtn.style.color = '#5CFF5C';
+
+        const startXRedirect = () => {
+          const intent = `https://x.com/intent/tweet`;
+          window.open(intent, '_blank', 'noopener');
+        };
+
+        const showRedirecting = () => {
+          const dots = ['.', '..', '...'];
+          let i = 0;
+          const tick = setInterval(() => {
+            copyHandlesBtn.textContent = `Redirecting${dots[i]}`;
+            copyHandlesBtn.style.color = ''; // reset to normal color
+            i++;
+            if (i >= dots.length) {
+              clearInterval(tick);
+              startXRedirect();
+              copyHandlesBtn.textContent = original;
+              copyHandlesBtn.style.color = '';
+              copyHandlesBtn.disabled = false;
+            }
+          }, 333);
+        };
+
         setTimeout(() => {
-          copyHandlesBtn.textContent = original;
-          copyHandlesBtn.disabled = false;
-        }, 1000);
+          if (copied) {
+            showRedirecting();
+          } else {
+            copyHandlesBtn.textContent = original;
+            copyHandlesBtn.style.color = '';
+            copyHandlesBtn.disabled = false;
+          }
+        }, 800);
       } catch {
-        // If copying fails, just re-enable the button
         copyHandlesBtn.disabled = false;
+        alert('Could not copy. Try a modern browser with clipboard access or copy manually.');
       }
     }
 
     copyHandlesBtn.addEventListener('click', copyHandlesToClipboard);
+    syncHandlesWidth();
+    fitHeadersResponsive();
+
+    async function loadDomToImage() {
+      if (window.domtoimage) return window.domtoimage;
+      return new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/dom-to-image-more@3.3.0/dist/dom-to-image-more.min.js';
+        s.async = true;
+        s.onload = () => resolve(window.domtoimage);
+        s.onerror = () => reject(new Error('Failed to load dom-to-image-more'));
+        document.head.appendChild(s);
+      });
+    }
+
+    async function downloadScreenshot(returnBlobOnly = false) {
+      const target = document.querySelector('.board');
+      if (!target) return;
+      const rect = target.getBoundingClientRect();
+      const w = Math.round(rect.width);
+      const h = Math.round(rect.height);
+      const pad = 16;
+
+      // Clone target to avoid flashing live DOM and wrap with padding
+      const clone = target.cloneNode(true);
+      clone.style.position = 'relative';
+      clone.style.width = `${w}px`;
+      clone.style.height = `${h}px`;
+      clone.style.transform = 'none';
+
+      const shot = document.createElement('div');
+      shot.style.position = 'absolute';
+      shot.style.left = '-99999px';
+      shot.style.top = '0';
+      shot.style.width = `${w + pad * 2}px`;
+      shot.style.height = `${h + pad * 2}px`;
+      shot.style.padding = `${pad}px`;
+      shot.style.backgroundColor = '#0a0414';
+      shot.appendChild(clone);
+      document.body.appendChild(shot);
+
+      // Inline all images on the clone to avoid CORS/taint issues
+      const inlineImages = async root => {
+        const imgs = Array.from(root.querySelectorAll('img'));
+        const originals = [];
+
+        const toDataUrl = blob =>
+          new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+          });
+
+        const waitForLoad = img =>
+          new Promise(resolve => {
+            if (img.complete && img.naturalWidth) return resolve();
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+          });
+
+        for (const img of imgs) {
+          const src = img.getAttribute('src') || img.currentSrc;
+          if (!src || src.startsWith('data:')) continue;
+          originals.push({ img, src });
+          try {
+            const resp = await fetch(src, { mode: 'cors', credentials: 'omit', referrerPolicy: 'no-referrer' });
+            if (!resp.ok) throw new Error('fetch failed');
+            const blob = await resp.blob();
+            const dataUrl = await toDataUrl(blob);
+            img.src = dataUrl;
+            await waitForLoad(img);
+          } catch (e) {
+            // Fallback: simple placeholder SVG
+            img.src = PLACEHOLDER_IMG;
+            await waitForLoad(img);
+            const cell = img.closest('.cell');
+            if (cell) {
+              showImageUnavailable(cell);
+            }
+          }
+        }
+
+        return () => {
+          originals.forEach(({ img, src }) => {
+            img.src = src;
+          });
+        };
+      };
+
+      try {
+        const domtoimage = await loadDomToImage();
+        const restoreImages = await inlineImages(shot);
+        const dataUrl = await domtoimage.toPng(shot, {
+          bgcolor: '#0a0414',
+          width: w + pad * 2,
+          height: h + pad * 2,
+          cacheBust: true,
+          style: {
+            width: `${w + pad * 2}px`,
+            height: `${h + pad * 2}px`,
+            transform: 'none'
+          },
+          quality: 1,
+          imagePlaceholder: PLACEHOLDER_IMG
+        });
+        restoreImages && restoreImages();
+        const res = await fetch(dataUrl);
+        const blob = await res.blob();
+        shot.remove();
+        if (returnBlobOnly) return blob;
+        // Default: download if invoked directly without blob request
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = 'axa-grid.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch (err) {
+        console.error('Screenshot capture failed', err);
+        alert('Could not capture screenshot. Please try again. If this persists, try refreshing or replacing external images.');
+        shot.remove();
+        if (returnBlobOnly) throw err;
+      }
+    }
 
 
     const isMobileViewport = () => window.matchMedia('(max-width: 900px)').matches;
@@ -979,6 +1362,7 @@
       fitAllAlignmentLabels();
       updateAvatarSizes();
       positionWatermark();
+      syncHandlesWidth();
     }
 
     function sizeBoard() {
@@ -1003,6 +1387,7 @@
       const size = Math.max(260, Math.min(availW, availH)); // 260px minimum for small phones
 
       applyBoardSize(size);
+      fitHeadersResponsive();
     }
 
 
@@ -1012,11 +1397,13 @@
         stableViewportHeight = window.innerHeight;
       }
       sizeBoard();
+      fitHeadersResponsive();
     }, { passive: true });
 
     window.addEventListener('orientationchange', () => {
       stableViewportHeight = window.innerHeight;
       sizeBoard();
+      fitHeadersResponsive();
     });
 
     // ==== Alignment labels (include True X when row == col) ====
@@ -1032,6 +1419,7 @@
     function refreshAlignmentLabels() {
       renderAllAlignmentLabels();
       fitAllAlignmentLabels();
+      fitHeadersResponsive();
     }
 
     function fitLabel(label, rect, base, padTopBottom = 10) {
@@ -1119,6 +1507,7 @@
         const newSize = clampSize(startSize + delta);
         userBoardSize = newSize;
         applyBoardSize(newSize);
+        fitHeadersResponsive();
       };
 
       const onUp = () => {
@@ -1307,12 +1696,28 @@
         img.className = 'custom-image';
         img.src = imageEntry.url;
         img.alt = labelText;
+        img.onerror = () => { img.src = PLACEHOLDER_IMG; };
 
         const label = document.createElement('div');
         label.className = 'handle image-label';
         label.textContent = labelText;
+        const warn = document.createElement('div');
+        warn.className = 'image-unavailable';
+        warn.textContent = 'Image unavailable';
 
-        content.append(img, label);
+        label.addEventListener('click', e => {
+          e.stopPropagation();
+          editImageLabel(cell, imageEntry.url, imageEntry.label || '');
+        });
+
+        img.addEventListener('click', e => {
+          e.stopPropagation();
+          cell.dataset.raw = '';
+          renderCell(cell);
+          saveAll();
+        });
+
+        content.append(img, label, warn);
         updateAvatarSizes();
         updateHandlesText();
         return;
@@ -1327,27 +1732,88 @@
       updateHandlesText();
     }
 
+    function editImageLabel(cell, dataUrl, existingLabel = '') {
+      const content = cell.querySelector('.content');
+      content.innerHTML = '';
+      const wrap = document.createElement('div');
+      wrap.className = 'inline-edit image-edit';
+
+      const img = document.createElement('img');
+      img.className = 'custom-image';
+      img.src = dataUrl;
+      img.alt = existingLabel || 'Image';
+      img.onerror = () => { img.src = PLACEHOLDER_IMG; };
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = existingLabel;
+      input.placeholder = 'Label for pasted image (optional)';
+
+      wrap.append(img, input);
+      content.append(wrap);
+      input.focus();
+      input.select();
+
+      function commitImage() {
+        const lbl = (input.value || '').trim();
+        cell.dataset.raw = dataUrl + (lbl ? `|${lbl}` : '');
+        renderCell(cell);
+        saveAll();
+      }
+      input.addEventListener('blur', commitImage);
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') renderCell(cell); });
+    }
+
     function editCell(cell) {
       const content = cell.querySelector('.content');
       const current = cell.dataset.raw || '';
       content.innerHTML = '';
       const wrap = document.createElement('div');
       wrap.className = 'inline-edit';
+      const currentImage = parseImageEntry(current);
+
+      if (currentImage) {
+        editImageLabel(cell, currentImage.url, currentImage.label || '');
+        return;
+      }
+
       const input = document.createElement('input');
       input.type = 'text';
       input.value = current;
-      input.placeholder = 'Start with @ for X handle, or paste image URL|label';
+      input.placeholder = 'Start with @ for X handle, or paste image data|label';
       wrap.append(input);
       content.append(wrap);
       input.focus();
       input.select();
+      input.addEventListener('paste', e => {
+        const items = e.clipboardData && e.clipboardData.items;
+        if (!items) return;
+        for (const item of items) {
+          if (item.type && item.type.startsWith('image/')) {
+            e.preventDefault();
+            const file = item.getAsFile();
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+              const dataUrl = reader.result;
+              cell.dataset.raw = dataUrl;
+              renderCell(cell);
+              // Immediately prompt for label on pasted image
+              editImageLabel(cell, dataUrl, '');
+              saveAll();
+            };
+            reader.readAsDataURL(file);
+            break;
+          }
+        }
+      });
       function commit() {
         const raw = (input.value || '').trim();
         if (raw.startsWith('@')) {
           const h = parseHandle(raw);
           cell.dataset.raw = h ? `@${h}` : '';
         } else if (parseImageEntry(raw)) {
-          // Normalize: url|label (label optional)
+          // Normalize: data URL|label (label optional)
           const entry = parseImageEntry(raw);
           const rebuilt = entry.url + (entry.label ? `|${entry.label}` : '');
           cell.dataset.raw = rebuilt;
@@ -1379,7 +1845,7 @@
       const input = document.createElement('input');
       input.type = 'text'; input.value = current; input.size = Math.max(4, Math.min(14, current.length));
       el.replaceWith(wrap); wrap.appendChild(input); input.focus(); input.select();
-      function commit() { const val = (input.value || '').trim() || current; if (kind === 'col') { colTitles[index] = val; } else { rowTitles[index] = val; } saveTitles(); const display = document.createElement('div'); display.id = id; display.className = 'hdr ' + (kind === 'row' ? 'row' : 'col'); display.setAttribute('role', 'button'); display.textContent = val; wrap.replaceWith(display); display.style.cssText = (kind === 'row') ? 'grid-column: 1; grid-row: ' + (index + 2) + '; margin-right: -10px;' : 'grid-column: ' + (index + 2) + '; grid-row: 1; margin-bottom: -10px;'; hookHeader(display); refreshAlignmentLabels(); updateHandlesText(); sizeBoard(); }
+      function commit() { const val = (input.value || '').trim() || current; if (kind === 'col') { colTitles[index] = val; } else { rowTitles[index] = val; } saveTitles(); const display = document.createElement('div'); display.id = id; display.className = 'hdr ' + (kind === 'row' ? 'row' : 'col'); display.setAttribute('role', 'button'); display.textContent = val; wrap.replaceWith(display); display.style.cssText = (kind === 'row') ? 'grid-column: 1; grid-row: ' + (index + 2) + '; margin-right: -10px;' : 'grid-column: ' + (index + 2) + '; grid-row: 1; margin-bottom: -10px;'; hookHeader(display); refreshAlignmentLabels(); updateHandlesText(); sizeBoard(); fitHeadersResponsive(); }
       function cancel() { const display = document.createElement('div'); display.id = id; display.className = 'hdr ' + (kind === 'row' ? 'row' : 'col'); display.setAttribute('role', 'button'); display.textContent = current; wrap.replaceWith(display); hookHeader(display); }
       input.addEventListener('blur', commit);
       input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') cancel(); });
@@ -1539,7 +2005,7 @@
     });
 
     const resetLabelsBtn = document.getElementById('resetLabelsBtn');
-    resetLabelsBtn.addEventListener('click', () => { colTitles = [...DEFAULT_COLS]; rowTitles = [...DEFAULT_ROWS]; saveTitles(); document.getElementById('col-0').textContent = colTitles[0]; document.getElementById('col-1').textContent = colTitles[1]; document.getElementById('col-2').textContent = colTitles[2]; document.getElementById('row-0').textContent = rowTitles[0]; document.getElementById('row-1').textContent = rowTitles[1]; document.getElementById('row-2').textContent = rowTitles[2]; refreshAlignmentLabels(); updateHandlesText(); sizeBoard(); });
+    resetLabelsBtn.addEventListener('click', () => { colTitles = [...DEFAULT_COLS]; rowTitles = [...DEFAULT_ROWS]; saveTitles(); document.getElementById('col-0').textContent = colTitles[0]; document.getElementById('col-1').textContent = colTitles[1]; document.getElementById('col-2').textContent = colTitles[2]; document.getElementById('row-0').textContent = rowTitles[0]; document.getElementById('row-1').textContent = rowTitles[1]; document.getElementById('row-2').textContent = rowTitles[2]; refreshAlignmentLabels(); updateHandlesText(); sizeBoard(); fitHeadersResponsive(); });
 
     const fmkLabelsBtn = document.getElementById('fmkLabelsBtn');
 
