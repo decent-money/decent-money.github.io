@@ -694,6 +694,55 @@
       font-family: var(--font-sans);
     }
 
+.mobile-save-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-self: center;
+}
+
+.mobile-save-refresh {
+  border: 1px solid var(--border);
+  background: var(--chip-bg);
+      color: var(--accent);
+      border-radius: 999px;
+      padding: 0.25rem 0.75rem;
+      cursor: pointer;
+      font-size: 0.95rem;
+  font-family: var(--font-sans);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.mobile-save-intent {
+  border: 1px solid var(--border);
+  background: var(--chip-bg);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-family: var(--font-sans);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.mobile-save-refresh:disabled,
+.mobile-save-close:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+    }
+
+    .mobile-save-close {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      padding: 0.2rem 0.45rem;
+      line-height: 1;
+      font-weight: 700;
+    }
+
 
     /* Make toggle buttons able to host an inner bar */
     .toggle {
@@ -895,6 +944,7 @@
     const CHAR_LIMIT = 280;
     const ALIGN_FONT_MIN = 11;
     const ALIGN_FONT_MAX = 18;
+    const X_INTENT_PLACEHOLDER = 'Delete this text and paste the alignment caption and grid image from A𝕏A web-page.';
 
     const FONT_MAP = {
       'helvetica': '"Helvetica", "Arial", sans-serif',
@@ -1057,16 +1107,62 @@
       const overlay = document.createElement('div');
       overlay.className = 'mobile-save-overlay';
       overlay.innerHTML = `
-        <div class="mobile-save-card">
-          <p>Long-press the image below to copy to clipboard or save it, then paste/attach it to your 𝕏 post.</p>
+        <div class="mobile-save-card" style="position: relative;">
+          <button class="mobile-save-close" type="button" aria-label="Close">×</button>
+          <p style="margin-top: 1.5rem;">Long-press the image below to copy to clipboard or save it, then paste/attach it to your 𝕏 post.</p>
+          <p>If the grid doesn't look like the one you've made, click the "Refresh screenshots" button at the bottom.</p>
           <div class="mobile-save-imgwrap">
             <img src="${dataUrl}" alt="Alignment grid image">
           </div>
-          <button class="mobile-save-close" type="button">Close</button>
+          <div class="mobile-save-actions">
+            <button class="mobile-save-refresh" type="button">
+              <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0114.85-3.36L23 10"></path>
+                <path d="M20.49 15a9 9 0 01-14.85 3.36L1 14"></path>
+              </svg>
+              <span>Refresh screenshot</span>
+            </button>
+            <button class="mobile-save-intent" type="button">Start 𝕏 post</button>
+          </div>
         </div>
       `;
-      overlay.querySelector('.mobile-save-close').addEventListener('click', () => overlay.remove());
+      const imgEl = overlay.querySelector('img');
+      const refreshBtn = overlay.querySelector('.mobile-save-refresh');
+      const intentBtn = overlay.querySelector('.mobile-save-intent');
+      const closeBtn = overlay.querySelector('.mobile-save-close');
+
+      closeBtn.addEventListener('click', () => overlay.remove());
       overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+      if (refreshBtn) {
+        refreshBtn.addEventListener('click', async () => {
+          if (refreshBtn.disabled) return;
+          refreshBtn.disabled = true;
+          refreshBtn.innerHTML = refreshBtn.innerHTML.replace(/Refresh screenshot/i, 'Refreshing...');
+          try {
+            const blob = await downloadScreenshot(true, true, 400);
+            if (blob) {
+              const newUrl = await blobToDataUrl(blob);
+              if (newUrl) imgEl.src = newUrl;
+            }
+          } catch (err) {
+            console.warn('Overlay refresh failed', err);
+          }
+          setTimeout(() => {
+            refreshBtn.innerHTML = refreshBtn.innerHTML.replace(/Refreshing\.\.\.|Refreshing\.{0,2}/i, 'Refresh screenshot');
+            refreshBtn.disabled = false;
+          }, 1200);
+        });
+      }
+
+      if (intentBtn) {
+        intentBtn.addEventListener('click', () => {
+          window.open(startXIntentUrl(), '_blank', 'noopener');
+        });
+      }
+
       document.body.appendChild(overlay);
     }
 
@@ -1241,6 +1337,7 @@
 
 
     const copyHandlesBtn = document.getElementById('copyHandlesBtn');
+    const startXIntentUrl = () => `https://x.com/intent/tweet?text=${encodeURIComponent(X_INTENT_PLACEHOLDER)}`;
 
     async function copyCaptionToClipboard() {
       if (!copyCaptionBtn) return;
@@ -1414,9 +1511,7 @@
         if (copied) copyHandlesBtn.style.color = '#5CFF5C';
 
         const startXRedirect = () => {
-          const placeholder = 'Delete this text and paste the alignment caption and grid image from A𝕏A web-page (if it\'s in your clipboard).';
-          const intent = `https://x.com/intent/tweet?text=${encodeURIComponent(placeholder)}`;
-          window.open(intent, '_blank', 'noopener');
+          window.open(startXIntentUrl(), '_blank', 'noopener');
         };
 
         const showRedirecting = () => {
