@@ -541,13 +541,41 @@
   font-size: 0.75rem;
   color: var(--muted);
   line-height: 1;
-  align-self: flex-end;
-  margin-top: 0.35rem;
 }
 
 .char-counter.over-limit {
   color: #dc2626;
   /* red when over 240 */
+    }
+
+    .handles-title {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1;
+      align-self: flex-start;
+      margin-bottom: 0.2rem;
+    }
+
+    .handles-meta {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      margin-top: 0.35rem;
+    }
+
+    .handles-meta .char-counter {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      margin-top: 0;
+    }
+
+    .toggle.cta.caption-btn {
+      font-size: 0.95rem;
+      padding: 0.4rem 0.8rem;
     }
 
     .handles-wrapper {
@@ -600,6 +628,70 @@
     .icon-button:disabled {
       opacity: 0.6;
       cursor: not-allowed;
+    }
+
+    /* Quick overlay to let mobile users long-press/save the grid image when clipboard APIs are blocked */
+    .mobile-save-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 1rem;
+    }
+
+    .mobile-save-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      max-width: 90vw;
+      max-height: 90vh;
+      color: var(--ink);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .mobile-save-card p {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      color: var(--muted);
+    }
+
+    .mobile-save-imgwrap {
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 0.75rem;
+      background: color-mix(in oklab, var(--panel) 92%, transparent);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      max-height: 50vh;
+    }
+
+    .mobile-save-imgwrap img {
+      max-width: 100%;
+      max-height: 45vh;
+      border-radius: 8px;
+      object-fit: contain;
+      background: #0a0414;
+    }
+
+    .mobile-save-close {
+      align-self: flex-end;
+      border: 1px solid var(--border);
+      background: var(--chip-bg);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 0.25rem 0.75rem;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-family: var(--font-sans);
     }
 
 
@@ -769,10 +861,16 @@
       <div class="board-resizer" id="boardResizer" aria-label="Resize board" title="Drag to resize"></div>
     </div>
     <div class="handles-row" style="margin-top: 1.75rem;">
+      <div class="handles-title">Alignment caption</div>
       <div class="handles-wrapper">
         <p id="handlesText"></p>
       </div>
-      <div id="charCounter" class="char-counter">0 / 280</div>
+      <div class="handles-meta">
+        <button id="copyCaptionBtn" class="toggle cta caption-btn" type="button" aria-label="Copy alignment caption" title="Copy alignment caption">
+          <span>Copy caption</span>
+        </button>
+        <div id="charCounter" class="char-counter">0 / 280</div>
+      </div>
     </div>
     </div> <!-- end frame-wrap -->
 
@@ -857,6 +955,7 @@
     let stableViewportHeight = window.innerHeight;
     let userBoardSize = null; // manual override set by drag-resize
     const PLACEHOLDER_IMG = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="100%" height="100%" fill="%232a1042"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23a88dc9" font-size="20">image</text></svg>')}`;
+    const imageDataUrlCache = new Map();
 
     let colTitles = JSON.parse(localStorage.getItem('alignment_col_titles') || 'null') || [...DEFAULT_COLS];
     let rowTitles = JSON.parse(localStorage.getItem('alignment_row_titles') || 'null') || [...DEFAULT_ROWS];
@@ -948,6 +1047,87 @@
     // ==== Handles line ====
     const handlesText = document.getElementById('handlesText');
     const handlesWrapper = document.querySelector('.handles-wrapper');
+    const copyCaptionBtn = document.getElementById('copyCaptionBtn');
+
+    function showMobileSaveOverlay(dataUrl) {
+      if (!dataUrl) return;
+      const existing = document.querySelector('.mobile-save-overlay');
+      if (existing) existing.remove();
+
+      const overlay = document.createElement('div');
+      overlay.className = 'mobile-save-overlay';
+      overlay.innerHTML = `
+        <div class="mobile-save-card">
+          <p>Long-press the image below to copy to clipboard or save it, then paste/attach it to your 𝕏 post.</p>
+          <div class="mobile-save-imgwrap">
+            <img src="${dataUrl}" alt="Alignment grid image">
+          </div>
+          <button class="mobile-save-close" type="button">Close</button>
+        </div>
+      `;
+      overlay.querySelector('.mobile-save-close').addEventListener('click', () => overlay.remove());
+      overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+      document.body.appendChild(overlay);
+    }
+
+    function blobToDataUrl(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    async function fetchDataUrlFromSrc(src) {
+      if (!src) return '';
+      if (src.startsWith('data:')) return src;
+      if (imageDataUrlCache.has(src)) {
+        try {
+          return await imageDataUrlCache.get(src);
+        } catch {
+          imageDataUrlCache.delete(src);
+        }
+      }
+      const promise = (async () => {
+        const resp = await fetch(src, { mode: 'cors', credentials: 'omit', referrerPolicy: 'no-referrer' });
+        if (!resp.ok) throw new Error('fetch failed');
+        const blob = await resp.blob();
+        return await blobToDataUrl(blob);
+      })();
+      imageDataUrlCache.set(src, promise);
+      try {
+        return await promise;
+      } catch (err) {
+        imageDataUrlCache.delete(src);
+        throw err;
+      }
+    }
+
+    async function preloadBoardImages() {
+      const imgs = Array.from(document.querySelectorAll('.board img'));
+      const tasks = imgs.map(img => {
+        const src = img.getAttribute('src') || img.currentSrc;
+        if (!src || src.startsWith('data:')) return Promise.resolve();
+        return fetchDataUrlFromSrc(src).catch(() => {});
+      });
+      await Promise.all(tasks);
+    }
+
+    function waitForImageLoad(img) {
+      return new Promise(resolve => {
+        if (!img) return resolve();
+        if (img.complete && img.naturalWidth) return resolve();
+        img.onload = () => resolve();
+        img.onerror = () => resolve();
+      });
+    }
+
+    async function ensureBoardImagesReady() {
+      await preloadBoardImages().catch(() => {});
+      const imgs = Array.from(document.querySelectorAll('.board img'));
+      await Promise.all(imgs.map(img => img.decode ? img.decode().catch(() => waitForImageLoad(img)) : waitForImageLoad(img)));
+    }
 
     function syncHandlesWidth() {
       const board = document.getElementById('board');
@@ -1062,81 +1242,160 @@
 
     const copyHandlesBtn = document.getElementById('copyHandlesBtn');
 
+    async function copyCaptionToClipboard() {
+      if (!copyCaptionBtn) return;
+      const text = handlesText.textContent || '';
+      if (!text.trim()) return;
+
+      copyCaptionBtn.disabled = true;
+      const original = copyCaptionBtn.dataset.label || copyCaptionBtn.textContent;
+      copyCaptionBtn.dataset.label = original;
+
+      let copied = false;
+
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(text);
+          copied = true;
+        }
+      } catch (err) {
+        console.warn('Modern copy failed', err);
+      }
+
+      if (!copied) {
+        // Fallback for legacy/mobile browsers
+        const temp = document.createElement('textarea');
+        temp.value = text;
+        temp.style.position = 'fixed';
+        temp.style.opacity = '0';
+        document.body.appendChild(temp);
+        temp.focus();
+        temp.select();
+        try {
+          copied = document.execCommand('copy');
+        } catch (err) {
+          console.warn('execCommand copy failed', err);
+        }
+        document.body.removeChild(temp);
+      }
+
+      if (copied) {
+        copyCaptionBtn.textContent = '✓';
+        copyCaptionBtn.style.color = '#5CFF5C';
+      } else {
+        copyCaptionBtn.textContent = 'Copy failed';
+        copyCaptionBtn.style.color = '';
+      }
+
+      setTimeout(() => {
+        copyCaptionBtn.textContent = original;
+        copyCaptionBtn.style.color = '';
+        copyCaptionBtn.disabled = false;
+      }, 1200);
+    }
+
+    if (copyCaptionBtn) {
+      copyCaptionBtn.addEventListener('click', copyCaptionToClipboard);
+    }
+
     async function copyHandlesToClipboard() {
       const text = handlesText.textContent || '';
       copyHandlesBtn.disabled = true;
 
       const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '');
 
+      let copied = false;
       let pendingWindow = null;
-      if (isMobileDevice) {
-        try {
-          pendingWindow = window.open('', '_blank');
-        } catch (_) {
-          pendingWindow = null;
-        }
+      let imageBlob = null;
+
+      try {
+        // On mobile, do a second capture pass to avoid first-shot missing images and wait briefly before capture
+        imageBlob = await downloadScreenshot(true, isMobileDevice, isMobileDevice ? 400 : 0);
+      } catch (e) {
+        console.warn('Image capture failed; copying text only', e);
       }
 
       try {
-        let imageBlob = null;
-        let copiedImage = false;
-        let copiedText = false;
-        try {
-          imageBlob = await downloadScreenshot(true);
-        } catch (e) {
-          console.warn('Image capture failed; copying text only', e);
-        }
+        let textCopied = false;
+        let imageCopied = false;
 
-        let copied = false;
-
-        // On mobile, try Web Share API with file + text first
-        if (!copied && isMobileDevice && imageBlob && navigator.canShare && navigator.share) {
-          try {
-            const file = new File([imageBlob], 'axa-grid.png', { type: imageBlob.type || 'image/png' });
-            if (navigator.canShare({ files: [file] })) {
-              await navigator.share({ files: [file], text });
-              copied = true;
-              copiedImage = true;
-              copiedText = !!text;
+        if (isMobileDevice) {
+          // Attempt modern clipboard on mobile (iOS 16+ allows text; images may be blocked)
+          if (navigator.clipboard?.write && window.ClipboardItem && imageBlob) {
+            try {
+              const payload = {};
+              payload[imageBlob.type] = imageBlob;
+              if (text) payload['text/plain'] = new Blob([text], { type: 'text/plain' });
+              await navigator.clipboard.write([new ClipboardItem(payload)]);
+              imageCopied = true;
+              textCopied = !!text;
+            } catch (err) {
+              console.warn('Mobile clipboard image write failed, falling back', err);
             }
-          } catch (err) {
-            console.warn('Web Share failed, trying clipboard', err);
           }
-        }
 
-        // Preferred: single item with both image and text (if supported)
-        if (!copied && navigator.clipboard && navigator.clipboard.write && window.ClipboardItem && (imageBlob || text)) {
-          const payload = {};
-          if (imageBlob) payload[imageBlob.type] = imageBlob;
-          if (text) payload['text/plain'] = new Blob([text], { type: 'text/plain' });
-          try {
+          if (!textCopied && navigator.clipboard?.writeText && text) {
+            try {
+              await navigator.clipboard.writeText(text);
+              textCopied = true;
+            } catch (err) {
+              console.warn('Mobile clipboard text write failed, falling back', err);
+            }
+          }
+
+          // Legacy fallback for stubborn mobile browsers (execCommand)
+          if (!textCopied && text) {
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            temp.style.position = 'fixed';
+            temp.style.opacity = '0';
+            document.body.appendChild(temp);
+            temp.focus();
+            temp.select();
+            try {
+              textCopied = document.execCommand('copy');
+            } catch (err) {
+              console.warn('execCommand copy failed', err);
+            }
+            document.body.removeChild(temp);
+          }
+
+          // If image couldn't be written to clipboard, try Web Share with file
+          if (imageBlob && !imageCopied && navigator.canShare && navigator.canShare({ files: [new File([imageBlob], 'axa-grid.png', { type: imageBlob.type })] })) {
+            try {
+              await navigator.share({
+                files: [new File([imageBlob], 'axa-grid.png', { type: imageBlob.type })],
+                text: text || ''
+              });
+              imageCopied = true; // treat as shared/available
+            } catch (err) {
+              console.warn('Web Share with file failed', err);
+            }
+          }
+
+          // If still no image copy, show save overlay for manual save (no auto new tab)
+          if (imageBlob && !imageCopied) {
+            try {
+              const dataUrl = await blobToDataUrl(imageBlob);
+              showMobileSaveOverlay(dataUrl);
+            } catch (err) {
+              console.warn('Could not render mobile save overlay', err);
+            }
+          }
+
+          copied = textCopied || imageCopied;
+        } else {
+          // Desktop: try modern clipboard with image+text
+          if (navigator.clipboard && navigator.clipboard.write && window.ClipboardItem && (imageBlob || text)) {
+            const payload = {};
+            if (imageBlob) payload[imageBlob.type] = imageBlob;
+            if (text) payload['text/plain'] = new Blob([text], { type: 'text/plain' });
             await navigator.clipboard.write([new ClipboardItem(payload)]);
             copied = true;
-            copiedImage = !!imageBlob;
-            copiedText = !!text;
-          } catch (err) {
-            console.warn('Combined clipboard write failed, trying fallbacks', err);
-          }
-        }
-
-        // Fallback: image-only if available and supported
-        if (!copied && imageBlob && navigator.clipboard && navigator.clipboard.write && window.ClipboardItem) {
-          try {
-            await navigator.clipboard.write([new ClipboardItem({ [imageBlob.type]: imageBlob })]);
-            copied = true;
-            copiedImage = true;
-          } catch (err) {
-            console.warn('Image-only clipboard write failed', err);
-          }
-        }
-
-        // Fallback: text-only
-        if (!copied && text) {
-          if (navigator.clipboard && navigator.clipboard.writeText) {
+          } else if (text && navigator.clipboard && navigator.clipboard.writeText) {
             await navigator.clipboard.writeText(text);
             copied = true;
-            copiedText = true;
-          } else {
+          } else if (text) {
             const temp = document.createElement('textarea');
             temp.value = text;
             temp.style.position = 'fixed';
@@ -1146,7 +1405,6 @@
             document.execCommand('copy');
             document.body.removeChild(temp);
             copied = true;
-            copiedText = true;
           }
         }
 
@@ -1156,12 +1414,9 @@
         if (copied) copyHandlesBtn.style.color = '#5CFF5C';
 
         const startXRedirect = () => {
-          const intent = `https://x.com/intent/tweet`;
-          if (pendingWindow && !pendingWindow.closed) {
-            pendingWindow.location = intent;
-          } else {
-            window.open(intent, '_blank', 'noopener');
-          }
+          const placeholder = 'Delete this text and paste the alignment caption and grid image from A𝕏A web-page (if it\'s in your clipboard).';
+          const intent = `https://x.com/intent/tweet?text=${encodeURIComponent(placeholder)}`;
+          window.open(intent, '_blank', 'noopener');
         };
 
         const showRedirecting = () => {
@@ -1192,10 +1447,10 @@
             copyHandlesBtn.disabled = false;
           }
         }, 800);
-      } catch {
+      } catch (err) {
+        console.error('Copy failed', err);
         copyHandlesBtn.disabled = false;
-        if (pendingWindow && !pendingWindow.closed) pendingWindow.close();
-        alert('Could not copy. Try a modern browser with clipboard access or screen shot and copy text manually.');
+        alert('Could not copy. On mobile, save the image when prompted and paste text manually.');
       }
     }
 
@@ -1215,104 +1470,176 @@
       });
     }
 
-    async function downloadScreenshot(returnBlobOnly = false) {
+    async function sleep(ms) {
+      return new Promise(r => setTimeout(r, ms));
+    }
+
+    async function downloadScreenshot(returnBlobOnly = false, extraPass = false, delayMs = 0) {
       const target = document.querySelector('.board');
       if (!target) return;
-      const rect = target.getBoundingClientRect();
-      const w = Math.round(rect.width);
-      const h = Math.round(rect.height);
-      const pad = 16;
 
-      // Clone target to avoid flashing live DOM and wrap with padding
-      const clone = target.cloneNode(true);
-      clone.style.position = 'relative';
-      clone.style.width = `${w}px`;
-      clone.style.height = `${h}px`;
-      clone.style.transform = 'none';
+      const captureOnce = async () => {
+        // Warm cache so first capture on mobile includes avatars/pasted images and wait for decode
+        await ensureBoardImagesReady();
+        if (delayMs > 0) await sleep(delayMs);
+        const rect = target.getBoundingClientRect();
+        const w = Math.round(rect.width);
+        const h = Math.round(rect.height);
+        const pad = 16;
 
-      const shot = document.createElement('div');
-      shot.style.position = 'absolute';
-      shot.style.left = '-99999px';
-      shot.style.top = '0';
-      shot.style.width = `${w + pad * 2}px`;
-      shot.style.height = `${h + pad * 2}px`;
-      shot.style.padding = `${pad}px`;
-      shot.style.backgroundColor = '#0a0414';
-      shot.appendChild(clone);
-      document.body.appendChild(shot);
+        // Clone target to avoid flashing live DOM and wrap with padding
+        const clone = target.cloneNode(true);
+        clone.style.position = 'relative';
+        clone.style.width = `${w}px`;
+        clone.style.height = `${h}px`;
+        clone.style.transform = 'none';
 
-      // Inline all images on the clone to avoid CORS/taint issues
-      const inlineImages = async root => {
-        const imgs = Array.from(root.querySelectorAll('img'));
-        const originals = [];
+        // Add crossed-line overlay to empty cells (screenshot only)
+        const origCells = Array.from(target.querySelectorAll('.cell'));
+        origCells.forEach(orig => {
+          const raw = (orig.dataset.raw || '').trim();
+          const cloneCell = clone.querySelector(`#${orig.id}`);
+          if (!cloneCell) return;
+          if (raw) {
+            // Keep live content
+            return;
+          }
+          // Hide placeholder in clone
+          const ph = cloneCell.querySelector('.placeholder');
+          if (ph) ph.style.display = 'none';
 
-        const toDataUrl = blob =>
-          new Promise(resolve => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.readAsDataURL(blob);
+          // Overlay with diagonal lines
+          const overlay = document.createElement('div');
+          overlay.style.position = 'absolute';
+          overlay.style.inset = '0';
+          overlay.style.pointerEvents = 'none';
+          overlay.style.zIndex = '5';
+          ['45deg', '-45deg'].forEach(angle => {
+            const line = document.createElement('div');
+            line.style.position = 'absolute';
+            line.style.top = '50%';
+            line.style.left = '-15%';
+            line.style.width = '130%';
+            line.style.height = '2px';
+            line.style.background = 'rgba(255,255,255,0.2)';
+            line.style.transform = `rotate(${angle})`;
+            line.style.transformOrigin = 'center';
+            overlay.appendChild(line);
           });
+          cloneCell.appendChild(overlay);
+        });
 
-        const waitForLoad = img =>
-          new Promise(resolve => {
-            if (img.complete && img.naturalWidth) return resolve();
-            img.onload = () => resolve();
-            img.onerror = () => resolve();
-          });
+        const shot = document.createElement('div');
+        shot.style.position = 'absolute';
+        shot.style.left = '-99999px';
+        shot.style.top = '0';
+        shot.style.width = `${w + pad * 2}px`;
+        shot.style.height = `${h + pad * 2}px`;
+        shot.style.padding = `${pad}px`;
+        shot.style.backgroundColor = '#0a0414';
+        shot.appendChild(clone);
+        document.body.appendChild(shot);
 
-        for (const img of imgs) {
-          const src = img.getAttribute('src') || img.currentSrc;
-          if (!src || src.startsWith('data:')) continue;
-          originals.push({ img, src });
-          try {
-            const resp = await fetch(src, { mode: 'cors', credentials: 'omit', referrerPolicy: 'no-referrer' });
-            if (!resp.ok) throw new Error('fetch failed');
-            const blob = await resp.blob();
-            const dataUrl = await toDataUrl(blob);
-            img.src = dataUrl;
-            await waitForLoad(img);
-          } catch (e) {
-            // Fallback: simple placeholder SVG
-            img.src = PLACEHOLDER_IMG;
-            await waitForLoad(img);
-            const cell = img.closest('.cell');
-            if (cell) {
-              showImageUnavailable(cell);
+        // Inline all images on the clone to avoid CORS/taint issues
+        const inlineImages = async root => {
+          const imgs = Array.from(root.querySelectorAll('img'));
+          const originals = [];
+
+          const waitForLoad = img =>
+            new Promise(resolve => {
+              if (img.complete && img.naturalWidth) return resolve();
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+            });
+
+          for (const img of imgs) {
+            const src = img.getAttribute('src') || img.currentSrc;
+            // If already a data URL, just ensure it's loaded
+            if (!src) continue;
+            if (src.startsWith('data:')) {
+              await waitForLoad(img);
+              continue;
+            }
+
+            originals.push({ img, src });
+            // Help Safari/iOS allow fetch + draw
+            img.crossOrigin = 'anonymous';
+            img.referrerPolicy = 'no-referrer';
+
+            try {
+              const dataUrl = await fetchDataUrlFromSrc(src);
+              img.src = dataUrl;
+              await waitForLoad(img);
+            } catch (e) {
+              // Fallback: simple placeholder SVG
+              img.src = PLACEHOLDER_IMG;
+              await waitForLoad(img);
+              const cell = img.closest('.cell');
+              if (cell) {
+                showImageUnavailable(cell);
+              }
             }
           }
-        }
 
-        return () => {
-          originals.forEach(({ img, src }) => {
-            img.src = src;
-          });
+          return () => {
+            originals.forEach(({ img, src }) => {
+              img.src = src;
+            });
+          };
         };
+
+        try {
+          const domtoimage = await loadDomToImage();
+          const restoreImages = await inlineImages(shot);
+          const dataUrl = await domtoimage.toPng(shot, {
+            bgcolor: '#0a0414',
+            width: w + pad * 2,
+            height: h + pad * 2,
+            cacheBust: true,
+            style: {
+              width: `${w + pad * 2}px`,
+              height: `${h + pad * 2}px`,
+              transform: 'none'
+            },
+            quality: 1,
+            imagePlaceholder: PLACEHOLDER_IMG
+          });
+          restoreImages && restoreImages();
+          const res = await fetch(dataUrl);
+          const blob = await res.blob();
+          shot.remove();
+          return { blob, dataUrl };
+        } catch (err) {
+          console.error('Screenshot capture failed', err);
+          shot.remove();
+          throw err;
+        }
       };
 
       try {
-        const domtoimage = await loadDomToImage();
-        const restoreImages = await inlineImages(shot);
-        const dataUrl = await domtoimage.toPng(shot, {
-          bgcolor: '#0a0414',
-          width: w + pad * 2,
-          height: h + pad * 2,
-          cacheBust: true,
-          style: {
-            width: `${w + pad * 2}px`,
-            height: `${h + pad * 2}px`,
-            transform: 'none'
-          },
-          quality: 1,
-          imagePlaceholder: PLACEHOLDER_IMG
-        });
-        restoreImages && restoreImages();
-        const res = await fetch(dataUrl);
-        const blob = await res.blob();
-        shot.remove();
-        if (returnBlobOnly) return blob;
+        const first = await captureOnce();
+        if (extraPass) {
+          // Small delay to let any late image decodes settle, then retry once
+          await sleep(250);
+          try {
+            const second = await captureOnce();
+            if (returnBlobOnly) return second.blob;
+            const a = document.createElement('a');
+            a.href = second.dataUrl;
+            a.download = 'axa-grid.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            return;
+          } catch (err) {
+            console.warn('Second capture failed, using first', err);
+          }
+        }
+
+        if (returnBlobOnly) return first.blob;
         // Default: download if invoked directly without blob request
         const a = document.createElement('a');
-        a.href = dataUrl;
+        a.href = first.dataUrl;
         a.download = 'axa-grid.png';
         document.body.appendChild(a);
         a.click();
@@ -1320,7 +1647,6 @@
       } catch (err) {
         console.error('Screenshot capture failed', err);
         alert('Could not capture screenshot. Please try again. If this persists, try refreshing or replacing external images.');
-        shot.remove();
         if (returnBlobOnly) throw err;
       }
     }
@@ -1717,6 +2043,8 @@
         img.className = 'avatar';
         img.alt = `@${handle}`;
         img.dataset.handle = handle;
+        img.crossOrigin = 'anonymous';
+        img.referrerPolicy = 'no-referrer';
         img.src = avatarURL(handle);
 
         const p = document.createElement('div');
@@ -1734,6 +2062,8 @@
         const labelText = imageEntry.label || `Img${cellIndex()}`;
         const img = document.createElement('img');
         img.className = 'custom-image';
+        img.crossOrigin = 'anonymous';
+        img.referrerPolicy = 'no-referrer';
         img.src = imageEntry.url;
         img.alt = labelText;
         img.onerror = () => { img.src = PLACEHOLDER_IMG; };
@@ -1780,6 +2110,8 @@
 
       const img = document.createElement('img');
       img.className = 'custom-image';
+      img.crossOrigin = 'anonymous';
+      img.referrerPolicy = 'no-referrer';
       img.src = dataUrl;
       img.alt = existingLabel || 'Image';
       img.onerror = () => { img.src = PLACEHOLDER_IMG; };
