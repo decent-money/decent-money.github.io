@@ -1414,6 +1414,7 @@
       let copied = false;
       let pendingWindow = null;
       let imageBlob = null;
+      let overlayShown = false;
 
       try {
         // On mobile, do a hidden warmup capture, then return a second capture to avoid missing images
@@ -1485,6 +1486,7 @@
             try {
               const dataUrl = await blobToDataUrl(imageBlob);
               showMobileSaveOverlay(dataUrl);
+              overlayShown = true;
             } catch (err) {
               console.warn('Could not render mobile save overlay', err);
             }
@@ -1543,7 +1545,7 @@
         };
 
         setTimeout(() => {
-          if (copied) {
+          if (copied && !overlayShown) {
             showRedirecting();
           } else {
             if (pendingWindow && !pendingWindow.closed) pendingWindow.close();
