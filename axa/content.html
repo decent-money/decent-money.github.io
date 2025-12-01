@@ -605,7 +605,7 @@
 
     .handles-block {
       position: relative;
-      width: min(780px, 100vw - 1.5rem);
+      width: auto;
       max-width: 100%;
       margin: 0 auto;
       box-sizing: border-box;
@@ -639,8 +639,8 @@
       align-items: center;
       position: relative;
       overflow: visible;
-      width: max-content;
-      min-width: 100%;
+      width: auto;
+      min-width: 0;
     }
 
     /* Allow horizontal scrolling when board grows wider than viewport */
@@ -1207,6 +1207,7 @@
     // ==== Handles line ====
     const handlesText = document.getElementById('handlesText');
     const handlesWrapper = document.querySelector('.handles-wrapper');
+    const handlesBlock = document.querySelector('.handles-block');
 
     function showMobileSaveOverlay(dataUrl) {
       if (!dataUrl) return;
@@ -1341,6 +1342,21 @@
       handlesWrapper.style.width = `${w}px`;
       handlesWrapper.style.maxWidth = '100%';
       handlesWrapper.style.boxSizing = 'border-box';
+      if (handlesBlock) {
+        handlesBlock.style.width = `${w}px`;
+        handlesBlock.style.maxWidth = '100%';
+        handlesBlock.style.boxSizing = 'border-box';
+      }
+    }
+
+    function syncFrameWidth() {
+      const board = document.getElementById('board');
+      const frame = document.querySelector('.frame-wrap');
+      if (!board || !frame) return;
+      const w = board.getBoundingClientRect().width;
+      // account for frame padding (16px each side)
+      frame.style.width = `${w + 32}px`;
+      frame.style.minWidth = `${w + 32}px`;
     }
 
     function fitHeadersResponsive() {
@@ -1902,6 +1918,7 @@
       updateAvatarSizes();
       positionWatermark();
       syncHandlesWidth();
+      syncFrameWidth();
     }
 
     function computeResponsiveBaseSize() {
@@ -1942,6 +1959,7 @@
 
       applyBoardSize(size);
       fitHeadersResponsive();
+      syncFrameWidth();
     }
 
 
