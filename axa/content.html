@@ -1416,6 +1416,11 @@
       let imageBlob = null;
       let overlayShown = false;
 
+      // Pre-open a tab on mobile so iOS won't block the redirect later
+      if (isMobileDevice) {
+        try { pendingWindow = window.open('', '_blank'); } catch (_) { /* ignored */ }
+      }
+
       try {
         // On mobile, do a hidden warmup capture, then return a second capture to avoid missing images
         imageBlob = await captureGridBlob(isMobileDevice);
@@ -1523,7 +1528,12 @@
         if (copied) copyHandlesBtn.style.color = '#5CFF5C';
 
         const startXRedirect = () => {
-          window.open(startXIntentUrl(), '_blank', 'noopener');
+          const url = startXIntentUrl();
+          if (pendingWindow && !pendingWindow.closed) {
+            pendingWindow.location.href = url;
+          } else {
+            window.open(url, '_blank', 'noopener');
+          }
         };
 
         const showRedirecting = () => {
