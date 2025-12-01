@@ -1005,6 +1005,9 @@
     // Track a stable viewport height to avoid iOS/Android browser chrome causing jumps
     let stableViewportHeight = window.innerHeight;
     let userBoardSize = null; // manual override set by drag-resize
+    let autoBoardSize = null; // auto-enlarge for long handles (cleared when user resizes)
+    const textMeasureCanvas = document.createElement('canvas');
+    const textMeasureCtx = textMeasureCanvas.getContext('2d');
     const PLACEHOLDER_IMG = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="100%" height="100%" fill="%232a1042"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23a88dc9" font-size="20">image</text></svg>')}`;
     const imageDataUrlCache = new Map();
 
@@ -1861,6 +1864,20 @@
       syncHandlesWidth();
     }
 
+    function computeResponsiveBaseSize() {
+      const header = document.querySelector('header');
+      const instruction = document.querySelector('.instruction');
+      const headerH = document.querySelector('header').offsetHeight;
+      const instructionH = document.querySelector('.instruction').offsetHeight + 6;
+      const padding = 16; // main padding + breathing room
+      const viewportH = isMobileViewport()
+        ? Math.max(stableViewportHeight, window.innerHeight)
+        : window.innerHeight;
+      const availH = viewportH - (header ? header.offsetHeight : 0) - (instruction ? instruction.offsetHeight + 6 : 0) - padding;
+      const availW = window.innerWidth - padding;
+      return Math.max(260, Math.min(availW, availH));
+    }
+
     function sizeBoard() {
       const headerH = document.querySelector('header').offsetHeight;
       const instructionH = document.querySelector('.instruction').offsetHeight + 6;
@@ -1880,7 +1897,8 @@
       const availH = viewportH - headerH - instructionH - padding;
       const availW = window.innerWidth - padding;
 
-      const size = Math.max(260, Math.min(availW, availH)); // 260px minimum for small phones
+      const baseSize = Math.max(260, Math.min(availW, availH)); // 260px minimum for small phones
+      const size = autoBoardSize ? Math.max(baseSize, autoBoardSize) : baseSize;
 
       applyBoardSize(size);
       fitHeadersResponsive();
@@ -2021,6 +2039,7 @@
         startX = e.touches ? e.touches[0].clientX : e.clientX;
         startY = e.touches ? e.touches[0].clientY : e.clientY;
         dragging = true;
+        autoBoardSize = null; // manual override cancels auto-sizing
         window.addEventListener('mousemove', onMove);
         window.addEventListener('mouseup', onUp);
         window.addEventListener('touchmove', onMove, { passive: true });
@@ -2065,7 +2084,7 @@
       if (!avatar) return;
 
       // Handle font-size based on cell size
-      const handleSize = Math.max(10, base * 0.08);
+      const handleSize = Math.min(18, Math.max(10, base * 0.08)); // cap so enlarging grid actually gains width
       if (handle) {
         handle.style.fontSize = `${handleSize}px`;
       }
@@ -2088,6 +2107,49 @@
       // When labels are hidden, lift avatar up by half the handle block
       const shiftY = labelsVisible ? 0 : handleH / 2;
       avatar.style.transform = `translateY(${-shiftY}px)`;
+    }
+
+    function autoResizeForHandles() {
+      if (userBoardSize) return; // manual override blocks auto-resize
+      const board = document.getElementById('board');
+      if (!board) return;
+      const cells = Array.from(document.querySelectorAll('.cell'));
+
+      const measureTextWidth = (text, font) => {
+        if (!textMeasureCtx) return text.length * 8;
+        textMeasureCtx.font = font || '16px sans-serif';
+        return textMeasureCtx.measureText(text).width;
+      };
+
+      const baseSize = computeResponsiveBaseSize();
+      const currentBoardWidth = board.getBoundingClientRect().width || baseSize;
+      let targetSize = Math.max(baseSize, currentBoardWidth);
+
+      cells.forEach(cell => {
+        const link = cell.querySelector('.handle a');
+        if (!link) return;
+        const rect = cell.getBoundingClientRect();
+        const availCurrent = rect.width * 0.92; // aligns with handle max-width of ~92%
+        if (!availCurrent) return;
+        const computed = window.getComputedStyle(link);
+        const font = `${computed.fontWeight} ${computed.fontSize} ${computed.fontFamily}`;
+        const needed = measureTextWidth(link.textContent || '', font);
+        const ratio = needed / availCurrent;
+        if (ratio > 1.01) {
+          const req = targetSize * ratio * 1.08;
+          targetSize = Math.min(1400, Math.max(targetSize, req));
+        }
+      });
+
+      // If no change needed, allow grid to shrink back to responsive base
+      if (targetSize > baseSize + 1 || targetSize > currentBoardWidth + 1) {
+        autoBoardSize = targetSize;
+      } else {
+        autoBoardSize = null;
+      }
+      const finalSize = autoBoardSize || baseSize;
+      applyBoardSize(finalSize);
+      fitHeadersResponsive();
     }
 
     function positionWatermark() {
@@ -2156,6 +2218,7 @@
         ph.textContent = 'Click to add';
         content.appendChild(ph);
         updateHandlesText();
+        setTimeout(autoResizeForHandles, 0);
         return;
       }
 
@@ -2192,6 +2255,7 @@
         content.append(img, p);
         updateAvatarSizes();
         updateHandlesText();
+        setTimeout(autoResizeForHandles, 0);
         return;
       }
 
@@ -2238,6 +2302,7 @@
       content.appendChild(text);
       updateAvatarSizes();
       updateHandlesText();
+      setTimeout(autoResizeForHandles, 0);
     }
 
     function editImageLabel(cell, dataUrl, existingLabel = '') {
