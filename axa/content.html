@@ -404,18 +404,19 @@
       text-align: center;
     }
 
-    .handle a {
-      color: inherit;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-
+    .handle a,
     .handle a:link,
     .handle a:visited,
-    .handle a:hover,
     .handle a:active {
       color: inherit;
-      text-decoration: underline;
+      text-decoration: none !important;
+      border-bottom: none;
+    }
+
+    .handle a:hover,
+    .handle a:focus-visible {
+      text-decoration: underline !important;
+      text-underline-offset: 3px;
     }
 
     .placeholder {
