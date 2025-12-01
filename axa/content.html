@@ -1011,6 +1011,15 @@
     let colTitles = JSON.parse(localStorage.getItem('alignment_col_titles') || 'null') || [...DEFAULT_COLS];
     let rowTitles = JSON.parse(localStorage.getItem('alignment_row_titles') || 'null') || [...DEFAULT_ROWS];
     function saveTitles() { localStorage.setItem('alignment_col_titles', JSON.stringify(colTitles)); localStorage.setItem('alignment_row_titles', JSON.stringify(rowTitles)); }
+    function applyTitlesToDom() {
+      ['col', 'row'].forEach(kind => {
+        const titles = kind === 'col' ? colTitles : rowTitles;
+        titles.forEach((t, i) => {
+          const el = document.getElementById(`${kind}-${i}`);
+          if (el) el.textContent = t;
+        });
+      });
+    }
 
     function supportsChar(char) {
       const canvas = document.createElement('canvas');
@@ -2500,9 +2509,6 @@
     });
 
 
-    // ==== Initial paint ====
-    refreshAlignmentLabels();
-
       const handleState = loadAll();
 
       // Default middle handle appears if:
@@ -2519,6 +2525,8 @@
       }
 
       applyXSymbolFallback();
+      applyTitlesToDom();
+      refreshAlignmentLabels();
       initBoardResizer();
 
       function kick() {
