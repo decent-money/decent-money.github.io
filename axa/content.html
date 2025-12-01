@@ -1525,7 +1525,17 @@
         const startXRedirect = () => {
           const url = startXIntentUrl();
           if (isMobileDevice) {
-            window.location.href = url;
+            // Try to open the native app first; fall back to web intent shortly after
+            const appUrl = `twitter://post?message=${encodeURIComponent(X_INTENT_PLACEHOLDER)}`;
+            const fallback = setTimeout(() => {
+              window.location.href = url;
+            }, 700);
+            try {
+              window.location.href = appUrl;
+            } catch {
+              clearTimeout(fallback);
+              window.location.href = url;
+            }
           } else {
             window.open(url, '_blank', 'noopener');
           }
