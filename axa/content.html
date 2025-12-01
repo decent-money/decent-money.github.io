@@ -1105,6 +1105,8 @@
     let autoBoardSize = null; // auto-enlarge for long handles (cleared when user resizes)
     const textMeasureCanvas = document.createElement('canvas');
     const textMeasureCtx = textMeasureCanvas.getContext('2d');
+    let currentShareUrl = '';
+    let sharedStateApplied = false;
     const PLACEHOLDER_IMG = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="100%" height="100%" fill="%232a1042"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23a88dc9" font-size="20">image</text></svg>')}`;
     const imageDataUrlCache = new Map();
 
@@ -1179,6 +1181,72 @@
       const label = parts.join('|').trim();
       if (!hasExt && !hasHint && !label && !/^data:image\//i.test(url)) return null; // avoid treating arbitrary links as images
       return { url, label };
+    }
+
+    function normalizeCellRaw(raw, cellIndex) {
+      const trimmed = (raw || '').trim();
+      if (!trimmed) return '';
+      const img = parseImageEntry(trimmed);
+      if (img) {
+        return img.label || `Img${cellIndex}`;
+      }
+      return trimmed;
+    }
+
+    function buildGridState() {
+      const cells = Array.from(document.querySelectorAll('.cell'));
+      const entries = cells.map((c, idx) => normalizeCellRaw(c.dataset.raw || '', idx + 1));
+      return {
+        cols: [...colTitles],
+        rows: [...rowTitles],
+        cells: entries
+      };
+    }
+
+    function encodeStateToParam(state) {
+      try {
+        const json = JSON.stringify(state);
+        return btoa(unescape(encodeURIComponent(json)));
+      } catch {
+        return '';
+      }
+    }
+
+    function decodeStateFromParam(param) {
+      try {
+        const json = decodeURIComponent(escape(atob(param)));
+        return JSON.parse(json);
+      } catch {
+        return null;
+      }
+    }
+
+    function applySharedState(state) {
+      if (!state || !Array.isArray(state.cells)) return false;
+      if (Array.isArray(state.cols) && state.cols.length === 3) {
+        colTitles = [...state.cols];
+        document.getElementById('col-0').textContent = colTitles[0];
+        document.getElementById('col-1').textContent = colTitles[1];
+        document.getElementById('col-2').textContent = colTitles[2];
+      }
+      if (Array.isArray(state.rows) && state.rows.length === 3) {
+        rowTitles = [...state.rows];
+        document.getElementById('row-0').textContent = rowTitles[0];
+        document.getElementById('row-1').textContent = rowTitles[1];
+        document.getElementById('row-2').textContent = rowTitles[2];
+      }
+
+      const cells = Array.from(document.querySelectorAll('.cell'));
+      cells.forEach((c, idx) => {
+        const val = state.cells[idx] || '';
+        c.dataset.raw = val;
+        renderCell(c);
+      });
+
+      refreshAlignmentLabels();
+      updateHandlesText();
+      sharedStateApplied = true;
+      return true;
     }
 
     function showImageUnavailable(el) {
@@ -1459,7 +1527,11 @@
 
 
       // Always include suffix URL
-      const suffix = 'dm2k9.net/axa';
+      const state = buildGridState();
+      const param = encodeStateToParam(state);
+      const baseUrl = `${window.location.origin}${window.location.pathname}`;
+      currentShareUrl = param ? `${baseUrl}?g=${param}` : baseUrl;
+      const suffix = currentShareUrl.replace(/^https?:\/\//, '');
       const handleLine = handles ? `${handles}\n\n${suffix}` : suffix;
 
       // Final text block shown under the chart
@@ -1475,7 +1547,13 @@
       }
 
       // Resizing flow remains intact
-      requestAnimationFrame(sizeBoard);
+      requestAnimationFrame(() => {
+        sizeBoard();
+        // Update URL to reflect shareable state
+        if (currentShareUrl) {
+          history.replaceState(null, '', currentShareUrl);
+        }
+      });
     }
 
 
@@ -2704,12 +2782,25 @@
     });
 
 
-      const handleState = loadAll();
+      // Apply shared state from URL if present; skip local load if so
+      const params = new URLSearchParams(window.location.search);
+      const sharedParam = params.get('g');
+      if (sharedParam) {
+        const sharedState = decodeStateFromParam(sharedParam);
+        if (applySharedState(sharedState)) {
+          sharedStateApplied = true;
+        }
+      }
+
+      let handleState = { hasKey: false, hasAny: false };
+      if (!sharedStateApplied) {
+        handleState = loadAll();
+      }
 
       // Default middle handle appears if:
       // 1) user has never saved handles before (first visit), OR
       // 2) user has saved before but currently all handles are empty (after clearing)
-      if (!handleState.hasKey || !handleState.hasAny) {
+      if (!sharedStateApplied && (!handleState.hasKey || !handleState.hasAny)) {
         const midCell = document.getElementById('cell-nn'); // center cell
         if (midCell) {
           midCell.dataset.raw = `@${DEFAULT_MID_HANDLE}`;
