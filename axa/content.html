@@ -455,6 +455,7 @@
       display: flex;
       align-items: center;
       gap: .4rem;
+      width: 100%;
     }
 
     .inline-edit.image-edit {
@@ -473,7 +474,8 @@
       background: var(--chip-bg);
       color: var(--ink);
       outline: none;
-      width: 8rem;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .inline-edit input:focus {
@@ -2381,6 +2383,9 @@
       input.type = 'text';
       input.value = current;
       input.placeholder = 'Start with @ for X handle, or paste image data|label';
+      input.style.width = '100%';
+      input.style.boxSizing = 'border-box';
+      wrap.style.width = '100%';
       wrap.append(input);
       content.append(wrap);
       input.focus();
@@ -2443,7 +2448,24 @@
       const wrap = document.createElement('div');
       wrap.className = 'hdr hdr-edit' + (kind === 'row' ? ' row' : '');
       const input = document.createElement('input');
-      input.type = 'text'; input.value = current; input.size = Math.max(4, Math.min(14, current.length));
+      input.type = 'text';
+      input.value = current;
+      input.size = Math.max(4, Math.min(14, current.length));
+      input.style.width = '100%';
+      input.style.boxSizing = 'border-box';
+      wrap.style.width = '100%';
+      if (kind === 'row') {
+        wrap.style.height = '100%';
+        wrap.style.display = 'flex';
+        wrap.style.alignItems = 'center';
+        wrap.style.justifyContent = 'center';
+        wrap.style.transform = 'rotate(180deg)';
+        wrap.style.transformOrigin = 'center';
+        input.style.height = '100%';
+        input.style.writingMode = 'vertical-rl';
+        input.style.textOrientation = 'mixed';
+        input.style.transform = 'none';
+      }
       el.replaceWith(wrap); wrap.appendChild(input); input.focus(); input.select();
       function commit() { const val = (input.value || '').trim() || current; if (kind === 'col') { colTitles[index] = val; } else { rowTitles[index] = val; } saveTitles(); const display = document.createElement('div'); display.id = id; display.className = 'hdr ' + (kind === 'row' ? 'row' : 'col'); display.setAttribute('role', 'button'); display.textContent = val; wrap.replaceWith(display); display.style.cssText = (kind === 'row') ? 'grid-column: 1; grid-row: ' + (index + 2) + '; margin-right: -10px;' : 'grid-column: ' + (index + 2) + '; grid-row: 1; margin-bottom: -10px;'; hookHeader(display); refreshAlignmentLabels(); updateHandlesText(); sizeBoard(); fitHeadersResponsive(); }
       function cancel() { const display = document.createElement('div'); display.id = id; display.className = 'hdr ' + (kind === 'row' ? 'row' : 'col'); display.setAttribute('role', 'button'); display.textContent = current; wrap.replaceWith(display); hookHeader(display); }
