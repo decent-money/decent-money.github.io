@@ -45,21 +45,36 @@
       margin: 0;
     }
 
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      overflow-x: auto;
+      overflow-y: auto;
+    }
+
     body {
       background: var(--bg);
       color: var(--ink);
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
       display: flex;
       flex-direction: column;
-      overflow-x: auto;
-      overflow-y: auto;
+    }
+
+    /* Let this page break out of the global container width */
+    .site-main .container {
+      width: 100%;
+      max-width: none;
+      padding: 0;
+      overflow: visible;
+      display: contents; /* behave as if no container for this page */
     }
 
     main {
       flex: 1;
       display: flex;
       flex-direction: column;
-      align-items: center;
+      align-items: stretch;
+      width: 100%;
       /* allow content (chart + handles) to extend and be scrollable */
       overflow: visible;
       padding: .5rem;
@@ -70,10 +85,11 @@
     header {
       padding: .5rem .5rem;
       border-bottom: 1px solid var(--grid);
-      display: grid;
-      grid-template-columns: 1fr auto;
+      display: flex;
+      justify-content: center;
       align-items: center;
       gap: .5rem;
+      width: 100%;
       /*background: linear-gradient(180deg, var(--header-grad-1), var(--header-grad-2));*/
     }
 
@@ -81,6 +97,7 @@
       margin: 0;
       font-size: clamp(0.95rem, 2.4vw, 1.25rem);
       font-weight: 650;
+      text-align: center;
     }
 
     /* Compact, single-line, horizontally scrollable controls for phones */
@@ -194,12 +211,14 @@
     }
 
     .instruction {
-      margin: 0;
+      margin: 0 auto;
       font-size: 0.95rem;
       color: var(--muted);
-      width: 100%;
-      max-width: 700px;
       text-align: left;
+      width: min(780px, 100vw - 1.5rem);
+      max-width: 100%;
+      box-sizing: border-box;
+      padding: 0.5rem 0.75rem 0.25rem;
     }
 
     .instruction ul {
@@ -222,6 +241,7 @@
       position: relative;
       display: inline-block;
       box-sizing: border-box;
+      overflow: visible;
     }
 
     .resizer-wrap {
@@ -470,6 +490,8 @@
       margin-top: 0.25rem;
       padding-bottom: 0.5rem;
       /* a little breathing room above bottom edge */
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .handles-actions {
@@ -552,25 +574,21 @@
       font-size: 0.75rem;
       color: var(--muted);
       line-height: 1;
-      align-self: flex-start;
-      margin-bottom: 0.2rem;
-    }
-
-    .handles-meta {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-      margin-top: 0.35rem;
-    }
-
-    .handles-meta .char-counter {
       position: absolute;
+      top: -0.6rem;
+      left: 0;
+      padding-left: 0.2rem;
+    }
+
+    .char-counter {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1;
+      position: absolute;
+      bottom: -0.6rem;
       right: 0;
-      top: 50%;
-      transform: translateY(-50%);
       margin-top: 0;
+      padding-right: 0.2rem;
     }
 
     .toggle.cta.caption-btn {
@@ -578,14 +596,28 @@
       padding: 0.4rem 0.8rem;
     }
 
+    .handles-block {
+      position: relative;
+      width: min(780px, 100vw - 1.5rem);
+      max-width: 100%;
+      margin: 0 auto;
+      box-sizing: border-box;
+      padding: 0.8rem 0 0.8rem; /* tighter space for title/counter offsets */
+    }
+
     .handles-wrapper {
-      width: var(--board-size);
+      width: 100%;
       max-width: 100%;
       box-sizing: border-box;
       border: 1px dashed rgba(255, 255, 255, 0.15);
       border-radius: 14px;
       padding: 0.9rem 1rem 0.6rem;
       background: color-mix(in oklab, var(--panel) 92%, transparent);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0 auto;
     }
 
     .frame-wrap {
@@ -595,6 +627,38 @@
       box-sizing: border-box;
       display: inline-block;
       position: relative;
+      overflow: visible;
+    }
+
+    /* Allow horizontal scrolling when board grows wider than viewport */
+    .axa-scroll {
+      width: 100vw;
+      overflow-x: auto;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x pan-y;
+      padding: 0 0.5rem;
+      box-sizing: border-box;
+    }
+
+    .axa-inner {
+      width: max-content;
+      min-width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      box-sizing: border-box;
+      gap: 0.5rem;
+    }
+
+    .page-wrap {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0 0.5rem 1rem;
+      box-sizing: border-box;
     }
 
     #handlesText {
@@ -604,7 +668,8 @@
       color: var(--ink);
       word-wrap: break-word;
       white-space: pre-wrap;
-      max-width: 80vw;
+      width: 100%;
+      max-width: 100%;
       line-height: 1.6;
     }
 
@@ -788,28 +853,31 @@
     }
   </style>
 
-<body>
-  <header>
-    <h1>Allies <span class="x-symbol">X</span> Axis (A<span class="x-symbol">X</span>A) Alignment Chart</h1>
-  </header>
+  <body style="overflow-x: auto;">
+    <div class="axa-scroll">
+      <div class="axa-inner">
+        <header>
+          <h1>Allies <span class="x-symbol">X</span> Axis (A<span class="x-symbol">X</span>A) Alignment Chart</h1>
+        </header>
 
-  <main>
+        <main>
 
-    <div class="instruction" style="margin-left: 0; text-align: left; max-width: none;">
-      <ul>
-        <li>You can add 3 main types of content to each cell:</li>
+    <div class="page-wrap">
+      <div class="instruction">
         <ul>
-          <li><strong><span class="x-symbol">X</span> accounts:</strong> Type an <span class="x-symbol">X</span> handle including the @. Displays the avatar (if possible, or a placeholder).</li>
-          <li><strong>Plain text:</strong> Type any text you want to display. Keep it short.</li>
-          <li><strong>Images (+label):</strong> Paste an image from your clipboard (NOT image URL addresses, actual image data). After pasting image, add an optional custom label.</li>
+          <li>You can add 3 main types of content to each cell:</li>
+          <ul>
+            <li><strong><span class="x-symbol">X</span> accounts:</strong> Type an <span class="x-symbol">X</span> handle including the @. Displays the avatar (if possible, or a placeholder).</li>
+            <li><strong>Plain text:</strong> Type any text you want to display. Keep it short.</li>
+            <li><strong>Images (+label):</strong> Paste an image from your clipboard (NOT image URL addresses, actual image data). After pasting image, add an optional custom label.</li>
+          </ul>
+          <li>Labels for columns and rows also editable if you want to make a custom alignment chart (or click
+            the <strong>FMK Labels</strong> button for a quick format change).</li>
         </ul>
-        <li>Labels for columns and rows also editable if you want to make a custom alignment chart (or click
-          the <strong>FMK Labels</strong> button for a quick format change).</li>
-      </ul>
-      <p><strong>Note:</strong> Sometimes <span class="x-symbol">X</span> avatars won't load from <a href="https://unavatar.io/">unavatar.io</a> so a placeholder from <a
-          href="https://www.dicebear.com/">dicebear.com</a> will be displayed instead.</p>
-    </div>
-      
+        <p><strong>Note:</strong> Sometimes <span class="x-symbol">X</span> avatars won't load from <a href="https://unavatar.io/">unavatar.io</a> so a placeholder from <a
+            href="https://www.dicebear.com/">dicebear.com</a> will be displayed instead.</p>
+      </div>
+
     <div class="controls controls-rowwrap" role="toolbar" aria-label="Chart controls">
       <button id="labelsBtn" class="toggle" aria-pressed="true">Labels: On</button>
       <button id="refreshBtn" class="toggle">
@@ -910,14 +978,11 @@
       <div class="board-resizer" id="boardResizer" aria-label="Resize board" title="Drag to resize"></div>
     </div>
     <div class="handles-row" style="margin-top: 1.75rem;">
-      <div class="handles-title">Alignment caption</div>
-      <div class="handles-wrapper">
-        <p id="handlesText"></p>
-      </div>
-      <div class="handles-meta">
-        <button id="copyCaptionBtn" class="toggle cta caption-btn" type="button" aria-label="Copy alignment caption" title="Copy alignment caption">
-          <span>Copy caption</span>
-        </button>
+      <div class="handles-block">
+        <div class="handles-title">Alignment caption</div>
+        <div class="handles-wrapper">
+          <p id="handlesText"></p>
+        </div>
         <div id="charCounter" class="char-counter">0 / 280</div>
       </div>
     </div>
@@ -932,6 +997,11 @@
         <span class="copy-note">and paste clipboard contents into 𝕏 post.</span>
       </div>
     </div>
+    </div> <!-- end page-wrap -->
+
+        </main>
+      </div> <!-- end axa-inner -->
+    </div> <!-- end axa-scroll -->
 
   </main>
 
@@ -1109,7 +1179,6 @@
     // ==== Handles line ====
     const handlesText = document.getElementById('handlesText');
     const handlesWrapper = document.querySelector('.handles-wrapper');
-    const copyCaptionBtn = document.getElementById('copyCaptionBtn');
 
     function showMobileSaveOverlay(dataUrl) {
       if (!dataUrl) return;
@@ -1350,62 +1419,6 @@
 
     const copyHandlesBtn = document.getElementById('copyHandlesBtn');
     const startXIntentUrl = () => `https://x.com/intent/tweet?text=${encodeURIComponent(X_INTENT_PLACEHOLDER)}`;
-
-    async function copyCaptionToClipboard() {
-      if (!copyCaptionBtn) return;
-      const text = handlesText.textContent || '';
-      if (!text.trim()) return;
-
-      copyCaptionBtn.disabled = true;
-      const original = copyCaptionBtn.dataset.label || copyCaptionBtn.textContent;
-      copyCaptionBtn.dataset.label = original;
-
-      let copied = false;
-
-      try {
-        if (navigator.clipboard?.writeText) {
-          await navigator.clipboard.writeText(text);
-          copied = true;
-        }
-      } catch (err) {
-        console.warn('Modern copy failed', err);
-      }
-
-      if (!copied) {
-        // Fallback for legacy/mobile browsers
-        const temp = document.createElement('textarea');
-        temp.value = text;
-        temp.style.position = 'fixed';
-        temp.style.opacity = '0';
-        document.body.appendChild(temp);
-        temp.focus();
-        temp.select();
-        try {
-          copied = document.execCommand('copy');
-        } catch (err) {
-          console.warn('execCommand copy failed', err);
-        }
-        document.body.removeChild(temp);
-      }
-
-      if (copied) {
-        copyCaptionBtn.textContent = '✓';
-        copyCaptionBtn.style.color = '#5CFF5C';
-      } else {
-        copyCaptionBtn.textContent = 'Copy failed';
-        copyCaptionBtn.style.color = '';
-      }
-
-      setTimeout(() => {
-        copyCaptionBtn.textContent = original;
-        copyCaptionBtn.style.color = '';
-        copyCaptionBtn.disabled = false;
-      }, 1200);
-    }
-
-    if (copyCaptionBtn) {
-      copyCaptionBtn.addEventListener('click', copyCaptionToClipboard);
-    }
 
     async function copyHandlesToClipboard() {
       const text = handlesText.textContent || '';
@@ -1903,6 +1916,17 @@
       fitHeadersResponsive();
     }
 
+    function centerHeaderOnLoad() {
+      const scroller = document.querySelector('.axa-scroll');
+      const headerEl = document.querySelector('.axa-scroll header');
+      if (!scroller || !headerEl) return;
+      const headerRect = headerEl.getBoundingClientRect();
+      const scrollRect = scroller.getBoundingClientRect();
+      const relativeLeft = headerRect.left - scrollRect.left + scroller.scrollLeft;
+      const targetLeft = Math.max(0, relativeLeft - (scroller.clientWidth - headerRect.width) / 2);
+      scroller.scrollTo({ left: targetLeft, behavior: 'auto' });
+    }
+
 
     window.addEventListener('resize', () => {
       // Update stable height when the viewport grows (e.g., chrome hidden)
@@ -1911,12 +1935,14 @@
       }
       sizeBoard();
       fitHeadersResponsive();
+      centerHeaderOnLoad();
     }, { passive: true });
 
     window.addEventListener('orientationchange', () => {
       stableViewportHeight = window.innerHeight;
       sizeBoard();
       fitHeadersResponsive();
+      centerHeaderOnLoad();
     });
 
     // ==== Alignment labels (include True X when row == col) ====
@@ -2629,8 +2655,18 @@
       function kick() {
         sizeBoard();
         requestAnimationFrame(sizeBoard);
+        requestAnimationFrame(() => {
+          centerHeaderOnLoad();
+          // Run again shortly after in case layout shifts
+          setTimeout(centerHeaderOnLoad, 200);
+        });
       }
     kick();
+
+    window.addEventListener('load', () => {
+      setTimeout(centerHeaderOnLoad, 50);
+      setTimeout(centerHeaderOnLoad, 250);
+    });
 
 
   </script>
