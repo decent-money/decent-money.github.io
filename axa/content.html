@@ -502,6 +502,8 @@
       justify-content: center;
       gap: 0.5rem;
       flex-wrap: wrap;
+      width: auto;
+      align-self: center;
     }
 
     .copy-group {
@@ -634,7 +636,7 @@
 
     /* Allow horizontal scrolling when board grows wider than viewport */
     .axa-scroll {
-      width: 100vw;
+      width: 100%;
       overflow-x: auto;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
@@ -650,6 +652,15 @@
       flex-direction: column;
       align-items: flex-start;
       box-sizing: border-box;
+      gap: 0.5rem;
+    }
+
+    .axa-grid-wrap {
+      width: max-content;
+      min-width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       gap: 0.5rem;
     }
 
@@ -856,14 +867,13 @@
   </style>
 
   <body style="overflow-x: auto;">
-    <div class="axa-scroll">
-      <div class="axa-inner">
-        <header>
-          <h1>Allies <span class="x-symbol">X</span> Axis (A<span class="x-symbol">X</span>A) Alignment Chart</h1>
-        </header>
+    <header>
+      <h1>Allies <span class="x-symbol">X</span> Axis (A<span class="x-symbol">X</span>A) Alignment Chart</h1>
+    </header>
 
-        <main>
+    <main>
 
+    <!-- Section 1: Instructions (responsive, no horizontal scroll needed) -->
     <div class="page-wrap">
       <div class="instruction">
         <ul>
@@ -879,6 +889,12 @@
         <p><strong>Note:</strong> Sometimes <span class="x-symbol">X</span> avatars won't load from <a href="https://unavatar.io/">unavatar.io</a> so a placeholder from <a
             href="https://www.dicebear.com/">dicebear.com</a> will be displayed instead.</p>
       </div>
+    </div>
+
+    <!-- Section 2: Controls + Grid + Caption + Actions (scrollable horizontally if needed) -->
+    <div class="axa-scroll">
+      <div class="axa-inner">
+        <div class="axa-grid-wrap">
 
     <div class="controls controls-rowwrap" role="toolbar" aria-label="Chart controls">
       <button id="labelsBtn" class="toggle" aria-pressed="true">Labels: On</button>
@@ -999,11 +1015,12 @@
         <span class="copy-note">and paste clipboard contents into 𝕏 post.</span>
       </div>
     </div>
+        </div> <!-- end axa-grid-wrap -->
+    </div> <!-- end axa-inner -->
+    </div> <!-- end axa-scroll -->
     </div> <!-- end page-wrap -->
 
         </main>
-      </div> <!-- end axa-inner -->
-    </div> <!-- end axa-scroll -->
 
   </main>
 
@@ -1918,16 +1935,6 @@
       fitHeadersResponsive();
     }
 
-    function centerHeaderOnLoad() {
-      const scroller = document.querySelector('.axa-scroll');
-      const headerEl = document.querySelector('.axa-scroll header');
-      if (!scroller || !headerEl) return;
-      const headerRect = headerEl.getBoundingClientRect();
-      const scrollRect = scroller.getBoundingClientRect();
-      const relativeLeft = headerRect.left - scrollRect.left + scroller.scrollLeft;
-      const targetLeft = Math.max(0, relativeLeft - (scroller.clientWidth - headerRect.width) / 2);
-      scroller.scrollTo({ left: targetLeft, behavior: 'auto' });
-    }
 
 
     window.addEventListener('resize', () => {
@@ -1937,14 +1944,12 @@
       }
       sizeBoard();
       fitHeadersResponsive();
-      centerHeaderOnLoad();
     }, { passive: true });
 
     window.addEventListener('orientationchange', () => {
       stableViewportHeight = window.innerHeight;
       sizeBoard();
       fitHeadersResponsive();
-      centerHeaderOnLoad();
     });
 
     // ==== Alignment labels (include True X when row == col) ====
@@ -2677,18 +2682,8 @@
       function kick() {
         sizeBoard();
         requestAnimationFrame(sizeBoard);
-        requestAnimationFrame(() => {
-          centerHeaderOnLoad();
-          // Run again shortly after in case layout shifts
-          setTimeout(centerHeaderOnLoad, 200);
-        });
       }
     kick();
-
-    window.addEventListener('load', () => {
-      setTimeout(centerHeaderOnLoad, 50);
-      setTimeout(centerHeaderOnLoad, 250);
-    });
 
 
   </script>
