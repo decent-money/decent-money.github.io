@@ -239,23 +239,22 @@
 
     .board-wrapper {
       position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      display: inline-block;
       box-sizing: border-box;
       overflow: visible;
-      width: 100%;
     }
 
     .resizer-wrap {
       display: flex;
       justify-content: flex-end;
       align-items: center;
-      gap: 10px;
-      margin-top: 16px;
-      width: 100%;
+      gap: 8px;
+      width: auto;
       height: 18px;
-      position: relative;
+      position: absolute;
+      bottom: -26px;
+      right: -8px;
+      pointer-events: none;
     }
 
     .board-resizer {
@@ -267,6 +266,7 @@
       background: color-mix(in oklab, var(--panel) 75%, transparent);
       cursor: nwse-resize;
       box-shadow: 0 0 8px rgba(0, 0, 0, 0.35);
+      pointer-events: auto;
     }
 
     .board-resizer::after {
@@ -631,13 +631,15 @@
       border: 1px dashed rgba(255, 255, 255, 0.15);
       border-radius: 16px;
       padding: 16px;
+      padding-bottom: 48px; /* leave room for resizer */
       box-sizing: border-box;
       display: inline-flex;
       flex-direction: column;
       align-items: center;
       position: relative;
       overflow: visible;
-      width: 100%;
+      width: max-content;
+      min-width: 100%;
     }
 
     /* Allow horizontal scrolling when board grows wider than viewport */
@@ -996,11 +998,11 @@
       </div>
       <div id="boardWatermark" class="board-watermark">dm2k9.net/axa</div>
     </div>
-    </div> <!-- end board-wrapper -->
     <div class="resizer-wrap">
       <div class="resizer-label">Drag to resize</div>
       <div class="board-resizer" id="boardResizer" aria-label="Resize board" title="Drag to resize"></div>
     </div>
+    </div> <!-- end board-wrapper -->
     <div class="handles-row" style="margin-top: 1.75rem;">
       <div class="handles-block">
         <div class="handles-title">Alignment caption</div>
