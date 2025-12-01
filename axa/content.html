@@ -2165,8 +2165,16 @@
 
         const p = document.createElement('div');
         p.className = 'handle';
-        p.innerHTML = `<a href="${profileURL(handle)}" target="_blank" rel="noopener noreferrer">@${handle}</a>`;
-        p.querySelector('a').addEventListener('click', e => e.stopPropagation());
+        const link = document.createElement('a');
+        link.href = profileURL(handle);
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = `@${handle}`;
+        // Explicitly strip underline so screenshots inherit inline style too
+        link.style.textDecoration = 'none';
+        link.style.borderBottom = 'none';
+        link.addEventListener('click', e => e.stopPropagation());
+        p.appendChild(link);
         content.append(img, p);
         updateAvatarSizes();
         updateHandlesText();
