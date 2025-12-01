@@ -239,9 +239,12 @@
 
     .board-wrapper {
       position: relative;
-      display: inline-block;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       box-sizing: border-box;
       overflow: visible;
+      width: 100%;
     }
 
     .resizer-wrap {
@@ -629,9 +632,12 @@
       border-radius: 16px;
       padding: 16px;
       box-sizing: border-box;
-      display: inline-block;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
       position: relative;
       overflow: visible;
+      width: 100%;
     }
 
     /* Allow horizontal scrolling when board grows wider than viewport */
