@@ -1337,15 +1337,33 @@
 
     function syncHandlesWidth() {
       const board = document.getElementById('board');
-      if (!board || !handlesWrapper) return;
-      const w = board.getBoundingClientRect().width;
+      const boardWrapper = document.querySelector('.board-wrapper');
+      if (!board || !handlesWrapper || !boardWrapper) return;
+
+      // Measure width from left edge of left-most cell to right edge of right-most cell (exclude row headers)
+      const rowCells = Array.from(document.querySelectorAll('.cell[data-row-index="0"]'));
+      let w = board.getBoundingClientRect().width;
+      let offsetLeft = 0;
+      if (rowCells.length) {
+        const firstRect = rowCells[0].getBoundingClientRect();
+        const lastRect = rowCells[rowCells.length - 1].getBoundingClientRect();
+        w = lastRect.right - firstRect.left;
+        const wrapperRect = boardWrapper.getBoundingClientRect();
+        offsetLeft = firstRect.left - wrapperRect.left;
+      }
+
       handlesWrapper.style.width = `${w}px`;
       handlesWrapper.style.maxWidth = '100%';
       handlesWrapper.style.boxSizing = 'border-box';
+      handlesWrapper.style.marginLeft = '0';
+      handlesWrapper.style.transform = 'none';
+
       if (handlesBlock) {
         handlesBlock.style.width = `${w}px`;
         handlesBlock.style.maxWidth = '100%';
         handlesBlock.style.boxSizing = 'border-box';
+        handlesBlock.style.marginLeft = '0';
+        handlesBlock.style.transform = `translateX(${offsetLeft}px)`;
       }
     }
 
