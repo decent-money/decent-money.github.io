@@ -1152,7 +1152,7 @@
           refreshBtn.disabled = true;
           refreshBtn.innerHTML = refreshBtn.innerHTML.replace(/Refresh screenshot/i, 'Refreshing...');
           try {
-            const blob = await downloadScreenshot(true, true, 400);
+            const blob = await captureGridBlob(true);
             if (blob) {
               const newUrl = await blobToDataUrl(blob);
               if (newUrl) imgEl.src = newUrl;
@@ -1416,8 +1416,8 @@
       let imageBlob = null;
 
       try {
-        // On mobile, do a second capture pass to avoid first-shot missing images and wait briefly before capture
-        imageBlob = await downloadScreenshot(true, isMobileDevice, isMobileDevice ? 400 : 0);
+        // On mobile, do a hidden warmup capture, then return a second capture to avoid missing images
+        imageBlob = await captureGridBlob(isMobileDevice);
       } catch (e) {
         console.warn('Image capture failed; copying text only', e);
       }
@@ -1754,6 +1754,15 @@
         alert('Could not capture screenshot. Please try again. If this persists, try refreshing or replacing external images.');
         if (returnBlobOnly) throw err;
       }
+    }
+
+    async function captureGridBlob(forMobile = false) {
+      if (forMobile) {
+        try { await downloadScreenshot(true, false, 200); } catch (e) { console.warn('Warmup capture failed', e); }
+        await sleep(200);
+        return await downloadScreenshot(true, false, 0);
+      }
+      return await downloadScreenshot(true, false, 0);
     }
 
 
