@@ -1023,7 +1023,7 @@
           <p id="handlesText"></p>
           <div id="charCounter" class="char-counter">0 / 280</div>
           <label class="caption-toggle">
-            <input type="checkbox" id="toggleLinkCheckbox" checked>
+            <input type="checkbox" id="toggleLinkCheckbox">
             Include grid link
           </label>
         </div>
@@ -1057,7 +1057,7 @@
     const charCounter = document.getElementById('charCounter');
     const CHAR_LIMIT = 280;
     const toggleLinkCheckbox = document.getElementById('toggleLinkCheckbox');
-    let includeGridLink = true;
+    let includeGridLink = false;
     const ALIGN_FONT_MIN = 11;
     const ALIGN_FONT_MAX = 18;
     const X_INTENT_PLACEHOLDER = 'Delete this text and paste the alignment caption and grid image copied onto your clipboard from the A𝕏A web-page.';
@@ -1130,6 +1130,8 @@
         includeGridLink = toggleLinkCheckbox.checked;
         updateHandlesText();
       });
+      // initialize state
+      includeGridLink = toggleLinkCheckbox.checked;
     }
     const PLACEHOLDER_IMG = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="100%" height="100%" fill="%232a1042"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23a88dc9" font-size="20">image</text></svg>')}`;
     const imageDataUrlCache = new Map();
