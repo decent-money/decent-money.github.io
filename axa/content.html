@@ -603,6 +603,18 @@
       padding: 0.4rem 0.8rem;
     }
 
+    .caption-toggle {
+      position: absolute;
+      bottom: -1.3rem;
+      left: 0.35rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      user-select: none;
+    }
+
     .handles-block {
       position: relative;
       width: auto;
@@ -1004,15 +1016,19 @@
       <div class="board-resizer" id="boardResizer" aria-label="Resize board" title="Drag to resize"></div>
     </div>
     </div> <!-- end board-wrapper -->
-    <div class="handles-row" style="margin-top: 2.5rem;">
-      <div class="handles-block">
+      <div class="handles-row" style="margin-top: 2.5rem;">
+        <div class="handles-block">
         <div class="handles-wrapper">
           <div class="handles-title">Alignment caption</div>
           <p id="handlesText"></p>
           <div id="charCounter" class="char-counter">0 / 280</div>
+          <label class="caption-toggle">
+            <input type="checkbox" id="toggleLinkCheckbox" checked>
+            Include grid link
+          </label>
         </div>
       </div>
-    </div>
+      </div>
     </div> <!-- end frame-wrap -->
 
     <div class="handles-actions" style="margin-top: 0.75rem;">
@@ -1040,6 +1056,8 @@
     const DEFAULT_ROWS = ['Good', 'Neutral', 'Evil'];
     const charCounter = document.getElementById('charCounter');
     const CHAR_LIMIT = 280;
+    const toggleLinkCheckbox = document.getElementById('toggleLinkCheckbox');
+    let includeGridLink = true;
     const ALIGN_FONT_MIN = 11;
     const ALIGN_FONT_MAX = 18;
     const X_INTENT_PLACEHOLDER = 'Delete this text and paste the alignment caption and grid image copied onto your clipboard from the A𝕏A web-page.';
@@ -1107,6 +1125,12 @@
     const textMeasureCtx = textMeasureCanvas.getContext('2d');
     let currentShareUrl = '';
     let sharedStateApplied = false;
+    if (toggleLinkCheckbox) {
+      toggleLinkCheckbox.addEventListener('change', () => {
+        includeGridLink = toggleLinkCheckbox.checked;
+        updateHandlesText();
+      });
+    }
     const PLACEHOLDER_IMG = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="100%" height="100%" fill="%232a1042"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23a88dc9" font-size="20">image</text></svg>')}`;
     const imageDataUrlCache = new Map();
 
@@ -1531,7 +1555,7 @@
       const param = encodeStateToParam(state);
       const baseUrl = `${window.location.origin}${window.location.pathname}`;
       currentShareUrl = param ? `${baseUrl}?g=${param}` : baseUrl;
-      const suffix = currentShareUrl.replace(/^https?:\/\//, '');
+      const suffix = includeGridLink ? currentShareUrl.replace(/^https?:\/\//, '') : baseUrl.replace(/^https?:\/\//, '');
       const handleLine = handles ? `${handles}\n\n${suffix}` : suffix;
 
       // Final text block shown under the chart
@@ -1550,8 +1574,11 @@
       requestAnimationFrame(() => {
         sizeBoard();
         // Update URL to reflect shareable state
-        if (currentShareUrl) {
+        if (includeGridLink && currentShareUrl) {
           history.replaceState(null, '', currentShareUrl);
+        } else {
+          const baseUrl = `${window.location.origin}${window.location.pathname}`;
+          history.replaceState(null, '', baseUrl);
         }
       });
     }
