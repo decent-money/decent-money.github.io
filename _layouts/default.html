@@ -186,8 +186,17 @@
       'mirror-hv',         // both flips, reversed order
       'mirror-hv-order'    // both flips, normal order
     ];
-    const choice = states[Math.floor(Math.random() * states.length)];
-    if (choice !== 'normal') text.classList.add(choice);
+
+    let idx = Math.floor(Math.random() * states.length);
+    const applyState = () => {
+      const next = states[idx % states.length];
+      text.classList.remove('mirror-h', 'mirror-h-order', 'mirror-v', 'mirror-v-reverse', 'mirror-hv', 'mirror-hv-order');
+      if (next !== 'normal') text.classList.add(next);
+      idx += 1;
+    };
+
+    applyState();
+    setInterval(applyState, 4000);
   })();
 </script>
   </body>
