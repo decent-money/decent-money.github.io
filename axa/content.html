@@ -1554,8 +1554,9 @@
       const state = buildGridState();
       const param = encodeStateToParam(state);
       const baseUrl = `${window.location.origin}${window.location.pathname}`;
-      currentShareUrl = param ? `${baseUrl}?g=${param}` : baseUrl;
-      const suffix = includeGridLink ? currentShareUrl.replace(/^https?:\/\//, '') : baseUrl.replace(/^https?:\/\//, '');
+      const baseClean = baseUrl.replace(/\/$/, '');
+      currentShareUrl = param ? `${baseClean}?g=${param}` : baseClean;
+      const suffix = includeGridLink ? currentShareUrl.replace(/^https?:\/\//, '') : baseClean.replace(/^https?:\/\//, '');
       const handleLine = handles ? `${handles}\n\n${suffix}` : suffix;
 
       // Final text block shown under the chart
@@ -1577,7 +1578,7 @@
         if (includeGridLink && currentShareUrl) {
           history.replaceState(null, '', currentShareUrl);
         } else {
-          const baseUrl = `${window.location.origin}${window.location.pathname}`;
+          const baseUrl = `${window.location.origin}${window.location.pathname}`.replace(/\/$/, '');
           history.replaceState(null, '', baseUrl);
         }
       });
