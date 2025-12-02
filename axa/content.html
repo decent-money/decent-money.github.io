@@ -2688,8 +2688,8 @@
 
     const labelsBtn = document.getElementById('labelsBtn');
 
-    // global flag for visibility of alignment labels
-    let labelsVisible = (localStorage.getItem('alignment_labels') || 'on') === 'on';
+    // global flag for visibility of alignment labels (default off)
+    let labelsVisible = (localStorage.getItem('alignment_labels') || 'off') === 'on';
 
     function setLabels(on) {
       labelsVisible = on;
