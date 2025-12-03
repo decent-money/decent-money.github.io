@@ -1023,7 +1023,7 @@
           <p id="handlesText"></p>
           <div id="charCounter" class="char-counter">0 / 280</div>
           <label class="caption-toggle">
-            <input type="checkbox" id="toggleLinkCheckbox">
+            <input type="checkbox" id="toggleLinkCheckbox" checked>
             Include grid link
           </label>
         </div>
@@ -1058,7 +1058,7 @@
     const charCounter = document.getElementById('charCounter');
     const CHAR_LIMIT = 280;
     const toggleLinkCheckbox = document.getElementById('toggleLinkCheckbox');
-    let includeGridLink = false;
+    let includeGridLink = true;
     const ALIGN_FONT_MIN = 11;
     const ALIGN_FONT_MAX = 18;
     const X_INTENT_PLACEHOLDER = 'Delete this text and paste the alignment caption and grid image copied onto your clipboard from the A𝕏A web-page.';
