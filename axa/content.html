@@ -2545,7 +2545,48 @@
       input.style.width = '100%';
       input.style.boxSizing = 'border-box';
       wrap.style.width = '100%';
+      wrap.style.flexDirection = 'column';
+      wrap.style.alignItems = 'stretch';
       wrap.append(input);
+
+      // Upload-from-device option (desktop + mobile)
+      let skipBlurCommit = false;
+      const uploadWrap = document.createElement('div');
+      uploadWrap.style.marginTop = '0.4rem';
+      uploadWrap.style.alignSelf = 'center';
+      const uploadBtn = document.createElement('button');
+      uploadBtn.type = 'button';
+      uploadBtn.textContent = 'Upload image';
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.style.display = 'none';
+
+      uploadBtn.addEventListener('mousedown', () => { skipBlurCommit = true; });
+      uploadBtn.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('click', () => { skipBlurCommit = true; });
+      fileInput.addEventListener('change', () => {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+        skipBlurCommit = false;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = reader.result;
+          if (!dataUrl) return;
+          cell.dataset.raw = dataUrl;
+          renderCell(cell);
+          // Prompt for optional label on uploaded image
+          editImageLabel(cell, dataUrl, '');
+          saveAll();
+          fileInput.value = '';
+          setTimeout(() => input.focus(), 0);
+        };
+        reader.readAsDataURL(file);
+      });
+
+      uploadWrap.append(uploadBtn, fileInput);
+      wrap.append(uploadWrap);
+
       content.append(wrap);
       input.focus();
       input.select();
@@ -2587,7 +2628,14 @@
         renderCell(cell);
         saveAll();
       }
-      input.addEventListener('blur', commit);
+      input.addEventListener('blur', () => {
+        if (skipBlurCommit) {
+          skipBlurCommit = false;
+          setTimeout(() => input.focus(), 0);
+          return;
+        }
+        commit();
+      });
       input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') renderCell(cell); });
     }
 
