@@ -1131,6 +1131,11 @@
     let autoBoardSize = null; // auto-enlarge for long handles (cleared when user resizes)
     const textMeasureCanvas = document.createElement('canvas');
     const textMeasureCtx = textMeasureCanvas.getContext('2d');
+    function measureTextWidth(text, font) {
+      if (!textMeasureCtx) return (text || '').length * 8;
+      textMeasureCtx.font = font || '16px sans-serif';
+      return textMeasureCtx.measureText(text || '').width;
+    }
     let currentShareUrl = '';
     let sharedStateApplied = false;
     if (toggleLinkCheckbox) {
@@ -1225,6 +1230,58 @@
         return img.label || `Img${cellIndex}`;
       }
       return trimmed;
+    }
+
+    // Robustly load an image file into a data URL; includes Safari/iOS fallback via object URL + canvas
+    async function fileToDataUrl(file) {
+      const readWithFileReader = () => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        const timeout = setTimeout(() => { reader.abort(); reject(new Error('file read timeout')); }, 8000);
+        reader.onload = () => { clearTimeout(timeout); resolve(reader.result); };
+        reader.onerror = () => { clearTimeout(timeout); reject(reader.error || new Error('file read error')); };
+        try {
+          reader.readAsDataURL(file);
+        } catch (err) {
+          clearTimeout(timeout);
+          reject(err);
+        }
+      });
+
+      const fallbackWithObjectUrl = () => new Promise((resolve, reject) => {
+        let url;
+        try {
+          url = URL.createObjectURL(file);
+        } catch (err) {
+          reject(err);
+          return;
+        }
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.naturalWidth || img.width;
+            canvas.height = img.naturalHeight || img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            const dataUrl = canvas.toDataURL('image/png');
+            URL.revokeObjectURL(url);
+            resolve(dataUrl);
+          } catch (err) {
+            URL.revokeObjectURL(url);
+            reject(err);
+          }
+        };
+        img.onerror = (err) => { URL.revokeObjectURL(url); reject(err || new Error('image load error')); };
+        img.src = url;
+      });
+
+      try {
+        return await readWithFileReader();
+      } catch {
+        // Safari/iOS sometimes struggles with FileReader; fall back to object URL path
+        return await fallbackWithObjectUrl();
+      }
     }
 
     function buildGridState() {
@@ -2558,6 +2615,7 @@
 
       // Upload-from-device option (desktop + mobile)
       let skipBlurCommit = false;
+      let uploadInFlight = false;
       const uploadWrap = document.createElement('div');
       uploadWrap.style.marginTop = '0.4rem';
       uploadWrap.style.alignSelf = 'center';
@@ -2570,25 +2628,33 @@
       fileInput.style.display = 'none';
 
       uploadBtn.addEventListener('mousedown', () => { skipBlurCommit = true; });
+      uploadBtn.addEventListener('touchstart', () => { skipBlurCommit = true; }, { passive: true });
       uploadBtn.addEventListener('click', () => fileInput.click());
       fileInput.addEventListener('click', () => { skipBlurCommit = true; });
-      fileInput.addEventListener('change', () => {
+      fileInput.addEventListener('change', async (e) => {
         const file = fileInput.files && fileInput.files[0];
-        if (!file) return;
-        skipBlurCommit = false;
-        const reader = new FileReader();
-        reader.onload = () => {
-          const dataUrl = reader.result;
+        if (!file) {
+          skipBlurCommit = false;
+          return;
+        }
+        skipBlurCommit = true;
+        uploadInFlight = true;
+        try {
+          const dataUrl = await fileToDataUrl(file);
           if (!dataUrl) return;
           cell.dataset.raw = dataUrl;
           renderCell(cell);
           // Prompt for optional label on uploaded image
           editImageLabel(cell, dataUrl, '');
           saveAll();
-          fileInput.value = '';
           setTimeout(() => input.focus(), 0);
-        };
-        reader.readAsDataURL(file);
+        } catch (err) {
+          console.error('Image load failed', err);
+        } finally {
+          fileInput.value = '';
+          uploadInFlight = false;
+          skipBlurCommit = false;
+        }
       });
 
       uploadWrap.append(uploadBtn, fileInput);
@@ -2636,8 +2702,8 @@
         saveAll();
       }
       input.addEventListener('blur', () => {
-        if (skipBlurCommit) {
-          skipBlurCommit = false;
+        if (skipBlurCommit || uploadInFlight) {
+          // Prevent blur commit during or right after upload chooser on mobile
           setTimeout(() => input.focus(), 0);
           return;
         }
