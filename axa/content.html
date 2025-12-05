@@ -19,7 +19,7 @@
       --border: #243045;
       --header-grad-1: rgba(17, 24, 39, .6);
       --header-grad-2: rgba(17, 24, 39, .2);
-      --row-edit-gap: 7.5em;
+      --row-edit-gap: 0px;
       --col-edit-offset: 22px;
     }
 
@@ -341,13 +341,13 @@
 
     .edit-icon {
       position: absolute;
-      width: 18px;
-      height: 18px;
+      width: 22px;
+      height: 22px;
       border: 1px solid var(--border);
       border-radius: 4px;
       background: var(--chip-bg);
       color: var(--muted);
-      font-size: 12px;
+      font-size: 14px;
       display: grid;
       place-items: center;
       cursor: pointer;
@@ -378,9 +378,9 @@
 .hdr.row .edit-icon {
   top: 50%;
   /* Fixed gap to the left (screen side) of the rotated header */
-  left: var(--row-edit-gap);
-  right: auto;
-  transform: translate(-100%, -50%) rotate(180deg);
+  left: auto;
+  right: calc(-1 * (var(--row-edit-gap) + 22px)); /* place to the parent's right pre-rotation */
+  transform: translateY(-50%) rotate(180deg);
   z-index: 4;
 }
 
@@ -706,7 +706,7 @@
       padding-right: 16px;
       padding-bottom: 20px; /* tighter space while keeping resizer clear */
       /* Keep the border snug around the row edit icons without huge extra gutter */
-      padding-left: calc(16px + (var(--row-edit-gap) * 0.25));
+      padding-left: calc(16px + var(--row-edit-gap) + 22px); /* add a bit more breathing room to the left of row edit icons */
       box-sizing: border-box;
       display: inline-flex;
       flex-direction: column;
@@ -2828,6 +2828,7 @@
       el.id = `${kind}-${index}`;
       el.className = 'hdr ' + (kind === 'row' ? 'row' : 'col');
       el.setAttribute('role', 'button');
+      el.setAttribute('title', 'Edit label');
       el.textContent = text;
       if (kind === 'row') {
         el.style.cssText = `grid-column: 1; grid-row: ${index + 2}; margin-right: -10px;`;
@@ -2838,6 +2839,7 @@
       btn.className = 'edit-icon';
       btn.dataset.target = `${kind}-${index}`;
       btn.setAttribute('aria-label', `Edit ${kind === 'row' ? 'row' : 'column'} ${text}`);
+      btn.setAttribute('title', 'Edit label');
       btn.textContent = '✎';
       btn.addEventListener('click', e => {
         e.stopPropagation();
