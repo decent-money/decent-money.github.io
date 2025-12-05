@@ -228,8 +228,8 @@
 
 .board {
   display: grid;
-  grid-template-columns: auto repeat(3, 1fr);
-  grid-template-rows: auto repeat(3, 1fr);
+  grid-template-columns: auto repeat(3, minmax(0, 1fr));
+  grid-template-rows: auto repeat(3, minmax(0, 1fr));
   gap: var(--board-gap, clamp(0.6rem, 2vw, 1.1rem));
   /* was 0.5rem */
   width: var(--board-size);
@@ -313,23 +313,70 @@
   border-radius: 8px;
   font-size: 2.1rem;
   white-space: nowrap;
-  overflow: hidden;
+  overflow: visible; /* allow edit icon to sit outside without clipping */
   text-overflow: ellipsis;
+  min-width: 0;
+  max-width: 100%;
 }
 
     .hdr[role="button"] {
       cursor: text;
       border: 1px dashed transparent;
+      position: relative;
     }
 
     .hdr[role="button"]:hover {
       border-color: var(--border);
     }
 
+.hdr.row {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  min-height: 0;
+  max-height: 100%;
+}
+
+    .edit-icon {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--chip-bg);
+      color: var(--muted);
+      font-size: 12px;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      z-index: 2;
+    }
+
+    .edit-icon:hover {
+      background: color-mix(in oklab, var(--chip-bg) 70%, var(--ink) 10%);
+      color: var(--ink);
+    }
+
+    /* Column header icon: centered horizontally, above text */
+    .hdr.col {
+      position: relative;
+    }
+    .hdr.col .edit-icon {
+      top: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    /* Row header icon: vertically centered, to the left */
     .hdr.row {
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      transform: rotate(180deg);
+      position: relative;
+    }
+    .hdr.row .edit-icon {
+      top: 50%;
+      left: 0;
+      transform: translate(-130%, -50%) rotate(180deg);
     }
 
     /* 1) Tighter corners on cells */
@@ -941,14 +988,26 @@
       <!-- Corner -->
       <div class="hdr" aria-hidden="true"></div>
       <!-- Column headers (editable) -->
-      <div id="col-0" class="hdr col" role="button" style="grid-column: 2; grid-row: 1; margin-bottom: -10px;">Lawful</div>
-      <div id="col-1" class="hdr col" role="button" style="grid-column: 3; grid-row: 1; margin-bottom: -10px;">Neutral</div>
-      <div id="col-2" class="hdr col" role="button" style="grid-column: 4; grid-row: 1; margin-bottom: -10px;">Chaotic</div>
+      <div id="col-0" class="hdr col" role="button" style="grid-column: 2; grid-row: 1; margin-bottom: -10px;">Lawful
+        <button class="edit-icon" data-target="col-0" aria-label="Edit column Lawful">✎</button>
+      </div>
+      <div id="col-1" class="hdr col" role="button" style="grid-column: 3; grid-row: 1; margin-bottom: -10px;">Neutral
+        <button class="edit-icon" data-target="col-1" aria-label="Edit column Neutral">✎</button>
+      </div>
+      <div id="col-2" class="hdr col" role="button" style="grid-column: 4; grid-row: 1; margin-bottom: -10px;">Chaotic
+        <button class="edit-icon" data-target="col-2" aria-label="Edit column Chaotic">✎</button>
+      </div>
 
       <!-- Row headers (editable) -->
-      <div id="row-0" class="hdr row" role="button" style="grid-column: 1; grid-row: 2; margin-right: -10px;">Good</div>
-      <div id="row-1" class="hdr row" role="button" style="grid-column: 1; grid-row: 3; margin-right: -10px;">Neutral</div>
-      <div id="row-2" class="hdr row" role="button" style="grid-column: 1; grid-row: 4; margin-right: -10px;">Evil</div>
+      <div id="row-0" class="hdr row" role="button" style="grid-column: 1; grid-row: 2; margin-right: -10px;">Good
+        <button class="edit-icon" data-target="row-0" aria-label="Edit row Good">✎</button>
+      </div>
+      <div id="row-1" class="hdr row" role="button" style="grid-column: 1; grid-row: 3; margin-right: -10px;">Neutral
+        <button class="edit-icon" data-target="row-1" aria-label="Edit row Neutral">✎</button>
+      </div>
+      <div id="row-2" class="hdr row" role="button" style="grid-column: 1; grid-row: 4; margin-right: -10px;">Evil
+        <button class="edit-icon" data-target="row-2" aria-label="Edit row Evil">✎</button>
+      </div>
 
       <!-- Cells -->
       <div class="cell" id="cell-lg" data-row-index="0" data-col-index="0" role="gridcell"
@@ -1157,7 +1216,10 @@
         const titles = kind === 'col' ? colTitles : rowTitles;
         titles.forEach((t, i) => {
           const el = document.getElementById(`${kind}-${i}`);
-          if (el) el.textContent = t;
+          if (el) {
+            const replacement = makeHeader(kind, i, t);
+            el.replaceWith(replacement);
+          }
         });
       });
     }
@@ -1545,13 +1607,38 @@
       const min = 0.7;
       const step = 0.05;
 
+      const headerAvail = (el) => {
+        const isCol = el.classList.contains('col');
+        const idx = Number(el.id.split('-')[1] || 0);
+        const selector = isCol
+          ? `.cell[data-row-index="0"][data-col-index="${idx}"]`
+          : `.cell[data-col-index="0"][data-row-index="${idx}"]`;
+        const cell = document.querySelector(selector);
+        if (cell) {
+          const r = cell.getBoundingClientRect();
+          return { w: r.width, h: r.height };
+        }
+        const r = el.getBoundingClientRect();
+        return { w: r.width, h: r.height };
+      };
+
       const measureFit = el => {
+        const icons = Array.from(el.querySelectorAll('.edit-icon'));
+        icons.forEach(i => (i.style.display = 'none'));
+        const { w, h } = headerAvail(el);
+        const prevW = el.style.width;
+        const prevH = el.style.height;
+        el.style.width = '100%';
+        el.style.height = '100%';
         let size = base;
         el.style.fontSize = `${size}rem`;
-        while (size > min && (el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight)) {
+        while (size > min && (el.scrollWidth > w || el.scrollHeight > h)) {
           size -= step;
           el.style.fontSize = `${size}rem`;
         }
+        el.style.width = prevW;
+        el.style.height = prevH;
+        icons.forEach(i => (i.style.display = ''));
         return size;
       };
 
@@ -2720,6 +2807,31 @@
     });
 
     // ==== Editable headers ====
+    function makeHeader(kind, index, text) {
+      const el = document.createElement('div');
+      el.id = `${kind}-${index}`;
+      el.className = 'hdr ' + (kind === 'row' ? 'row' : 'col');
+      el.setAttribute('role', 'button');
+      el.textContent = text;
+      if (kind === 'row') {
+        el.style.cssText = `grid-column: 1; grid-row: ${index + 2}; margin-right: -10px;`;
+      } else {
+        el.style.cssText = `grid-column: ${index + 2}; grid-row: 1; margin-bottom: -10px;`;
+      }
+      const btn = document.createElement('button');
+      btn.className = 'edit-icon';
+      btn.dataset.target = `${kind}-${index}`;
+      btn.setAttribute('aria-label', `Edit ${kind === 'row' ? 'row' : 'column'} ${text}`);
+      btn.textContent = '✎';
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        editHeader(kind, index);
+      });
+      el.appendChild(btn);
+      hookHeader(el);
+      return el;
+    }
+
     function editHeader(kind, index) {
       const id = `${kind}-${index}`;
       const el = document.getElementById(id);
@@ -2747,8 +2859,18 @@
         input.style.transform = 'none';
       }
       el.replaceWith(wrap); wrap.appendChild(input); input.focus(); input.select();
-      function commit() { const val = (input.value || '').trim() || current; if (kind === 'col') { colTitles[index] = val; } else { rowTitles[index] = val; } saveTitles(); const display = document.createElement('div'); display.id = id; display.className = 'hdr ' + (kind === 'row' ? 'row' : 'col'); display.setAttribute('role', 'button'); display.textContent = val; wrap.replaceWith(display); display.style.cssText = (kind === 'row') ? 'grid-column: 1; grid-row: ' + (index + 2) + '; margin-right: -10px;' : 'grid-column: ' + (index + 2) + '; grid-row: 1; margin-bottom: -10px;'; hookHeader(display); refreshAlignmentLabels(); updateHandlesText(); sizeBoard(); fitHeadersResponsive(); }
-      function cancel() { const display = document.createElement('div'); display.id = id; display.className = 'hdr ' + (kind === 'row' ? 'row' : 'col'); display.setAttribute('role', 'button'); display.textContent = current; wrap.replaceWith(display); hookHeader(display); }
+      function commit() {
+        const val = (input.value || '').trim() || current;
+        if (kind === 'col') { colTitles[index] = val; } else { rowTitles[index] = val; }
+        saveTitles();
+        const display = makeHeader(kind, index, val);
+        wrap.replaceWith(display);
+        refreshAlignmentLabels(); updateHandlesText(); sizeBoard(); fitHeadersResponsive();
+      }
+      function cancel() {
+        const display = makeHeader(kind, index, current);
+        wrap.replaceWith(display);
+      }
       input.addEventListener('blur', commit);
       input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') cancel(); });
     }
@@ -2907,7 +3029,21 @@
     });
 
     const resetLabelsBtn = document.getElementById('resetLabelsBtn');
-    resetLabelsBtn.addEventListener('click', () => { colTitles = [...DEFAULT_COLS]; rowTitles = [...DEFAULT_ROWS]; saveTitles(); document.getElementById('col-0').textContent = colTitles[0]; document.getElementById('col-1').textContent = colTitles[1]; document.getElementById('col-2').textContent = colTitles[2]; document.getElementById('row-0').textContent = rowTitles[0]; document.getElementById('row-1').textContent = rowTitles[1]; document.getElementById('row-2').textContent = rowTitles[2]; refreshAlignmentLabels(); updateHandlesText(); sizeBoard(); fitHeadersResponsive(); });
+    resetLabelsBtn.addEventListener('click', () => {
+      colTitles = [...DEFAULT_COLS];
+      rowTitles = [...DEFAULT_ROWS];
+      saveTitles();
+      ['col', 'row'].forEach(kind => {
+        const titles = kind === 'col' ? colTitles : rowTitles;
+        titles.forEach((t, i) => {
+          const el = document.getElementById(`${kind}-${i}`);
+          if (el) {
+            el.replaceWith(makeHeader(kind, i, t));
+          }
+        });
+      });
+      refreshAlignmentLabels(); updateHandlesText(); sizeBoard(); fitHeadersResponsive();
+    });
 
     const fmkLabelsBtn = document.getElementById('fmkLabelsBtn');
 
@@ -2920,13 +3056,15 @@
       saveTitles();
 
       // Update header elements in the DOM
-      document.getElementById('col-0').textContent = colTitles[0];
-      document.getElementById('col-1').textContent = colTitles[1];
-      document.getElementById('col-2').textContent = colTitles[2];
-
-      document.getElementById('row-0').textContent = rowTitles[0];
-      document.getElementById('row-1').textContent = rowTitles[1];
-      document.getElementById('row-2').textContent = rowTitles[2];
+      ['col', 'row'].forEach(kind => {
+        const titles = kind === 'col' ? colTitles : rowTitles;
+        titles.forEach((t, i) => {
+          const el = document.getElementById(`${kind}-${i}`);
+          if (el) {
+            el.replaceWith(makeHeader(kind, i, t));
+          }
+        });
+      });
 
       // Rebuild cell alignment labels (including True X logic)
       renderAllAlignmentLabels();
