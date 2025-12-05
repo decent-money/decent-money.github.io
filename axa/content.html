@@ -19,6 +19,8 @@
       --border: #243045;
       --header-grad-1: rgba(17, 24, 39, .6);
       --header-grad-2: rgba(17, 24, 39, .2);
+      --row-edit-gap: 7.5em;
+      --col-edit-offset: 22px;
     }
 
     .light {
@@ -364,7 +366,7 @@
       position: relative;
     }
     .hdr.col .edit-icon {
-      top: -22px;
+      top: calc(-1 * var(--col-edit-offset));
       left: 50%;
       transform: translateX(-50%);
     }
@@ -373,11 +375,14 @@
     .hdr.row {
       position: relative;
     }
-    .hdr.row .edit-icon {
-      top: 50%;
-      left: 0;
-      transform: translate(-130%, -50%) rotate(180deg);
-    }
+.hdr.row .edit-icon {
+  top: 50%;
+  /* Fixed gap to the left (screen side) of the rotated header */
+  left: var(--row-edit-gap);
+  right: auto;
+  transform: translate(-100%, -50%) rotate(180deg);
+  z-index: 4;
+}
 
     /* 1) Tighter corners on cells */
     .cell {
@@ -697,8 +702,11 @@
     .frame-wrap {
       border: 1px dashed rgba(255, 255, 255, 0.15);
       border-radius: 16px;
-      padding: 16px;
+      padding-top: calc(16px + var(--col-edit-offset));
+      padding-right: 16px;
       padding-bottom: 20px; /* tighter space while keeping resizer clear */
+      /* Keep the border snug around the row edit icons without huge extra gutter */
+      padding-left: calc(16px + (var(--row-edit-gap) * 0.25));
       box-sizing: border-box;
       display: inline-flex;
       flex-direction: column;
@@ -1593,9 +1601,12 @@
       const frame = document.querySelector('.frame-wrap');
       if (!board || !frame) return;
       const w = board.getBoundingClientRect().width;
-      // account for frame padding (16px each side)
-      frame.style.width = `${w + 32}px`;
-      frame.style.minWidth = `${w + 32}px`;
+      const cs = getComputedStyle(frame);
+      const padL = parseFloat(cs.paddingLeft) || 0;
+      const padR = parseFloat(cs.paddingRight) || 0;
+      const total = w + padL + padR;
+      frame.style.width = `${total}px`;
+      frame.style.minWidth = `${total}px`;
     }
 
     function fitHeadersResponsive() {
@@ -1946,11 +1957,16 @@
         const pad = 16;
 
         // Clone target to avoid flashing live DOM and wrap with padding
-        const clone = target.cloneNode(true);
-        clone.style.position = 'relative';
-        clone.style.width = `${w}px`;
-        clone.style.height = `${h}px`;
-        clone.style.transform = 'none';
+      const clone = target.cloneNode(true);
+      clone.style.position = 'relative';
+      clone.style.width = `${w}px`;
+      clone.style.height = `${h}px`;
+      clone.style.transform = 'none';
+
+        // Hide edit icons in the clone capture
+        clone.querySelectorAll('.edit-icon').forEach(icon => {
+          icon.style.display = 'none';
+        });
 
         // Add crossed-line overlay to empty cells (screenshot only)
         const origCells = Array.from(target.querySelectorAll('.cell'));
