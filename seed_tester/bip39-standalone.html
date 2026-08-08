@@ -6992,6 +6992,9 @@ body > .container { display:none !important; }
 .st-language-button { min-height:38px; padding:0 13px; border:1px solid var(--st-line); border-radius:999px; background:var(--st-card); color:var(--st-text); font-weight:650; cursor:pointer; }
 .st-language-button:hover { border-color:var(--st-accent); background:#fff3e2; color:#1d1d1f; }
 .st-language-button[aria-pressed="true"] { border-color:var(--st-accent); background:var(--st-accent); color:#211300; }
+.st-language-button:disabled { border-color:var(--st-line); background:transparent; color:var(--st-muted); opacity:.42; cursor:not-allowed; }
+.st-entropy-system-picker { margin-bottom:10px; }
+.st-entropy-system-picker[aria-busy="true"] { opacity:.65; }
 .st-number-toggle { margin-top:14px; }
 .st-conversion { margin:22px 0 24px; overflow:hidden; border:1px solid var(--st-line); border-left:3px solid rgba(247,147,26,.62); border-radius:18px; background:var(--st-card); }
 .st-entropy-source { padding:16px 18px; border-bottom:1px solid var(--st-line); background:#f2f2f7; }
@@ -7061,7 +7064,7 @@ body > .container { display:none !important; }
               <div class="st-step" data-step="result" hidden>
                 <button id="st-edit-entropy" class="st-back" type="button">← Back to entropy</button><p class="st-kicker">Expected test output</p><h2>Compare these words.</h2>
                 <p class="st-lead">Compare every numbered word with the output from the other device or implementation. An exact match is evidence that both processed this entropy equivalently.</p>
-                <div class="st-word-tools"><div id="st-language-picker" class="st-language-picker"><button id="st-language-trigger" class="st-language-trigger" type="button" aria-expanded="false" aria-controls="st-language-list"><span>Choose word language: <strong id="st-selected-language">English</strong></span><span class="st-language-arrow" aria-hidden="true">→</span></button><div id="st-language-list" class="st-language-list" role="group" aria-label="Choose BIP39 word language" hidden><button class="st-language-button" data-language="english" aria-pressed="true">English</button><button class="st-language-button" data-language="japanese" aria-pressed="false">日本語</button><button class="st-language-button" data-language="spanish" aria-pressed="false">Español</button><button class="st-language-button" data-language="chinese_simplified" aria-pressed="false">中文简体</button><button class="st-language-button" data-language="chinese_traditional" aria-pressed="false">中文繁體</button><button class="st-language-button" data-language="french" aria-pressed="false">Français</button><button class="st-language-button" data-language="italian" aria-pressed="false">Italiano</button><button class="st-language-button" data-language="korean" aria-pressed="false">한국어</button><button class="st-language-button" data-language="czech" aria-pressed="false">Čeština</button><button class="st-language-button" data-language="portuguese" aria-pressed="false">Português</button></div></div><button id="st-number-toggle" class="st-button st-number-toggle" type="button" aria-pressed="false">Show word numbers</button></div>
+                <div class="st-word-tools"><div id="st-entropy-system-picker" class="st-language-picker st-entropy-system-picker"><button id="st-entropy-system-trigger" class="st-language-trigger" type="button" aria-expanded="false" aria-controls="st-entropy-system-list"><span>Interpret entropy as: <strong id="st-selected-entropy-system">Auto-detected</strong></span><span class="st-language-arrow" aria-hidden="true">→</span></button><div id="st-entropy-system-list" class="st-language-list" role="group" aria-label="Choose entropy number system" hidden><button class="st-language-button" data-entropy-system="binary" aria-pressed="false">Binary / coin flips</button><button class="st-language-button" data-entropy-system="dice" aria-pressed="false">Dice rolls</button><button class="st-language-button" data-entropy-system="base6" aria-pressed="false">Base 6</button><button class="st-language-button" data-entropy-system="decimal" aria-pressed="false">Decimal</button><button class="st-language-button" data-entropy-system="hexadecimal" aria-pressed="false">Hexadecimal</button></div></div><div id="st-language-picker" class="st-language-picker"><button id="st-language-trigger" class="st-language-trigger" type="button" aria-expanded="false" aria-controls="st-language-list"><span>Choose word language: <strong id="st-selected-language">English</strong></span><span class="st-language-arrow" aria-hidden="true">→</span></button><div id="st-language-list" class="st-language-list" role="group" aria-label="Choose BIP39 word language" hidden><button class="st-language-button" data-language="english" aria-pressed="true">English</button><button class="st-language-button" data-language="japanese" aria-pressed="false">日本語</button><button class="st-language-button" data-language="spanish" aria-pressed="false">Español</button><button class="st-language-button" data-language="chinese_simplified" aria-pressed="false">中文简体</button><button class="st-language-button" data-language="chinese_traditional" aria-pressed="false">中文繁體</button><button class="st-language-button" data-language="french" aria-pressed="false">Français</button><button class="st-language-button" data-language="italian" aria-pressed="false">Italiano</button><button class="st-language-button" data-language="korean" aria-pressed="false">한국어</button><button class="st-language-button" data-language="czech" aria-pressed="false">Čeština</button><button class="st-language-button" data-language="portuguese" aria-pressed="false">Português</button></div></div><button id="st-number-toggle" class="st-button st-number-toggle" type="button" aria-pressed="false">Show word numbers</button></div>
                 <div class="st-conversion">
                   <div class="st-entropy-source"><span class="st-entropy-source-label"><span>Entropy used</span><span id="st-result-entropy-type"></span></span><code id="st-result-entropy"></code></div>
                   <div id="st-words" class="st-words"></div>
@@ -33064,7 +33067,14 @@ window.Entropy = new (function() {
   if (!app || !window.jQuery) return;
   const $ = window.jQuery;
   const ACK_STORAGE_KEY = 'seedTesterAcknowledged';
-  const state = { length: 12, phrase: '', bits: 0, language: 'english', wordIndexes: [], showNumbers: false, entropy: '', entropyType: '' };
+  const ENTROPY_SYSTEMS = {
+    binary: { engine: 'binary', label: 'Binary / coin flips' },
+    dice: { engine: 'dice', label: 'Dice rolls' },
+    base6: { engine: 'base 6', label: 'Base 6' },
+    decimal: { engine: 'base 10', label: 'Decimal' },
+    hexadecimal: { engine: 'hexadecimal', label: 'Hexadecimal' }
+  };
+  const state = { length: 12, phrase: '', bits: 0, language: 'english', wordIndexes: [], showNumbers: false, entropy: '', entropyType: '', entropySystem: '' };
   const el = id => document.getElementById(id);
   const steps = [...app.querySelectorAll('.st-step')];
   const old = {
@@ -33110,6 +33120,41 @@ window.Entropy = new (function() {
     return rawType ? { icon: '#', label: rawType } : { icon: '•••', label: 'Waiting for input' };
   }
 
+  function entropySystemFromType(rawType) {
+    const type = (rawType || '').toLowerCase();
+    if (type.includes('dice')) return 'dice';
+    if (type === 'binary') return 'binary';
+    if (type.includes('base 6')) return 'base6';
+    if (type.includes('base 10')) return 'decimal';
+    return 'hexadecimal';
+  }
+
+  function cleanedEntropyInput() {
+    return el('st-entropy').value.replace(/[\s,.;:_-]/g, '');
+  }
+
+  function updateEntropySystemChoices() {
+    const input = cleanedEntropyInput().toLowerCase();
+    const availability = {
+      binary: /^[01]+$/.test(input),
+      dice: /^[1-6]+$/.test(input),
+      base6: /^[0-5]+$/.test(input),
+      decimal: /^[0-9]+$/.test(input),
+      hexadecimal: /^[0-9a-f]+$/.test(input)
+    };
+    app.querySelectorAll('[data-entropy-system]').forEach(button => {
+      button.disabled = !availability[button.dataset.entropySystem];
+    });
+  }
+
+  function selectEntropySystem(system) {
+    const config = ENTROPY_SYSTEMS[system];
+    if (!config) return;
+    state.entropySystem = system;
+    app.querySelectorAll('[data-entropy-system]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.entropySystem === system)));
+    el('st-selected-entropy-system').textContent = config.label;
+  }
+
   function updateEntropy() {
     const input = el('st-entropy').value;
     const candidateCount = (input.match(/[0-9a-f]/gi) || []).length;
@@ -33140,8 +33185,11 @@ window.Entropy = new (function() {
 
   function renderPhrase() {
     state.phrase = old.phrase.val().trim();
-    state.entropy = old.filtered.text().replace(/\s+/g, ' ').trim();
+    state.entropy = cleanedEntropyInput();
     state.entropyType = friendlyType(old.type.text()).label;
+    selectEntropySystem(entropySystemFromType(old.type.text()));
+    updateEntropySystemChoices();
+    collapseEntropySystemPicker();
     state.language = 'english';
     state.showNumbers = false;
     state.wordIndexes = state.phrase.split(/\s+/).filter(Boolean).map(word => WORDLISTS.english.indexOf(word));
@@ -33206,6 +33254,46 @@ window.Entropy = new (function() {
     el('st-language-list').hidden = expanded;
   }
 
+  function collapseEntropySystemPicker() {
+    el('st-entropy-system-trigger').setAttribute('aria-expanded', 'false');
+    el('st-entropy-system-list').hidden = true;
+  }
+
+  function toggleEntropySystemPicker() {
+    const expanded = el('st-entropy-system-trigger').getAttribute('aria-expanded') === 'true';
+    el('st-entropy-system-trigger').setAttribute('aria-expanded', String(!expanded));
+    el('st-entropy-system-list').hidden = expanded;
+  }
+
+  function setEntropySystem(system) {
+    const config = ENTROPY_SYSTEMS[system];
+    const button = app.querySelector(`[data-entropy-system="${system}"]`);
+    if (!config || !button || button.disabled) return;
+    selectEntropySystem(system);
+    collapseEntropySystemPicker();
+    el('st-entropy-system-picker').setAttribute('aria-busy', 'true');
+    el('st-entropy-system-trigger').disabled = true;
+    if (window.seedTesterConfigureEntropyDetection) window.seedTesterConfigureEntropyDetection(config.engine);
+    old.entropy.val(el('st-entropy').value).trigger('input');
+    window.setTimeout(() => {
+      const englishPhrase = old.phrase.val().trim();
+      const indexes = englishPhrase.split(/\s+/).filter(Boolean).map(word => WORDLISTS.english.indexOf(word));
+      if (indexes.length === state.length && indexes.every(index => index >= 0)) {
+        state.wordIndexes = indexes;
+        state.bits = parseInt(old.bits.text(), 10) || 0;
+        state.entropyType = friendlyType(old.type.text()).label;
+        el('st-result-entropy-type').textContent = state.entropyType;
+        renderWordCards();
+        el('st-seed-fingerprint').textContent = masterFingerprint('');
+        const passphrase = el('st-passphrase').value;
+        if (passphrase) el('st-pass-fingerprint').textContent = masterFingerprint(passphrase);
+      }
+      el('st-entropy-system-picker').removeAttribute('aria-busy');
+      el('st-entropy-system-trigger').disabled = false;
+      el('st-entropy-system-trigger').focus();
+    }, 500);
+  }
+
   function masterFingerprint(passphrase) {
     const testMnemonic = new Mnemonic(state.language);
     const testSeed = testMnemonic.toSeed(state.phrase, passphrase || '');
@@ -33239,6 +33327,9 @@ window.Entropy = new (function() {
   el('st-go-back').addEventListener('click', () => { el('st-warning').hidden = true; el('st-entropy').focus(); });
   el('st-create-anyway').addEventListener('click', () => { el('st-warning').hidden = true; renderPhrase(); });
   el('st-warning').addEventListener('click', e => { if (e.target === el('st-warning')) el('st-go-back').click(); });
+  el('st-entropy-system-trigger').addEventListener('click', toggleEntropySystemPicker);
+  el('st-entropy-system-picker').addEventListener('mouseleave', collapseEntropySystemPicker);
+  app.querySelectorAll('[data-entropy-system]').forEach(button => button.addEventListener('click', () => setEntropySystem(button.dataset.entropySystem)));
   el('st-language-trigger').addEventListener('click', toggleLanguagePicker);
   el('st-language-picker').addEventListener('mouseleave', collapseLanguagePicker);
   app.querySelectorAll('[data-language]').forEach(button => button.addEventListener('click', () => setWordLanguage(button.dataset.language)));
@@ -33264,12 +33355,14 @@ window.Entropy = new (function() {
     }, 450);
   });
   el('st-restart').addEventListener('click', () => {
-    state.phrase = ''; state.bits = 0; state.language = 'english'; state.wordIndexes = []; state.showNumbers = false; state.entropy = ''; state.entropyType = ''; old.entropy.val('').trigger('input'); old.phrase.val(''); old.passphrase.val('').trigger('input');
+    state.phrase = ''; state.bits = 0; state.language = 'english'; state.wordIndexes = []; state.showNumbers = false; state.entropy = ''; state.entropyType = ''; state.entropySystem = ''; old.entropy.val('').trigger('input'); old.phrase.val(''); old.passphrase.val('').trigger('input');
     clearTimeout(fingerprintTimer);
     el('st-entropy').value = ''; el('st-passphrase').value = '';
     el('st-seed-fingerprint').textContent = '--------'; el('st-pass-fingerprint').textContent = '--------'; el('st-pass-fingerprint-wrap').hidden = true;
     app.querySelectorAll('[data-language]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.language === 'english')));
     el('st-selected-language').textContent = 'English'; collapseLanguagePicker();
+    app.querySelectorAll('[data-entropy-system]').forEach(button => button.setAttribute('aria-pressed', 'false'));
+    el('st-selected-entropy-system').textContent = 'Auto-detected'; collapseEntropySystemPicker();
     el('st-number-toggle').setAttribute('aria-pressed', 'false'); el('st-number-toggle').textContent = 'Show word numbers';
     el('st-words').replaceChildren(); showStep('safety');
   });
