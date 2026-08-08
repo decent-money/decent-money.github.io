@@ -6982,8 +6982,13 @@ body > .container { display:none !important; }
 .st-words[data-length="12"] { grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(4,auto); }
 .st-words[data-length="24"] { grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(6,auto); }
 .st-word-tools { margin:24px 0 14px; }
-.st-word-tools-label { display:block; margin-bottom:10px; color:var(--st-muted); font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; }
-.st-language-list { display:flex; flex-wrap:wrap; gap:7px; }
+.st-language-picker { width:100%; }
+.st-language-trigger { display:flex; align-items:center; justify-content:space-between; gap:14px; width:100%; min-height:50px; padding:0 17px; border:1px solid var(--st-line); border-radius:14px; background:var(--st-card); color:var(--st-text); font-weight:700; text-align:left; cursor:pointer; }
+.st-language-trigger:hover { border-color:var(--st-accent); background:#fff8ef; }
+.st-language-arrow { flex:0 0 auto; color:var(--st-accent); font-size:19px; line-height:1; transition:transform .18s ease; }
+.st-language-trigger[aria-expanded="true"] .st-language-arrow { transform:rotate(90deg); }
+.st-language-list { display:flex; flex-wrap:wrap; gap:7px; margin-top:9px; padding:12px; border:1px solid var(--st-line); border-radius:14px; background:var(--st-bg); }
+.st-language-list[hidden] { display:none; }
 .st-language-button { min-height:38px; padding:0 13px; border:1px solid var(--st-line); border-radius:999px; background:var(--st-card); color:var(--st-text); font-weight:650; cursor:pointer; }
 .st-language-button:hover { border-color:var(--st-accent); background:#fff3e2; color:#1d1d1f; }
 .st-language-button[aria-pressed="true"] { border-color:var(--st-accent); background:var(--st-accent); color:#211300; }
@@ -7015,7 +7020,7 @@ body > .container { display:none !important; }
 .st-sr { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 @media(max-width:600px){ .st-card{border-radius:22px}.st-words[data-length="12"]{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(6,auto)}.st-words[data-length="24"]{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(12,auto)}.st-choices{grid-template-columns:1fr}.st-choice{min-height:92px}.st-meta{display:block}.st-meta span{display:block;margin-top:4px} }
 @media(prefers-reduced-motion:reduce){ *{scroll-behavior:auto!important;transition:none!important;animation:none!important} }
-@media(prefers-color-scheme:dark){ :root{--st-bg:#0b0b0c;--st-card:#1c1c1e;--st-text:#f5f5f7;--st-muted:#a1a1a6;--st-line:#3a3a3c}.st-choice,.st-input,.st-dialog-box{background:#1c1c1e}.st-choice:hover,.st-language-button:hover{background:#3a2b17;color:#fff4e6}.st-pass-row input{background:#0f0f10;color:#fff4e6;caret-color:#f7931a;border-color:#5a5a60}.st-button{background:#333336}.st-button-primary{background:var(--st-accent)}.st-notice{background:#33250f;color:#ffd69c}.st-progress{background:#3a3a3c}.st-entropy-source{background:#111113}.st-entropy-source code{background:transparent;color:#fff4e6;-webkit-text-fill-color:#fff4e6} }
+@media(prefers-color-scheme:dark){ :root{--st-bg:#0b0b0c;--st-card:#1c1c1e;--st-text:#f5f5f7;--st-muted:#a1a1a6;--st-line:#3a3a3c}.st-choice,.st-input,.st-dialog-box{background:#1c1c1e}.st-choice:hover,.st-language-button:hover,.st-language-trigger:hover{background:#3a2b17;color:#fff4e6}.st-pass-row input{background:#0f0f10;color:#fff4e6;caret-color:#f7931a;border-color:#5a5a60}.st-button{background:#333336}.st-button-primary{background:var(--st-accent)}.st-notice{background:#33250f;color:#ffd69c}.st-progress{background:#3a3a3c}.st-entropy-source{background:#111113}.st-entropy-source code{background:transparent;color:#fff4e6;-webkit-text-fill-color:#fff4e6} }
         </style>
     </head>
     <body>
@@ -7050,7 +7055,7 @@ body > .container { display:none !important; }
               <div class="st-step" data-step="result" hidden>
                 <button id="st-edit-entropy" class="st-back" type="button">← Back to entropy</button><p class="st-kicker">Expected test output</p><h2>Compare these words.</h2>
                 <p class="st-lead">Compare every numbered word with the output from the other device or implementation. An exact match is evidence that both processed this entropy equivalently.</p>
-                <div class="st-word-tools"><span class="st-word-tools-label">Word language</span><div class="st-language-list" role="group" aria-label="BIP39 word language"><button class="st-language-button" data-language="english" aria-pressed="true">English</button><button class="st-language-button" data-language="japanese" aria-pressed="false">日本語</button><button class="st-language-button" data-language="spanish" aria-pressed="false">Español</button><button class="st-language-button" data-language="chinese_simplified" aria-pressed="false">中文简体</button><button class="st-language-button" data-language="chinese_traditional" aria-pressed="false">中文繁體</button><button class="st-language-button" data-language="french" aria-pressed="false">Français</button><button class="st-language-button" data-language="italian" aria-pressed="false">Italiano</button><button class="st-language-button" data-language="korean" aria-pressed="false">한국어</button><button class="st-language-button" data-language="czech" aria-pressed="false">Čeština</button><button class="st-language-button" data-language="portuguese" aria-pressed="false">Português</button></div><button id="st-number-toggle" class="st-button st-number-toggle" type="button" aria-pressed="false">Show word numbers</button></div>
+                <div class="st-word-tools"><div id="st-language-picker" class="st-language-picker"><button id="st-language-trigger" class="st-language-trigger" type="button" aria-expanded="false" aria-controls="st-language-list"><span>Choose word language: <strong id="st-selected-language">English</strong></span><span class="st-language-arrow" aria-hidden="true">→</span></button><div id="st-language-list" class="st-language-list" role="group" aria-label="Choose BIP39 word language" hidden><button class="st-language-button" data-language="english" aria-pressed="true">English</button><button class="st-language-button" data-language="japanese" aria-pressed="false">日本語</button><button class="st-language-button" data-language="spanish" aria-pressed="false">Español</button><button class="st-language-button" data-language="chinese_simplified" aria-pressed="false">中文简体</button><button class="st-language-button" data-language="chinese_traditional" aria-pressed="false">中文繁體</button><button class="st-language-button" data-language="french" aria-pressed="false">Français</button><button class="st-language-button" data-language="italian" aria-pressed="false">Italiano</button><button class="st-language-button" data-language="korean" aria-pressed="false">한국어</button><button class="st-language-button" data-language="czech" aria-pressed="false">Čeština</button><button class="st-language-button" data-language="portuguese" aria-pressed="false">Português</button></div></div><button id="st-number-toggle" class="st-button st-number-toggle" type="button" aria-pressed="false">Show word numbers</button></div>
                 <div class="st-conversion">
                   <div class="st-entropy-source"><span class="st-entropy-source-label"><span>Entropy used</span><span id="st-result-entropy-type"></span></span><code id="st-result-entropy"></code></div>
                   <div id="st-words" class="st-words"></div>
@@ -33052,6 +33057,7 @@ window.Entropy = new (function() {
   const app = document.getElementById('seed-app');
   if (!app || !window.jQuery) return;
   const $ = window.jQuery;
+  const ACK_STORAGE_KEY = 'seedTesterAcknowledged';
   const state = { length: 12, phrase: '', bits: 0, language: 'english', wordIndexes: [], showNumbers: false, entropy: '', entropyType: '' };
   const el = id => document.getElementById(id);
   const steps = [...app.querySelectorAll('.st-step')];
@@ -33072,6 +33078,20 @@ window.Entropy = new (function() {
   function configureEngine() {
     old.useEntropy.prop('checked', true).trigger('change');
     old.length.val(String(state.length)).trigger('change');
+  }
+
+  function restoreAcknowledgement() {
+    let acknowledged = false;
+    try { acknowledged = window.localStorage.getItem(ACK_STORAGE_KEY) === 'true'; } catch (error) {}
+    el('st-ack').checked = acknowledged;
+    el('st-begin').disabled = !acknowledged;
+  }
+
+  function rememberAcknowledgement(acknowledged) {
+    try {
+      if (acknowledged) window.localStorage.setItem(ACK_STORAGE_KEY, 'true');
+      else window.localStorage.removeItem(ACK_STORAGE_KEY);
+    } catch (error) {}
   }
 
   function friendlyType(rawType) {
@@ -33120,6 +33140,8 @@ window.Entropy = new (function() {
     state.showNumbers = false;
     state.wordIndexes = state.phrase.split(/\s+/).filter(Boolean).map(word => WORDLISTS.english.indexOf(word));
     app.querySelectorAll('[data-language]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.language === 'english')));
+    el('st-selected-language').textContent = 'English';
+    collapseLanguagePicker();
     el('st-number-toggle').setAttribute('aria-pressed', 'false');
     el('st-number-toggle').textContent = 'Show word numbers';
     el('st-result-entropy').textContent = state.entropy;
@@ -33150,10 +33172,25 @@ window.Entropy = new (function() {
     if (!WORDLISTS[language] || !state.wordIndexes.length) return;
     state.language = language;
     app.querySelectorAll('[data-language]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.language === language)));
+    const selectedButton = app.querySelector(`[data-language="${language}"]`);
+    el('st-selected-language').textContent = selectedButton ? selectedButton.textContent.trim() : language;
+    collapseLanguagePicker();
+    el('st-language-trigger').focus();
     renderWordCards();
     el('st-seed-fingerprint').textContent = masterFingerprint('');
     const passphrase = el('st-passphrase').value;
     if (passphrase) el('st-pass-fingerprint').textContent = masterFingerprint(passphrase);
+  }
+
+  function collapseLanguagePicker() {
+    el('st-language-trigger').setAttribute('aria-expanded', 'false');
+    el('st-language-list').hidden = true;
+  }
+
+  function toggleLanguagePicker() {
+    const expanded = el('st-language-trigger').getAttribute('aria-expanded') === 'true';
+    el('st-language-trigger').setAttribute('aria-expanded', String(!expanded));
+    el('st-language-list').hidden = expanded;
   }
 
   function masterFingerprint(passphrase) {
@@ -33171,7 +33208,10 @@ window.Entropy = new (function() {
     } else renderPhrase();
   }
 
-  el('st-ack').addEventListener('change', e => { el('st-begin').disabled = !e.target.checked; });
+  el('st-ack').addEventListener('change', e => {
+    el('st-begin').disabled = !e.target.checked;
+    rememberAcknowledgement(e.target.checked);
+  });
   el('st-begin').addEventListener('click', () => showStep('length'));
   app.querySelectorAll('[data-back]').forEach(button => button.addEventListener('click', () => showStep(button.dataset.back)));
   app.querySelectorAll('[data-length]').forEach(button => button.addEventListener('click', () => {
@@ -33186,6 +33226,8 @@ window.Entropy = new (function() {
   el('st-go-back').addEventListener('click', () => { el('st-warning').hidden = true; el('st-entropy').focus(); });
   el('st-create-anyway').addEventListener('click', () => { el('st-warning').hidden = true; renderPhrase(); });
   el('st-warning').addEventListener('click', e => { if (e.target === el('st-warning')) el('st-go-back').click(); });
+  el('st-language-trigger').addEventListener('click', toggleLanguagePicker);
+  el('st-language-picker').addEventListener('mouseleave', collapseLanguagePicker);
   app.querySelectorAll('[data-language]').forEach(button => button.addEventListener('click', () => setWordLanguage(button.dataset.language)));
   el('st-number-toggle').addEventListener('click', () => {
     state.showNumbers = !state.showNumbers;
@@ -33214,10 +33256,12 @@ window.Entropy = new (function() {
     el('st-entropy').value = ''; el('st-passphrase').value = '';
     el('st-seed-fingerprint').textContent = '--------'; el('st-pass-fingerprint').textContent = '--------'; el('st-pass-fingerprint-wrap').hidden = true;
     app.querySelectorAll('[data-language]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.language === 'english')));
+    el('st-selected-language').textContent = 'English'; collapseLanguagePicker();
     el('st-number-toggle').setAttribute('aria-pressed', 'false'); el('st-number-toggle').textContent = 'Show word numbers';
-    el('st-ack').checked = false; el('st-begin').disabled = true; el('st-words').replaceChildren(); showStep('safety');
+    el('st-words').replaceChildren(); showStep('safety');
   });
   configureEngine();
+  restoreAcknowledgement();
 })();
 </script>
     </body>
