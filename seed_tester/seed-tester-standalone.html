@@ -7060,7 +7060,7 @@ body > .container { display:none !important; }
                 <p class="st-lead">Type or paste coin flips as 0 and 1, dice rolls as 1–6, decimal digits, or hexadecimal characters.</p>
                 <label class="st-sr" for="st-entropy">Random number sequence</label>
                 <textarea id="st-entropy" class="st-input" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="For example: 62535634…"></textarea>
-                <div class="st-meta"><span id="st-detection" class="st-detection is-waiting"><span id="st-type-icon" class="st-detection-icon" aria-hidden="true">•••</span><strong id="st-type">Waiting for input</strong></span><span id="st-count">0 of 128 bits</span></div>
+                <div class="st-meta"><span id="st-detection" class="st-detection is-waiting"><span id="st-type-icon" class="st-detection-icon" aria-hidden="true">•••</span><strong id="st-type">Waiting for input</strong></span><span id="st-count">0 of 128 bits (12 words)</span></div>
                 <div class="st-progress" role="progressbar" aria-label="Entropy strength" aria-valuemin="0" aria-valuemax="128" aria-valuenow="0"><span></span></div>
                 <p id="st-interpretation" class="st-help">Enter digits or hexadecimal A–F. Spaces and punctuation are ignored.</p><p id="st-error" class="st-error" role="alert"></p>
                 <div class="st-actions"><button id="st-create" class="st-button st-button-primary" disabled>Generate test phrase</button></div>
@@ -33175,7 +33175,7 @@ window.Entropy = new (function() {
       el('st-type-icon').textContent = detected.icon;
       el('st-type').textContent = detected.label;
       el('st-detection').classList.toggle('is-waiting', !eventCount);
-      el('st-count').textContent = `${state.bits} of ${target} bits`;
+      el('st-count').textContent = `${state.bits} of ${target} bits (${state.length} words)`;
       const bar = app.querySelector('.st-progress');
       const percent = Math.min(100, state.bits / target * 100);
       bar.setAttribute('aria-valuemax', target); bar.setAttribute('aria-valuenow', state.bits);
