@@ -1,0 +1,50 @@
+---
+layout: default
+title: "Seed Tester"
+date: 2026-08-07
+summary: "Compare test entropy for Bitcoin BIP39 seed words."
+show_on_home: true
+type: "project"
+description: "A verification-only tool for comparing disposable Bitcoin BIP39 test output generated from dice rolls, coin flips, or random digits."
+social_image: "/assets/social/home-v5.png"
+---
+
+<div class="seed-tester-wrapper">
+  <iframe
+    class="seed-tester-frame"
+    src="{{ '/seed_tester/bip39-standalone.html' | relative_url }}"
+    title="Seed Tester — Bitcoin BIP39 entropy verification tool"
+    referrerpolicy="no-referrer"
+    sandbox="allow-scripts allow-downloads allow-forms allow-modals allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+  ></iframe>
+</div>
+
+<style>
+  .site-main { padding: 0; }
+  .site-main .container {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #f5f5f7;
+  }
+  .seed-tester-wrapper { width: 100%; min-height: calc(100vh - 130px); }
+  .seed-tester-frame {
+    display: block;
+    width: 100%;
+    min-height: calc(100vh - 130px);
+    height: 980px;
+    border: 0;
+    background: #f5f5f7;
+  }
+  @media (max-width: 600px) {
+    .seed-tester-frame { height: 1100px; }
+  }
+  @media (prefers-color-scheme: dark) {
+    .site-main .container, .seed-tester-frame { background: #0b0b0c; }
+  }
+</style>
