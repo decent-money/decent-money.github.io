@@ -16,6 +16,11 @@ theme: null
 
 markdown: kramdown
 
+# Development utilities are source-only and must never be copied into _site.
+exclude:
+  - tools
+  - LOCAL_EDITING.md
+
 # Make sure Jekyll sees our assets
 sass:
   sass_dir: assets/css
