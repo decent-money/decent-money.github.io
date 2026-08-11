@@ -52,7 +52,7 @@
     <link rel="icon" href="{{ '/favicon.png' | relative_url }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
   </head>
-  <body>
+  <body{% if page.collection == 'posts' %} class="post-page"{% endif %}>
 <header class="site-header">
   <div class="container header-inner">
     <a class="brand-logo" href="{{ '/' | relative_url }}">
