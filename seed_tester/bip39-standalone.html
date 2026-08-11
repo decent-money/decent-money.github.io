@@ -7025,6 +7025,15 @@ body > .container { display:none !important; }
 .st-pass-row { display:flex; gap:8px; }
 .st-pass-row input { flex:1; min-width:0; min-height:48px; border:2px solid var(--st-line); border-radius:12px; padding:0 14px; background:#fff; color:#1d1d1f; caret-color:#1d1d1f; }
 .st-pass-row input:focus { border-color:var(--st-accent); outline:3px solid rgba(247,147,26,.22); outline-offset:2px; }
+.st-pass-strength { margin-top:13px; }
+.st-pass-strength .st-meta { margin-top:0; }
+.st-pass-strength .st-progress > span { background:#86868b; }
+.st-pass-strength[data-score="0"] .st-progress > span { background:#d70015; }
+.st-pass-strength[data-score="1"] .st-progress > span { background:#e85d04; }
+.st-pass-strength[data-score="2"] .st-progress > span { background:#f0a202; }
+.st-pass-strength[data-score="3"] .st-progress > span { background:#78a900; }
+.st-pass-strength[data-score="4"] .st-progress > span { background:#248a3d; }
+.st-pass-feedback { min-height:21px; margin:8px 2px 0; color:var(--st-muted); font-size:13px; line-height:1.45; }
 .st-download { margin:20px auto 0; text-align:center; color:var(--st-muted); font-size:14px; line-height:1.5; }
 .st-download a { color:#8a5000; }
 .st-dialog { position:fixed; inset:0; z-index:9999; display:grid; place-items:center; padding:20px; background:rgba(0,0,0,.45); }
@@ -7075,7 +7084,7 @@ body > .container { display:none !important; }
                 </div>
                 <div class="st-fingerprint"><span class="st-fingerprint-label">Seed words fingerprint</span><code id="st-seed-fingerprint">--------</code><p>Derived from the test words above with no passphrase.</p></div>
                 <div class="st-notice"><strong>A mismatch is not proof that entropy was ignored.</strong> The other system may format, hash, truncate, or mix entropy differently. Check its documented method before drawing a conclusion. Ian Coleman's original <a href="https://iancoleman.io/bip39/" target="_blank" rel="noopener noreferrer">Mnemonic Code Converter</a> provides many more options that may be needed to exactly replicate the seed generated.</div>
-                <div class="st-pass"><label for="st-passphrase">Optional test passphrase</label><p class="st-help">For separate passphrase-derivation tests only. It does not change the words above and does not help verify entropy-to-word conversion. Never enter a passphrase used by a funded wallet.</p><div class="st-pass-row"><input id="st-passphrase" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div></div>
+                <div class="st-pass"><label for="st-passphrase">Optional test passphrase</label><p class="st-help">For separate passphrase-derivation tests only. It does not change the words above and does not help verify entropy-to-word conversion. Never enter a passphrase used by a funded wallet.</p><div class="st-pass-row"><input id="st-passphrase" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-describedby="st-pass-strength-summary st-pass-feedback"></div><div id="st-pass-strength" class="st-pass-strength"><div class="st-meta"><span id="st-pass-strength-summary">No test passphrase entered</span><span id="st-pass-count">0 characters</span></div><div class="st-progress" role="progressbar" aria-label="Estimated strength against offline guessing" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div><p id="st-pass-feedback" class="st-pass-feedback">Enter a test passphrase to estimate its resistance to offline guessing.</p><p class="st-help">This is an estimate, not a guarantee. The scale is intentionally conservative for Bitcoin, assumes the seed words are already known, and reaches full at an estimated 100 bits.</p></div></div>
                 <div id="st-pass-fingerprint-wrap" class="st-fingerprint" hidden><span class="st-fingerprint-label">Seed words + passphrase fingerprint</span><code id="st-pass-fingerprint">--------</code><p>This fingerprint is derived from the combination of the test seed words and the passphrase entered above. Changing either one is expected to produce a different wallet identity.</p></div>
                 <p class="st-help"><strong>Because these phrases were entered online, discard both test phrases. Never retain, import, or fund them.</strong></p>
                 <div class="st-actions"><button id="st-restart" class="st-button st-button-primary">Discard and start over</button></div>
@@ -33298,6 +33307,37 @@ window.Entropy = new (function() {
     }, 500);
   }
 
+  function updatePassphraseStrength(passphrase) {
+    const meter = el('st-pass-strength');
+    const bar = meter.querySelector('.st-progress');
+    const fill = bar.querySelector('span');
+    const characterCount = Array.from(passphrase).length;
+    el('st-pass-count').textContent = `${characterCount} character${characterCount === 1 ? '' : 's'}`;
+    if (!passphrase) {
+      meter.removeAttribute('data-score');
+      el('st-pass-strength-summary').textContent = 'No test passphrase entered';
+      el('st-pass-feedback').textContent = 'Enter a test passphrase to estimate its resistance to offline guessing.';
+      bar.setAttribute('aria-valuenow', '0');
+      bar.setAttribute('aria-valuetext', 'No passphrase entered');
+      fill.style.width = '0%';
+      return;
+    }
+    const estimate = libs.zxcvbn(passphrase);
+    const resistanceBits = Math.max(0, Math.floor((estimate.guesses_log10 || 0) / Math.log10(2)));
+    const score = resistanceBits < 40 ? 0 : resistanceBits < 60 ? 1 : resistanceBits < 80 ? 2 : resistanceBits < 100 ? 3 : 4;
+    const labels = ['Very weak', 'Weak', 'Moderate', 'Strong', 'Very strong'];
+    const feedback = [estimate.feedback && estimate.feedback.warning]
+      .concat(estimate.feedback && estimate.feedback.suggestions || [])
+      .filter(Boolean)
+      .join(' ');
+    meter.dataset.score = String(score);
+    el('st-pass-strength-summary').textContent = `${labels[score]} · about ${resistanceBits} bits of offline guess resistance`;
+    el('st-pass-feedback').textContent = feedback || (score >= 3 ? 'No obvious common pattern was detected.' : 'Longer, less predictable passphrases are harder to guess.');
+    bar.setAttribute('aria-valuenow', String(Math.min(100, resistanceBits)));
+    bar.setAttribute('aria-valuetext', `${labels[score]}, about ${resistanceBits} bits of offline guess resistance`);
+    fill.style.width = `${Math.min(100, resistanceBits)}%`;
+  }
+
   function masterFingerprint(passphrase) {
     const testMnemonic = new Mnemonic(state.language);
     const testSeed = testMnemonic.toSeed(state.phrase, passphrase || '');
@@ -33346,6 +33386,7 @@ window.Entropy = new (function() {
   let fingerprintTimer;
   el('st-passphrase').addEventListener('input', e => {
     const passphrase = e.target.value;
+    updatePassphraseStrength(passphrase);
     old.passphrase.val(passphrase).trigger('input');
     clearTimeout(fingerprintTimer);
     if (!passphrase) {
@@ -33362,6 +33403,7 @@ window.Entropy = new (function() {
     state.phrase = ''; state.bits = 0; state.language = 'english'; state.wordIndexes = []; state.showNumbers = false; state.entropy = ''; state.entropyType = ''; state.entropySystem = ''; old.entropy.val('').trigger('input'); old.phrase.val(''); old.passphrase.val('').trigger('input');
     clearTimeout(fingerprintTimer);
     el('st-entropy').value = ''; el('st-passphrase').value = '';
+    updatePassphraseStrength('');
     el('st-seed-fingerprint').textContent = '--------'; el('st-pass-fingerprint').textContent = '--------'; el('st-pass-fingerprint-wrap').hidden = true;
     app.querySelectorAll('[data-language]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.language === 'english')));
     el('st-selected-language').textContent = 'English'; collapseLanguagePicker();
@@ -33372,6 +33414,7 @@ window.Entropy = new (function() {
   });
   configureEngine();
   restoreAcknowledgement();
+  updatePassphraseStrength(el('st-passphrase').value);
 })();
 </script>
     </body>
