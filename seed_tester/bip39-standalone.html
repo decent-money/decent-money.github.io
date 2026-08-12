@@ -6942,6 +6942,12 @@ body { background:var(--st-bg); color:var(--st-text); }
 body > .container { display:none !important; }
 #seed-app { min-height:100vh; padding:clamp(20px,5vw,64px) 18px; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
 .st-shell { width:min(720px,100%); margin:auto; }
+.st-theme-toggle { display:flex; justify-content:flex-end; gap:5px; margin:0 8px 9px 0; }
+.st-theme-button { display:grid; place-items:center; width:30px; height:30px; padding:0; border:1px solid transparent; border-radius:50%; background:transparent; color:var(--st-muted); cursor:pointer; }
+.st-theme-button svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.st-theme-button:hover { background:var(--st-card); color:var(--st-text); }
+.st-theme-button[aria-pressed="true"] { border-color:var(--st-line); background:var(--st-card); color:var(--st-accent); box-shadow:0 3px 12px rgba(0,0,0,.08); }
+.st-theme-button:focus-visible { outline:3px solid rgba(247,147,26,.38); outline-offset:2px; }
 .st-brand { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:24px; color:var(--st-muted); font-size:13px; }
 .st-brand strong { color:var(--st-text); letter-spacing:.04em; }
 .st-card { background:var(--st-card); border:1px solid rgba(0,0,0,.06); border-radius:28px; box-shadow:0 18px 60px rgba(0,0,0,.08); padding:clamp(24px,6vw,52px); }
@@ -7042,12 +7048,22 @@ body > .container { display:none !important; }
 .st-sr { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 @media(max-width:600px){ .st-card{border-radius:22px}.st-words[data-length="12"]{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(6,auto)}.st-words[data-length="24"]{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(12,auto)}.st-choices{grid-template-columns:1fr}.st-choice{min-height:92px}.st-meta{display:block}.st-meta>.st-detection{display:inline-flex;margin-top:4px}.st-meta>#st-count{display:block;margin-top:8px} }
 @media(prefers-reduced-motion:reduce){ *{scroll-behavior:auto!important;transition:none!important;animation:none!important} }
-@media(prefers-color-scheme:dark){ :root{--st-bg:#0b0b0c;--st-card:#1c1c1e;--st-text:#f5f5f7;--st-muted:#a1a1a6;--st-line:#3a3a3c}.st-choice,.st-input,.st-dialog-box{background:#1c1c1e}.st-choice:hover,.st-language-button:hover,.st-language-trigger:hover{background:#3a2b17;color:#fff4e6}.st-pass-row input{background:#0f0f10;color:#fff4e6;caret-color:#f7931a;border-color:#5a5a60}.st-button{background:#333336}.st-button-primary{background:var(--st-accent)}.st-notice{background:#33250f;color:#ffd69c}.st-progress{background:#3a3a3c}.st-entropy-source{background:#111113}.st-entropy-source code{background:transparent;color:#fff4e6;-webkit-text-fill-color:#fff4e6}.st-word-details code .st-checksum-bits{background:rgba(247,147,26,.25);color:#ffc778} }
+@media(prefers-color-scheme:dark){ :root:not([data-theme="light"]){--st-bg:#0b0b0c;--st-card:#1c1c1e;--st-text:#f5f5f7;--st-muted:#a1a1a6;--st-line:#3a3a3c} }
+:root[data-theme="light"] { color-scheme:light; }
+:root[data-theme="dark"] { color-scheme:dark;--st-bg:#0b0b0c;--st-card:#1c1c1e;--st-text:#f5f5f7;--st-muted:#a1a1a6;--st-line:#3a3a3c; }
+:root[data-theme="dark"] .st-choice,:root[data-theme="dark"] .st-input,:root[data-theme="dark"] .st-dialog-box{background:#1c1c1e}
+:root[data-theme="dark"] .st-choice:hover,:root[data-theme="dark"] .st-language-button:hover,:root[data-theme="dark"] .st-language-trigger:hover{background:#3a2b17;color:#fff4e6}
+:root[data-theme="dark"] .st-pass-row input{background:#0f0f10;color:#fff4e6;caret-color:#f7931a;border-color:#5a5a60}
+:root[data-theme="dark"] .st-button{background:#333336}:root[data-theme="dark"] .st-button-primary{background:var(--st-accent)}
+:root[data-theme="dark"] .st-notice{background:#33250f;color:#ffd69c}:root[data-theme="dark"] .st-progress{background:#3a3a3c}:root[data-theme="dark"] .st-entropy-source{background:#111113}
+:root[data-theme="dark"] .st-entropy-source code{background:transparent;color:#fff4e6;-webkit-text-fill-color:#fff4e6}:root[data-theme="dark"] .st-word-details code .st-checksum-bits{background:rgba(247,147,26,.25);color:#ffc778}
+@media(prefers-color-scheme:dark){ :root:not([data-theme="light"]) .st-choice,:root:not([data-theme="light"]) .st-input,:root:not([data-theme="light"]) .st-dialog-box{background:#1c1c1e}:root:not([data-theme="light"]) .st-choice:hover,:root:not([data-theme="light"]) .st-language-button:hover,:root:not([data-theme="light"]) .st-language-trigger:hover{background:#3a2b17;color:#fff4e6}:root:not([data-theme="light"]) .st-pass-row input{background:#0f0f10;color:#fff4e6;caret-color:#f7931a;border-color:#5a5a60}:root:not([data-theme="light"]) .st-button{background:#333336}:root:not([data-theme="light"]) .st-button-primary{background:var(--st-accent)}:root:not([data-theme="light"]) .st-notice{background:#33250f;color:#ffd69c}:root:not([data-theme="light"]) .st-progress{background:#3a3a3c}:root:not([data-theme="light"]) .st-entropy-source{background:#111113}:root:not([data-theme="light"]) .st-entropy-source code{background:transparent;color:#fff4e6;-webkit-text-fill-color:#fff4e6}:root:not([data-theme="light"]) .st-word-details code .st-checksum-bits{background:rgba(247,147,26,.25);color:#ffc778} }
         </style>
     </head>
     <body>
         <main id="seed-app">
           <div class="st-shell">
+            <div class="st-theme-toggle" role="group" aria-label="Colour theme"><button id="st-theme-light" class="st-theme-button" type="button" aria-label="Use light mode" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"></path></svg></button><button id="st-theme-dark" class="st-theme-button" type="button" aria-label="Use dark mode" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7Z"></path></svg></button></div>
             <div class="st-brand"><strong>SEED TESTER</strong><span>Bitcoin · BIP39 verification</span></div>
             <div class="st-persistent-warning" role="note">Test data only — never use a phrase shown here for a wallet that holds funds.</div>
             <section class="st-card" aria-live="polite">
@@ -33080,6 +33096,7 @@ window.Entropy = new (function() {
   if (!app || !window.jQuery) return;
   const $ = window.jQuery;
   const ACK_STORAGE_KEY = 'seedTesterAcknowledged';
+  const THEME_STORAGE_KEY = 'seedTesterTheme';
   const ENTROPY_SYSTEMS = {
     binary: { engine: 'binary', label: 'Binary / coin flips' },
     dice: { engine: 'dice', label: 'Dice rolls' },
@@ -33121,6 +33138,23 @@ window.Entropy = new (function() {
       if (acknowledged) window.localStorage.setItem(ACK_STORAGE_KEY, 'true');
       else window.localStorage.removeItem(ACK_STORAGE_KEY);
     } catch (error) {}
+  }
+
+  function applyTheme(theme, persist) {
+    const selectedTheme = theme === 'dark' ? 'dark' : 'light';
+    document.documentElement.dataset.theme = selectedTheme;
+    el('st-theme-light').setAttribute('aria-pressed', String(selectedTheme === 'light'));
+    el('st-theme-dark').setAttribute('aria-pressed', String(selectedTheme === 'dark'));
+    if (persist) {
+      try { window.localStorage.setItem(THEME_STORAGE_KEY, selectedTheme); } catch (error) {}
+    }
+  }
+
+  function restoreTheme() {
+    let savedTheme = '';
+    try { savedTheme = window.localStorage.getItem(THEME_STORAGE_KEY) || ''; } catch (error) {}
+    const systemTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    applyTheme(savedTheme === 'dark' || savedTheme === 'light' ? savedTheme : systemTheme, false);
   }
 
   function friendlyType(rawType) {
@@ -33357,6 +33391,8 @@ window.Entropy = new (function() {
     el('st-begin').disabled = !e.target.checked;
     rememberAcknowledgement(e.target.checked);
   });
+  el('st-theme-light').addEventListener('click', () => applyTheme('light', true));
+  el('st-theme-dark').addEventListener('click', () => applyTheme('dark', true));
   el('st-begin').addEventListener('click', () => showStep('length'));
   app.querySelectorAll('[data-back]').forEach(button => button.addEventListener('click', () => showStep(button.dataset.back)));
   app.querySelectorAll('[data-length]').forEach(button => button.addEventListener('click', () => {
@@ -33413,6 +33449,7 @@ window.Entropy = new (function() {
     el('st-words').replaceChildren(); showStep('safety');
   });
   configureEngine();
+  restoreTheme();
   restoreAcknowledgement();
   updatePassphraseStrength(el('st-passphrase').value);
 })();
