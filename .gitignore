@@ -5,3 +5,5 @@ _site/
 .vscode/
 index_BU.html
 Gemfile.lock
+/bitcoin/
+social_image_template2.xcf
