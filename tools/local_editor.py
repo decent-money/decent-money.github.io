@@ -22,6 +22,8 @@ from urllib.parse import parse_qs, unquote, urlparse
 ROOT = Path(__file__).resolve().parents[1]
 POSTS = (ROOT / "_posts").resolve()
 SITE = (ROOT / "_site").resolve()
+EDITOR_SCRIPT = ROOT / "assets" / "js" / "local-editor.js"
+EDITOR_STYLES = ROOT / "assets" / "css" / "local-editor.scss"
 TOKEN = secrets.token_urlsafe(32)
 BUILD_COMMAND = ["bundle", "exec", "jekyll", "build"]
 
@@ -227,10 +229,14 @@ class EditorHandler(SimpleHTTPRequestHandler):
             "token": TOKEN,
             "source": source.relative_to(ROOT).as_posix(),
         }), quote=True)
+        editor_script = EDITOR_SCRIPT.read_text(encoding="utf-8").replace("</script", "<\\/script")
+        editor_styles = EDITOR_STYLES.read_text(encoding="utf-8")
+        editor_styles = re.sub(r"\A---\s*\n---\s*\n", "", editor_styles)
+        editor_styles = editor_styles.replace("</style", "<\\/style")
         injection = (
-            '<link rel="stylesheet" href="/assets/css/local-editor.css">'
+            f'<style id="local-editor-styles">{editor_styles}</style>'
             f'<script id="local-editor-config" type="application/json" data-config="{config}"></script>'
-            '<script src="/assets/js/local-editor.js"></script>'
+            f'<script id="local-editor-script">{editor_script}</script>'
         )
         document = document.replace("</body>", f"{injection}</body>", 1)
         data = document.encode("utf-8")
@@ -242,7 +248,7 @@ class EditorHandler(SimpleHTTPRequestHandler):
         self.wfile.write(data)
 
     def do_POST(self) -> None:
-        if self.path != "/__editor/save" or not self._authorized():
+        if self.path not in {"/__editor/save", "/__editor/delete"} or not self._authorized():
             self._json(403, {"error": "Local editor authorization failed"})
             return
         try:
@@ -253,9 +259,10 @@ class EditorHandler(SimpleHTTPRequestHandler):
             source = safe_post(str(payload.get("source", "")))
             block_index = int(payload.get("index", -1))
             revision = str(payload.get("revision", ""))
-            replacement = str(payload.get("markdown", "")).rstrip("\n")
-            if not replacement.strip():
-                raise ValueError("A text block cannot be empty")
+            deleting = self.path == "/__editor/delete"
+            replacement = "" if deleting else str(payload.get("markdown", "")).rstrip("\n")
+            if not deleting and not replacement.strip():
+                raise ValueError("A text block cannot be empty; use its delete control instead")
 
             current = source.read_text(encoding="utf-8")
             blocks = markdown_blocks(current)
@@ -267,7 +274,7 @@ class EditorHandler(SimpleHTTPRequestHandler):
                 return
 
             original = current[int(block["start"]):int(block["end"])]
-            trailing_newline = "\n" if original.endswith("\n") else ""
+            trailing_newline = "" if deleting else ("\n" if original.endswith("\n") else "")
             updated = current[:int(block["start"])] + replacement + trailing_newline + current[int(block["end"]):]
 
             with tempfile.NamedTemporaryFile(
@@ -282,7 +289,12 @@ class EditorHandler(SimpleHTTPRequestHandler):
             self._json(status, {
                 "saved": True,
                 "built": built,
-                "message": "Saved and rebuilt" if built else "Saved, but the Jekyll rebuild failed",
+                "message": (
+                    "Deleted and rebuilt" if deleting and built else
+                    "Deleted, but the Jekyll rebuild failed" if deleting else
+                    "Saved and rebuilt" if built else
+                    "Saved, but the Jekyll rebuild failed"
+                ),
                 "buildOutput": output,
             })
         except (json.JSONDecodeError, OSError, TypeError, ValueError) as error:

@@ -14,8 +14,11 @@ Then open <http://127.0.0.1:4010> and navigate to a post. Editable headings, par
 - Press **Enter** to save and rebuild the site.
 - Press **Shift+Enter** to add a line inside the block.
 - Press **Escape** to cancel.
+- Click the small **×** at a block's top-right corner to delete that block immediately.
 
 The server runs a Jekyll build when it starts and after each save. It therefore needs the repository's Ruby dependencies installed (`bundle install`). If `_site` already exists and you only want to inspect the interface, start it with `python3 tools/local_editor.py --no-build`; saves will still attempt a rebuild.
+
+The editor interface itself is injected directly from the source tree, so changes to its JavaScript and CSS are available after restarting the Python server even when `--no-build` is used.
 
 ## Safety boundary
 
