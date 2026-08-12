@@ -8,30 +8,29 @@ toc_title: "Stages of a life"
 
 # The Life and Times of the Thunderbolt Kid
 
-Bitcoin is seventeen years old. That is a ridiculous thing to say about a protocol, and also a surprisingly productive way to think about one.
 
-Satoshi Nakamoto appears to have conceived Bitcoin in 2007–08, [announced it on 31 October 2008](https://satoshi.nakamotoinstitute.org/emails/cryptography/1/), and gave it a public birth with the Genesis Block on 3 January 2009 and the [first software release](https://satoshi.nakamotoinstitute.org/emails/threads/) five days later. The system has since behaved less like a finished invention than a young person: first utterly dependent on a caregiver, then stubbornly autonomous, experimental, industrious and, now, preoccupied with identity.
+Satoshi Nakamoto conceived Bitcoin in 2007–08, [announced it on 31 October 2008](https://satoshi.nakamotoinstitute.org/emails/cryptography/1/), and gave it a public birth with the Genesis Block on 3 January 2009. The system has since behaved less like a finished invention than a young person: first utterly dependent on a caregiver, then stubbornly autonomous, experimental, industrious and, now, preoccupied with identity.
 
-Erik Erikson's theory of psychosocial development supplies the frame. It describes eight stages of life, each organised around a crisis: trust or mistrust, autonomy or doubt, identity or confusion, and so on. Resolving a crisis does not mean eliminating its negative pole. Healthy development finds a workable balance and carries a corresponding virtue into the next stage. The stages are cumulative; old conflicts return in new forms.
+[Erik Erikson's theory of psychosocial development](https://en.wikipedia.org/wiki/Erikson%27s_stages_of_psychosocial_development) supplies the frame. It describes eight stages of life, each organised around a crisis: trust or mistrust, autonomy or doubt, identity or confusion, and so on. Resolving a crisis does not mean eliminating its negative pole. Healthy development finds a workable balance and carries a corresponding virtue into the next stage. The stages are cumulative; old conflicts return in new forms.
 
 The analogy is imperfect. Bitcoin has no mind, childhood or destiny. It is simultaneously software, network, monetary asset, payment rail, political symbol and the relationships among people who use it. When this essay asks what *Bitcoin* trusts or wants, it really asks how its participants relate to it—and how society relates to the institution they collectively produce.
 
 The age bands and labels below follow the [stages table in the Erikson overview](https://en.wikipedia.org/wiki/Erikson%27s_stages_of_psychosocial_development#Stages). Dates are measured from 3 January 2009. History carries us to age seventeen; everything after adolescence is a disciplined speculation about the tests that maturity may bring.
 
-## Stage 0: Conception
+## Stage 0: Immaculate Conception
 
-**Years:** 2007–3 January 2009  
+**Years:** 2007–3rd January 2009  
 **Bitcoin's age:** Not yet born
 
-Before the stages begin, there is gestation. Satoshi later wrote that he had spent roughly a year and a half coding before release. The white paper assembled existing parts—public-key signatures, proof of work, hash-linked timestamping, peer-to-peer networking and economic incentives—into a system that could order digital transactions without a central bookkeeper.
+Before Erikson's stages begin, there is gestation. Satoshi later wrote that he had spent roughly a year and a half coding before release. The white paper assembled existing parts—public-key signatures, proof of work, hash-linked timestamping, peer-to-peer networking and economic incentives—into a system that could order digital transactions without a central bookkeeper.
 
-The announcement was an ultrasound, not the birth. It let the cryptography mailing list inspect the proposition: electronic cash in which proof replaces the trusted intermediary. The Genesis Block made that proposition historical. From then on Bitcoin was not merely a plan that Satoshi could revise in private; it was a public chain other people could join, reject or extend.
+In this way the announcement, with the whitepaper, was an ultrasound. It let the cryptography mailing list inspect the proposition: electronic cash in which proof replaces the trusted intermediary. The Genesis Block made that proposition historical. From then on Bitcoin was not merely a plan that Satoshi could revise in private; it was a public chain other people could join, reject or extend.
 
 ## Stage I: Infancy
 
 <dl class="stage-facts">
-  <dt>Years</dt><dd>3 January 2009–2 January 2010</dd>
-  <dt>Bitcoin's age</dt><dd>Birth to under one</dd>
+  <dt>Years</dt><dd>3rd January 2009–January 2010</dd>
+  <dt>Bitcoin's age</dt><dd>Birth to under 1 year</dd>
   <dt>Virtue</dt><dd>Hope</dd>
   <dt>Psychosocial crisis</dt><dd>Trust vs. mistrust</dd>
   <dt>Significant relationship</dt><dd>Mother → Satoshi Nakamoto; the nearest father figure → Hal Finney</dd>
@@ -40,19 +39,19 @@ The announcement was an ultrasound, not the birth. It let the cryptography maili
   <dt>Bitcoin analogue</dt><dd>Mining, debugging, peer discovery and the first hand-off beyond its creator</dd>
 </dl>
 
-An infant cannot establish trust through argument. It learns by being fed repeatedly. In 2009 Satoshi supplied Bitcoin's food: code, blocks, releases, answers and near-continuous care. With almost no market value and very few miners, the network was not yet self-supporting. Its continued heartbeat depended disproportionately on its pseudonymous mother leaving a computer running.
+In 2009 Satoshi supplied Bitcoin's food: energy, code, blocks, releases, answers and near-continuous care. With almost no market value and very few miners, the network was not yet self-supporting. Its continued heartbeat depended disproportionately on its pseudonymous mother leaving a computer running.
 
-Hal Finney was the first important relationship outside that bond. He downloaded the software, mined, reported faults and received the first person-to-person bitcoin transaction. If Satoshi was the maternal source from which the system emerged, Finney was the father at the bedside: technically capable, receptive and willing to treat the strange newborn as real.
+Hal Finney was the first important relationship outside that bond. He downloaded the software, mined, reported faults and received the first person-to-person bitcoin transaction. If Satoshi was the maternal source from which the system emerged, Finney was the father at the bedside: technically capable, receptive and willing to provide the newborn protocol with the care it needed.
 
-For an individual encountering Bitcoin, the first question was literal trust. Would the program steal resources, lose coins or simply stop? At the social scale it was more radical: could people trust a system designed on the assumption that its participants need not trust one another? Bitcoin's answer was not “trust nobody.” It was to relocate trust—from an operator's promise to inspectable rules, replicated records and incentives.
+For an individual encountering Bitcoin, the first question was literal trust. Would the program steal resources, lose coins or simply stop? At the social scale it was more radical: could people trust a system designed on the assumption that its participants need not trust one another? Bitcoin's answer was not “trust nobody.” It was to relocate trust from an operator's promise to inspectable and verifiable rules, replicated records and incentives.
 
 The virtue was hope: perhaps the decades-old dream of native internet money had finally found a way to live. Hope came before price, liquidity or convenience. It was the decision to run the software while almost nobody else did.
 
 ## Stage II: Toddlerhood
 
 <dl class="stage-facts">
-  <dt>Years</dt><dd>3 January 2010–2 January 2012</dd>
-  <dt>Bitcoin's age</dt><dd>One to two</dd>
+  <dt>Years</dt><dd>2010–2012</dd>
+  <dt>Bitcoin's age</dt><dd>1 to 2 years</dd>
   <dt>Virtue</dt><dd>Will</dd>
   <dt>Psychosocial crisis</dt><dd>Autonomy vs. shame and doubt</dd>
   <dt>Significant relationship</dt><dd>Parents → Satoshi, early developers, miners and operators</dd>
@@ -63,7 +62,7 @@ The virtue was hope: perhaps the decades-old dream of native internet money had 
 
 Toddlers discover both control and mess. Bitcoin acquired an exchange price, mining pools and its first recognisable economy. On 22 May 2010, Laszlo Hanyecz's purchase of two pizzas for 10,000 BTC demonstrated something price charts could not: units made by the protocol could mediate an ordinary social exchange.
 
-Then came the mess. In August 2010 an integer-overflow bug allowed a transaction to create about 184 billion bitcoin. Developers identified the fault, released a fix and coordinated a corrected chain. The episode could inspire shame and doubt—was this amateur money?—but it also developed will. A tiny community confronted a constitutional emergency without a company, court or central bank. The 21-million rule survived because participants chose repaired software that preserved it.
+Then came the mess. In August 2010 an integer-overflow bug allowed a transaction to create about 184 billion bitcoin. Developers identified the fault, released a fix and coordinated a corrected chain. The episode could inspire shame and doubt, but it also developed will. A tiny community confronted a constitutional emergency without a company, court or central bank. The 21-million rule survived because participants chose repaired software that preserved it.
 
 The decisive autonomy test arrived when Satoshi withdrew in late 2010 and handed responsibilities, including the alert key, to other developers. [Bitcoin.org's own history](https://bitcoin.org/en/press) describes Satoshi leaving while the community grew around the open-source project. This was both toilet training and abandonment: Bitcoin had to manage itself precisely because its primary caregiver was no longer there.
 
@@ -72,8 +71,8 @@ Individuals now had to take responsibility too. Wallet backups, private keys, ir
 ## Stage III: Early childhood
 
 <dl class="stage-facts">
-  <dt>Years</dt><dd>3 January 2012–2 January 2016</dd>
-  <dt>Bitcoin's age</dt><dd>Three to six</dd>
+  <dt>Years</dt><dd>2012–2016</dd>
+  <dt>Bitcoin's age</dt><dd>3 to 6 years</dd>
   <dt>Virtue</dt><dd>Purpose</dd>
   <dt>Psychosocial crisis</dt><dd>Initiative vs. guilt</dd>
   <dt>Significant relationship</dt><dd>Family → developers, exchanges, merchants, miners and early users</dd>
@@ -91,8 +90,8 @@ At the individual level, initiative meant trying Bitcoin for speculation, remitt
 ## Stage IV: Late childhood
 
 <dl class="stage-facts">
-  <dt>Years</dt><dd>3 January 2016–2 January 2020</dd>
-  <dt>Bitcoin's age</dt><dd>Seven to ten</dd>
+  <dt>Years</dt><dd>2016–2020</dd>
+  <dt>Bitcoin's age</dt><dd>7 to 10 years</dd>
   <dt>Virtue</dt><dd>Competence</dd>
   <dt>Psychosocial crisis</dt><dd>Industry vs. inferiority</dd>
   <dt>Significant relationship</dt><dd>Neighbours and school → competing networks, regulators, financial markets and the wider internet</dd>
@@ -112,8 +111,8 @@ For individuals, competence became a practice: understanding confirmations, fees
 ## Stage V: Adolescence
 
 <dl class="stage-facts">
-  <dt>Years</dt><dd>3 January 2020–2 January 2029</dd>
-  <dt>Bitcoin's age</dt><dd>Eleven to nineteen; seventeen at publication</dd>
+  <dt>Years</dt><dd>2020–2029</dd>
+  <dt>Bitcoin's age</dt><dd>11 to 19 years; 17 at publication (2026)</dd>
   <dt>Virtue</dt><dd>Fidelity</dd>
   <dt>Psychosocial crisis</dt><dd>Identity vs. role confusion</dd>
   <dt>Significant relationship</dt><dd>Peers and role models → states, corporations, funds, activists, critics and other monetary networks</dd>
@@ -138,7 +137,7 @@ The conflict widened when Bitcoin Core relaxed its default `OP_RETURN` relay lim
 
 The proposal did not attract the mining support required to carry its mandatory-signalling strategy. At block 961,632, BIP 110-enforcing nodes rejected the non-signalling chain followed by the overwhelming majority of hash power. A minority branch formed but then stalled. On 9 August 2026 the BIP was formally marked **Closed**, its changelog recording “a chain split with stalled mining.” Some supporters have since discussed a new hard fork with a proof-of-work change, which would recruit a different mining constituency rather than continue competing for SHA-256 hash power. At the time of writing that is a tentative direction, not a completed successor proposal, and it would produce a plainly separate network whose claim to the Bitcoin name would be social and economic, not something code could decide.
 
-My own view is that the BIP 110 movement has been ill-conceived and poorly executed: it tried to turn a disputed account of Bitcoin's identity into consensus rules without first establishing anything close to the coordination needed to sustain them. But its failure should not be used to wave away the underlying concern. The episode demonstrated both that Bitcoin Core cannot simply order the network to follow it and that opposition to Core's direction needs more than declarations of user sovereignty. Fidelity is not proved by saying “this is the real Bitcoin.” It is proved by maintaining a constituency willing and able to bear the consequences of that commitment.
+The BIP 110 movement tried to turn a disputed account of Bitcoin's identity into consensus rules without first establishing anything close to the coordination needed to sustain them. But its failure should not be used to wave away the underlying concern. The episode demonstrated both that Bitcoin Core cannot simply order the network to follow it and that opposition to Core's direction needs more than declarations of user sovereignty. Fidelity is not proved by saying “this is the real Bitcoin.” It is proved by maintaining a constituency willing and able to bear the consequences of that commitment.
 
 Days before that split, fidelity was tested in a more intimate and devastating way. On 29 July 2026, attackers began stealing bitcoin from wallets whose seeds had been generated by affected COLDCARD firmware. [Coinkite's advisory](https://coldcard.com/docs/upgrade/) acknowledged that a 2021 defect had routed seed generation away from the intended hardware random-number generator. Affected Mk3 seeds could contain only about 40 bits of effective entropy; affected Mk4, Mk5 and Q seeds could also fall far short of the intended 128 bits. [Bitcoin Optech reported](https://bitcoinops.org/en/newsletters/2026/07/31/) estimated losses exceeding 1,000 BTC by 31 July, warned that multiple models were affected, and stressed that installing fixed firmware does not make an old seed safe.
 
@@ -153,8 +152,8 @@ The adolescent stage still has more than two years to run. Expect role confusion
 ## Stage VI: Early adulthood
 
 <dl class="stage-facts stage-facts--future">
-  <dt>Years</dt><dd>3 January 2029–2 January 2054</dd>
-  <dt>Bitcoin's age</dt><dd>Twenty to forty-four</dd>
+  <dt>Years</dt><dd>2029–2054</dd>
+  <dt>Bitcoin's age</dt><dd>20 to 44 years</dd>
   <dt>Virtue</dt><dd>Love</dd>
   <dt>Psychosocial crisis</dt><dd>Intimacy vs. isolation</dd>
   <dt>Significant relationship</dt><dd>Friends and partners → households, businesses, financial institutions, states and complementary protocols</dd>
@@ -163,7 +162,7 @@ The adolescent stage still has more than two years to run. Expect role confusion
   <dt>Bitcoin analogue</dt><dd>Durable integration with everyday finance, law, energy and digital systems</dd>
 </dl>
 
-From this point forward, the history becomes a scenario.
+From this point forward, the Bitcoin's future stages become speculation on my part.
 
 The adult challenge will be intimacy without loss of self. Bitcoin may become deeply coupled to banking, retirement funds, payment applications, energy grids and sovereign balance sheets. Layers could make it invisible in ordinary transactions: a person may use bitcoin-backed value without thinking about blocks, just as an internet user does not think about packets. Cross-border settlement may become a quiet institutional use even where retail payments remain denominated in local currency.
 
@@ -174,8 +173,8 @@ This era will also span several halvings. As the subsidy declines, transaction f
 ## Stage VII: Middle adulthood
 
 <dl class="stage-facts stage-facts--future">
-  <dt>Years</dt><dd>3 January 2054–2 January 2074</dd>
-  <dt>Bitcoin's age</dt><dd>Forty-five to sixty-four</dd>
+  <dt>Years</dt><dd>2054–2074</dd>
+  <dt>Bitcoin's age</dt><dd>45 to 64 years</dd>
   <dt>Virtue</dt><dd>Care</dd>
   <dt>Psychosocial crisis</dt><dd>Generativity vs. stagnation</dd>
   <dt>Significant relationship</dt><dd>Household and workmates → the generations born into a Bitcoin-shaped world</dd>
@@ -193,8 +192,8 @@ Stagnation would look like rent-seeking: incumbents defending wrappers and gatek
 ## Stage VIII: Late adulthood
 
 <dl class="stage-facts stage-facts--future">
-  <dt>Years</dt><dd>From 3 January 2074</dd>
-  <dt>Bitcoin's age</dt><dd>Sixty-five and older</dd>
+  <dt>Years</dt><dd>From 2074 onwards</dd>
+  <dt>Bitcoin's age</dt><dd>65 years and older</dd>
   <dt>Virtue</dt><dd>Wisdom</dd>
   <dt>Psychosocial crisis</dt><dd>Ego integrity vs. despair</dd>
   <dt>Significant relationship</dt><dd>Humankind, “my kind” → the civilisation keeping, replacing or remembering Bitcoin</dd>
