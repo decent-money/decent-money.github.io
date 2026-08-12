@@ -477,6 +477,128 @@ div.highlighter-rouge pre {
   opacity: 1;
 }
 
+/* Post-only reading palette. The surrounding site keeps its neon branding. */
+.post-page .site-main .container {
+  --post-surface: #111820;
+  --post-surface-soft: #18222c;
+  --post-text: #e6e2d9;
+  --post-muted: #aeb8c2;
+  --post-heading: #9bd5ca;
+  --post-title: #f0c987;
+  --post-link: #83cfe0;
+  --post-border: rgba(190, 204, 214, 0.22);
+
+  background: var(--post-surface);
+  border-color: var(--post-border);
+  color: var(--post-text);
+}
+
+.post-page .site-main .container p,
+.post-page .site-main .container li,
+.post-page .site-main .container dd,
+.post-page .site-main .container blockquote {
+  color: var(--post-text);
+}
+
+.post-page .site-main .container p,
+.post-page .site-main .container li {
+  font-size: 1.015rem;
+  line-height: 1.78;
+}
+
+.post-page .site-main .container h1 {
+  color: var(--post-title);
+  letter-spacing: 0.015em;
+}
+
+.post-page .site-main .container h2 {
+  color: var(--post-heading);
+  letter-spacing: 0.018em;
+}
+
+.post-page .site-main .container h3,
+.post-page .site-main .container h4 {
+  color: #d7d9d4;
+}
+
+.post-page .site-main .container a {
+  color: var(--post-link);
+  border-bottom-color: rgba(131, 207, 224, 0.5);
+}
+
+.post-page .site-main .container a:hover,
+.post-page .site-main .container a:focus-visible {
+  color: var(--post-title);
+  border-bottom-color: rgba(240, 201, 135, 0.75);
+}
+
+.post-page .site-main .container strong {
+  color: #f1eee6;
+}
+
+.post-page .site-main .container blockquote {
+  margin: 1.4rem 0;
+  padding: 0.2rem 0 0.2rem 1.1rem;
+  border-left: 3px solid rgba(155, 213, 202, 0.6);
+}
+
+.post-page .site-main .container blockquote p {
+  color: #c8d0d2;
+}
+
+.post-page .site-main .container code {
+  background: #202b35;
+  color: #e9d9b9;
+}
+
+.post-page .site-main .container pre {
+  background: #0b1117;
+  border-color: var(--post-border);
+}
+
+.post-page .site-main .container pre code {
+  background: transparent;
+  color: var(--post-text);
+}
+
+.post-page .post-figure,
+.post-page .stage-facts,
+.post-page .post-toc {
+  border-color: var(--post-border);
+  background: var(--post-surface-soft);
+}
+
+.post-page .post-figure figcaption,
+.post-page .stage-facts dd,
+.post-page .heading-anchor,
+.post-page .toc-jump,
+.post-page .post-toc-list li::marker {
+  color: var(--post-muted);
+}
+
+.post-page .stage-facts dt,
+.post-page .post-toc-title {
+  color: var(--post-heading);
+}
+
+.post-page .stage-facts dt,
+.post-page .stage-facts dd,
+.post-page .post-figure figcaption {
+  border-color: var(--post-border);
+}
+
+.post-page .stage-facts--future {
+  border-color: rgba(240, 201, 135, 0.38);
+}
+
+.post-page .post-toc-columns::after {
+  background: var(--post-border);
+}
+
+.post-page .post-toc-list a {
+  font-size: 0.94rem;
+}
+
 @media (max-width: 560px) {
   .post-toc-list {
     min-width: 0;
