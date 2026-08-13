@@ -1,6 +1,7 @@
 ---
 layout: default
 title: "The Life and Times of the Thunderbolt Kid"
+published: false
 description: "Bitcoin at seventeen: its past and possible future through Erik Erikson's eight stages of psychosocial development."
 toc: true
 toc_title: "Stages of a life"
