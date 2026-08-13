@@ -7011,6 +7011,27 @@ body > .container { display:none !important; }
 .st-entropy-source-label { display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px 14px; margin-bottom:9px; color:var(--st-muted); font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
 .st-entropy-source code { display:block; overflow-wrap:anywhere; padding:0; border:0; background:transparent; color:#111113; -webkit-text-fill-color:#111113; font:750 15px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace; }
 .st-conversion .st-words { margin:0; padding:18px; }
+.st-pipeline { margin:0 0 24px; border:1px solid var(--st-line); border-radius:18px; background:var(--st-card); overflow:hidden; }
+.st-pipeline > summary { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:58px; padding:0 18px; font-weight:750; cursor:pointer; list-style:none; }
+.st-pipeline > summary::-webkit-details-marker,.st-pipeline-technical > summary::-webkit-details-marker { display:none; }
+.st-pipeline > summary::after { content:'→'; color:var(--st-accent); font-size:19px; transition:transform .18s ease; }
+.st-pipeline[open] > summary::after { transform:rotate(90deg); }
+.st-pipeline-body { padding:4px 18px 18px; border-top:1px solid var(--st-line); }
+.st-pipeline-steps { position:relative; display:grid; gap:0; margin:8px 0 16px; }
+.st-pipeline-step { position:relative; display:grid; grid-template-columns:34px 1fr; gap:13px; padding:14px 0; }
+.st-pipeline-step:not(:last-child)::after { content:''; position:absolute; left:16px; top:48px; bottom:-2px; width:2px; background:var(--st-line); }
+.st-pipeline-number { position:relative; z-index:1; display:grid; place-items:center; width:34px; height:34px; border-radius:50%; background:rgba(247,147,26,.14); color:#8a5000; font-weight:800; }
+.st-pipeline-copy h3 { margin:1px 0 5px; color:var(--st-text); font-size:16px; }
+.st-pipeline-copy p { margin:0 0 7px; color:var(--st-muted); font-size:14px; line-height:1.5; }
+.st-pipeline-preview { display:block; overflow-wrap:anywhere; padding:8px 10px; border-radius:9px; background:var(--st-bg); color:var(--st-text); font:650 12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace; }
+.st-pipeline-technical { border-top:1px solid var(--st-line); padding-top:14px; }
+.st-pipeline-technical > summary { color:#8a5000; font-size:14px; font-weight:700; cursor:pointer; list-style:none; }
+.st-pipeline-technical > summary::after { content:' +'; }
+.st-pipeline-technical[open] > summary::after { content:' −'; }
+.st-pipeline-data { display:grid; gap:10px; margin-top:12px; }
+.st-pipeline-data div { min-width:0; }
+.st-pipeline-data span { display:block; margin-bottom:4px; color:var(--st-muted); font-size:12px; font-weight:700; }
+.st-pipeline-data code { display:block; overflow-wrap:anywhere; padding:9px 10px; border-radius:9px; background:var(--st-bg); color:var(--st-text); font:600 12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace; }
 .st-word { position:relative; display:flex; flex-wrap:wrap; gap:8px; align-items:baseline; border:1px solid var(--st-line); border-radius:13px; padding:11px 12px; min-width:0; }
 .st-word span { color:var(--st-muted); font-size:12px; }
 .st-word strong { overflow:hidden; text-overflow:ellipsis; }
@@ -7098,6 +7119,7 @@ body > .container { display:none !important; }
                   <div class="st-entropy-source"><span class="st-entropy-source-label"><span>Entropy used</span><span id="st-result-entropy-type"></span></span><code id="st-result-entropy"></code></div>
                   <div id="st-words" class="st-words"></div>
                 </div>
+                <details id="st-pipeline" class="st-pipeline"><summary>How did this input become these words?</summary><div class="st-pipeline-body"><div class="st-pipeline-steps"><section class="st-pipeline-step"><span class="st-pipeline-number" aria-hidden="true">1</span><div class="st-pipeline-copy"><h3>Your input</h3><p id="st-pipeline-input-copy"></p><code id="st-pipeline-input-preview" class="st-pipeline-preview"></code></div></section><section class="st-pipeline-step"><span class="st-pipeline-number" aria-hidden="true">2</span><div class="st-pipeline-copy"><h3>The numbers were interpreted</h3><p id="st-pipeline-format-copy"></p><code id="st-pipeline-converted-preview" class="st-pipeline-preview"></code></div></section><section class="st-pipeline-step"><span class="st-pipeline-number" aria-hidden="true">3</span><div class="st-pipeline-copy"><h3>A repeatable digital result was made</h3><p id="st-pipeline-hash-copy"></p><code class="st-pipeline-preview">Converted sequence → repeatable digital result</code></div></section><section class="st-pipeline-step"><span class="st-pipeline-number" aria-hidden="true">4</span><div class="st-pipeline-copy"><h3>The result was mapped to words</h3><p id="st-pipeline-word-copy"></p><code id="st-pipeline-word-preview" class="st-pipeline-preview"></code></div></section></div><details class="st-pipeline-technical"><summary>Show technical details</summary><div class="st-pipeline-data"><div><span>Cleaned input</span><code id="st-pipeline-cleaned"></code></div><div><span>Selected parser</span><code id="st-pipeline-parser"></code></div><div><span>Exact text passed to SHA-256</span><code id="st-pipeline-hash-input"></code></div><div><span>SHA-256 result</span><code id="st-pipeline-hash"></code></div><div><span>Bits retained for the mnemonic</span><code id="st-pipeline-retained"></code></div><div><span>BIP39 checksum</span><code id="st-pipeline-checksum"></code></div></div></details></div></details>
                 <div class="st-fingerprint"><span class="st-fingerprint-label">Seed words fingerprint</span><code id="st-seed-fingerprint">--------</code><p>Derived from the test words above with no passphrase.</p></div>
                 <div class="st-notice"><strong>A mismatch is not proof that entropy was ignored.</strong> The other system may format, hash, truncate, or mix entropy differently. Check its documented method before drawing a conclusion. Ian Coleman's original <a href="https://iancoleman.io/bip39/" target="_blank" rel="noopener noreferrer">Mnemonic Code Converter</a> provides many more options that may be needed to exactly replicate the seed generated.</div>
                 <div class="st-pass"><label for="st-passphrase">Optional test passphrase</label><p class="st-help">For separate passphrase-derivation tests only. It does not change the words above and does not help verify entropy-to-word conversion. Never enter a passphrase used by a funded wallet.</p><div class="st-pass-row"><input id="st-passphrase" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-describedby="st-pass-strength-summary st-pass-feedback"></div><div id="st-pass-strength" class="st-pass-strength"><div class="st-meta"><span id="st-pass-strength-summary">No test passphrase entered</span><span id="st-pass-count">0 characters</span></div><div class="st-progress" role="progressbar" aria-label="Estimated strength against offline guessing" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div><p id="st-pass-feedback" class="st-pass-feedback">Enter a test passphrase to estimate its resistance to offline guessing.</p><p class="st-help">This is an estimate, not a guarantee. The scale is intentionally conservative for Bitcoin, assumes the seed words are already known, and reaches full at an estimated 100 bits.</p></div></div>
@@ -33251,6 +33273,9 @@ window.Entropy = new (function() {
     el('st-seed-fingerprint').textContent = masterFingerprint('');
     el('st-pass-fingerprint-wrap').hidden = true;
     el('st-pass-fingerprint').textContent = '--------';
+    el('st-pipeline').open = false;
+    const technicalDetails = el('st-pipeline').querySelector('.st-pipeline-technical');
+    if (technicalDetails) technicalDetails.open = false;
     showStep('result');
   }
 
@@ -33274,6 +33299,48 @@ window.Entropy = new (function() {
       const checksumHelp = isLastWord ? `<button class="st-checksum-jewel" type="button" aria-describedby="st-checksum-tooltip">?</button><span id="st-checksum-tooltip" class="st-checksum-tooltip" role="tooltip">The last word is partly entropy and partly checksum. Its final ${checksumBitCount} binary bits are the BIP39 checksum.</span>` : '';
       return `<div class="st-word${isLastWord ? ' st-word-checksum' : ''}"><span>${i + 1}</span><strong>${word}</strong>${checksumHelp}${details}</div>`;
     }).join('');
+    renderCalculationPipeline(words);
+  }
+
+  function shortened(value, edgeLength) {
+    const text = String(value || '');
+    const edge = edgeLength || 14;
+    return text.length > edge * 2 + 3 ? `${text.slice(0, edge)} … ${text.slice(-edge)}` : text;
+  }
+
+  function renderCalculationPipeline(words) {
+    if (!state.entropy || !state.wordIndexes.length) return;
+    const parser = ENTROPY_SYSTEMS[state.entropySystem] || { label: state.entropyType || 'Auto-detected' };
+    const converted = state.entropySystem === 'dice' ? state.entropy.replace(/6/g, '0') : state.entropy;
+    const conversionApplied = converted !== state.entropy;
+    const hashHex = sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(converted));
+    const retainedBitCount = state.length === 24 ? 256 : 128;
+    const retainedHex = hashHex.slice(0, retainedBitCount / 4);
+    const checksumBitCount = state.length === 24 ? 8 : 4;
+    const finalIndex = state.wordIndexes[state.wordIndexes.length - 1];
+    const finalBinary = finalIndex.toString(2).padStart(11, '0');
+    const checksumBits = finalBinary.slice(11 - checksumBitCount);
+    const exampleIndex = state.wordIndexes[0];
+    const exampleBinary = exampleIndex.toString(2).padStart(11, '0');
+    const eventLabel = state.entropy.length === 1 ? 'event' : 'events';
+
+    el('st-pipeline-input-copy').textContent = `You supplied ${state.entropy.length} accepted entropy ${eventLabel}. Spaces and punctuation were ignored.`;
+    el('st-pipeline-input-preview').textContent = shortened(state.entropy);
+    el('st-pipeline-format-copy').textContent = conversionApplied
+      ? `The input was treated as dice rolls. Each 6 was converted to 0 before the next step.`
+      : `The input was treated as ${parser.label.toLowerCase()}. No numbers were changed.`;
+    el('st-pipeline-converted-preview').textContent = conversionApplied
+      ? `${shortened(state.entropy)} → ${shortened(converted)}`
+      : shortened(converted);
+    el('st-pipeline-hash-copy').textContent = `The converted sequence was processed with a standard one-way calculation. The same sequence always gives the same result. ${state.length} words use the first ${retainedBitCount} bits.`;
+    el('st-pipeline-word-copy').textContent = `The result was divided into 11-bit pieces. Each piece selects a word from the ${state.language.replace(/_/g, ' ')} BIP39 list, with ${checksumBitCount} error-checking bits in the final word.`;
+    el('st-pipeline-word-preview').textContent = `${exampleBinary} → list position ${exampleIndex + 1} → ${words[0]}`;
+    el('st-pipeline-cleaned').textContent = state.entropy;
+    el('st-pipeline-parser').textContent = parser.label;
+    el('st-pipeline-hash-input').textContent = converted;
+    el('st-pipeline-hash').textContent = hashHex;
+    el('st-pipeline-retained').textContent = `First ${retainedBitCount} bits (${retainedHex})`;
+    el('st-pipeline-checksum').textContent = `${checksumBitCount} bits in the final word: ${checksumBits}`;
   }
 
   function setWordLanguage(language) {
@@ -33446,7 +33513,7 @@ window.Entropy = new (function() {
     app.querySelectorAll('[data-entropy-system]').forEach(button => button.setAttribute('aria-pressed', 'false'));
     el('st-selected-entropy-system').textContent = 'Auto-detected'; collapseEntropySystemPicker();
     el('st-number-toggle').setAttribute('aria-pressed', 'false'); el('st-number-toggle').textContent = 'Show word numbers';
-    el('st-words').replaceChildren(); showStep('safety');
+    el('st-words').replaceChildren(); el('st-pipeline').open = false; showStep('safety');
   });
   configureEngine();
   restoreTheme();
