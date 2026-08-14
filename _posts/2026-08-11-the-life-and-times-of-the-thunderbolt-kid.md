@@ -7,16 +7,16 @@ toc: true
 toc_title: "Stages of a life"
 ---
 
-# The Life and Times of the Thunderbolt Kid
+![The Life and Times of the Thunderbolt Kid]({{ '/assets/posts/the-life-and-times-of-the-thunderbolt-kid/title.png' | relative_url }}){: .post-title-image width="2172" height="724" }
 
 
-Satoshi Nakamoto conceived Bitcoin in 2007–08, [announced it on 31 October 2008](https://satoshi.nakamotoinstitute.org/emails/cryptography/1/), and gave it a public birth with the Genesis Block on 3 January 2009. The system has since behaved less like a finished invention than a young person: first utterly dependent on a caregiver, then stubbornly autonomous, experimental, industrious and, now, preoccupied with identity.
+Satoshi Nakamoto conceived Bitcoin in 2007–08, [announced it on 31 October 2008](https://satoshi.nakamotoinstitute.org/emails/cryptography/1/), and gave it a public birth with the Genesis Block on 3 January 2009. The system has since behaved less like a finished invention and more like an growing organism: first utterly dependent on a caregiver, then stubbornly autonomous, experimental, industrious and, now, preoccupied with identity.
 
-[Erik Erikson's theory of psychosocial development](https://en.wikipedia.org/wiki/Erikson%27s_stages_of_psychosocial_development) supplies the frame. It describes eight stages of life, each organised around a crisis: trust or mistrust, autonomy or doubt, identity or confusion, and so on. Resolving a crisis does not mean eliminating its negative pole. Healthy development finds a workable balance and carries a corresponding virtue into the next stage. The stages are cumulative; old conflicts return in new forms.
+[Erik Erikson's theory of psychosocial development](https://en.wikipedia.org/wiki/Erikson%27s_stages_of_psychosocial_development) supplies the frame to think about Bitcoin in this way. It describes eight stages of life, each organised around a crisis: trust or mistrust, autonomy or doubt, identity or confusion, and so on. Resolving a crisis does not mean eliminating the negative side of the coin. Healthy development finds a workable balance and carries a corresponding virtue into the next stage. The stages are cumulative, with old conflicts returning in new forms.
 
-The analogy is imperfect. Bitcoin has no mind, childhood or destiny. It is simultaneously software, network, monetary asset, payment rail, political symbol and the relationships among people who use it. When this essay asks what *Bitcoin* trusts or wants, it really asks how its participants relate to it—and how society relates to the institution they collectively produce.
+However, the analogy is imperfect. Bitcoin has no mind, childhood or destiny. It is simultaneously software, network, monetary asset, payment rail, political symbol and the relationships among people who use it. When this essay asks what *Bitcoin* trusts or wants, it really asks how its participants relate to it—and how society relates to the institution they collectively produce.
 
-The age bands and labels below follow the [stages table in the Erikson overview](https://en.wikipedia.org/wiki/Erikson%27s_stages_of_psychosocial_development#Stages). Dates are measured from 3 January 2009. History carries us to age seventeen; everything after adolescence is a disciplined speculation about the tests that maturity may bring.
+The age bands and labels below follow the [stages table in the Erikson overview](https://en.wikipedia.org/wiki/Erikson%27s_stages_of_psychosocial_development#Stages). Dates are measured from 3 January 2009 and the history so far carries us to age seventeen; everything after adolescence is my attempt at a disciplined speculation about the tests that maturity may bring.
 
 ## Stage 0: Immaculate Conception
 
@@ -25,7 +25,7 @@ The age bands and labels below follow the [stages table in the Erikson overview]
 
 Before Erikson's stages begin, there is gestation. Satoshi later wrote that he had spent roughly a year and a half coding before release. The white paper assembled existing parts—public-key signatures, proof of work, hash-linked timestamping, peer-to-peer networking and economic incentives—into a system that could order digital transactions without a central bookkeeper.
 
-In this way the announcement, with the whitepaper, was an ultrasound. It let the cryptography mailing list inspect the proposition: electronic cash in which proof replaces the trusted intermediary. The Genesis Block made that proposition historical. From then on Bitcoin was not merely a plan that Satoshi could revise in private; it was a public chain other people could join, reject or extend.
+In this way the announcement, with the [white paper](https://bitcoin.org/bitcoin.pdf), was an ultrasound. It let the cryptography mailing list inspect the proposition: electronic cash in which proof replaces the trusted intermediary. The Genesis Block made that proposition historical. From then on Bitcoin was not merely a plan that Satoshi could revise in private; it was a public chain other people could join, reject or extend.
 
 ## Stage I: Infancy
 
@@ -36,13 +36,12 @@ In this way the announcement, with the whitepaper, was an ultrasound. It let the
   <dt>Psychosocial crisis</dt><dd>Trust vs. mistrust</dd>
   <dt>Significant relationship</dt><dd>Mother → Satoshi Nakamoto; the nearest father figure → Hal Finney</dd>
   <dt>Existential question</dt><dd>“Can I trust the world?” → Can an open network survive among strangers?</dd>
-  <dt>Events in Erikson's model</dt><dd>Feeding, abandonment</dd>
-  <dt>Bitcoin analogue</dt><dd>Mining, debugging, peer discovery and the first hand-off beyond its creator</dd>
+  <dt>Events</dt><dd>Feeding, abandonment → Mining, debugging, peer discovery and the first hand-off beyond its creator</dd>
 </dl>
 
-In 2009 Satoshi supplied Bitcoin's food: energy, code, blocks, releases, answers and near-continuous care. With almost no market value and very few miners, the network was not yet self-supporting. Its continued heartbeat depended disproportionately on its pseudonymous mother leaving a computer running.
+In 2009 Satoshi supplied Bitcoin's food: energy, code, blocks, releases, answers and near-continuous care. With almost no market value and very few miners, the network was not yet self-supporting. Its continued heartbeat depended disproportionately on its pseudonymous "mother" leaving a computer running.
 
-Hal Finney was the first important relationship outside that bond. He downloaded the software, mined, reported faults and received the first person-to-person bitcoin transaction. If Satoshi was the maternal source from which the system emerged, Finney was the father at the bedside: technically capable, receptive and willing to provide the newborn protocol with the care it needed.
+Hal Finney was one of the first important relationships outside that bond. He downloaded the software, mined, reported faults and received the first person-to-person bitcoin transaction. If Satoshi was the maternal source from which the system emerged, Finney was the father at the bedside: technically capable, receptive and willing to provide the newborn protocol with the care it needed.
 
 For an individual encountering Bitcoin, the first question was literal trust. Would the program steal resources, lose coins or simply stop? At the social scale it was more radical: could people trust a system designed on the assumption that its participants need not trust one another? Bitcoin's answer was not “trust nobody.” It was to relocate trust from an operator's promise to inspectable and verifiable rules, replicated records and incentives.
 
@@ -57,13 +56,20 @@ The virtue was hope: perhaps the decades-old dream of native internet money had 
   <dt>Psychosocial crisis</dt><dd>Autonomy vs. shame and doubt</dd>
   <dt>Significant relationship</dt><dd>Parents → Satoshi, early developers, miners and operators</dd>
   <dt>Existential question</dt><dd>“Is it okay to be me?” → Can Bitcoin operate without its creator and remain Bitcoin?</dd>
-  <dt>Events in Erikson's model</dt><dd>Toilet training, clothing oneself</dd>
-  <dt>Bitcoin analogue</dt><dd>Learning monetary hygiene, recovering from failure and surviving Satoshi's departure</dd>
+  <dt>Events</dt><dd>Toilet training, clothing oneself → Learning monetary hygiene, recovering from failure and surviving Satoshi's departure</dd>
 </dl>
 
 Toddlers discover both control and mess. Bitcoin acquired an exchange price, mining pools and its first recognisable economy. On 22 May 2010, Laszlo Hanyecz's purchase of two pizzas for 10,000 BTC demonstrated something price charts could not: units made by the protocol could mediate an ordinary social exchange.
 
 Then came the mess. In August 2010 an integer-overflow bug allowed a transaction to create about 184 billion bitcoin. Developers identified the fault, released a fix and coordinated a corrected chain. The episode could inspire shame and doubt, but it also developed will. A tiny community confronted a constitutional emergency without a company, court or central bank. The 21-million rule survived because participants chose repaired software that preserved it.
+
+Bitcoin's first encounter with geopolitical attention made that autonomy feel dangerously premature. After Visa, Mastercard, PayPal and other financial intermediaries cut off WikiLeaks, some Bitcoin supporters urged the organisation to accept donations through a network those institutions could not veto. Satoshi objected that the project was still a small beta community whose software needed time to become resilient. As publicity connected Bitcoin with WikiLeaks, [Satoshi wrote on 11 December 2010](https://satoshi.nakamotoinstitute.org/posts/bitcointalk/542/):
+
+> It would have been nice to get this attention in any other context. WikiLeaks has kicked the hornet's nest, and the swarm is headed towards us.
+>
+> <cite>Satoshi Nakamoto</cite>
+
+WikiLeaks formally began accepting bitcoin donations in June 2011, after Satoshi had withdrawn. The episode was an early proof of purpose—money routed around a political banking blockade—but also a test of whether the young network could survive the consequences of its own autonomy. Nobody, including its creator, could prevent others from using it for a cause likely to attract state scrutiny. Bitcoin could leave home only by surrendering control over where it went.
 
 The decisive autonomy test arrived when Satoshi withdrew in late 2010 and handed responsibilities, including the alert key, to other developers. [Bitcoin.org's own history](https://bitcoin.org/en/press) describes Satoshi leaving while the community grew around the open-source project. This was both toilet training and abandonment: Bitcoin had to manage itself precisely because its primary caregiver was no longer there.
 
@@ -78,13 +84,16 @@ Individuals now had to take responsibility too. Wallet backups, private keys, ir
   <dt>Psychosocial crisis</dt><dd>Initiative vs. guilt</dd>
   <dt>Significant relationship</dt><dd>Family → developers, exchanges, merchants, miners and early users</dd>
   <dt>Existential question</dt><dd>“Is it okay for me to do, move, and act?” → What is Bitcoin for, and what may people build with it?</dd>
-  <dt>Events in Erikson's model</dt><dd>Exploring, using tools or making art</dd>
-  <dt>Bitcoin analogue</dt><dd>Wallets, ASICs, exchanges, payment services, marketplaces and new monetary experiments</dd>
+  <dt>Events</dt><dd>Exploring, using tools or making art → Wallets, ASICs, exchanges, payment services, marketplaces and new monetary experiments</dd>
 </dl>
 
 The preschool child stops merely asserting independence and starts doing things on purpose. From 2012 to 2015 Bitcoin's family built specialised tools. GPU mining gave way to ASICs. Wallets moved onto phones and into hardware. Exchanges, merchant processors, ATMs and multisignature services translated raw protocol into activities ordinary people could recognise. The first halving in November 2012 proved that its monetary clock could execute a socially significant rule without asking permission.
 
 Exploration was morally untidy. Silk Road showed that borderless, difficult-to-censor payments were useful before society agreed on which uses were legitimate. Its 2013 closure did not close Bitcoin. Nor did the February 2014 collapse of Mt. Gox, then the dominant exchange. Both events taught a distinction that remains hard for newcomers: a custodian or marketplace can fail catastrophically while the underlying network continues producing valid blocks.
+
+Silk Road nevertheless fixed a powerful image in the public mind: bitcoin as the money of drug markets, ransomware and laundering. The concern was real. A bearer asset that could cross borders without a bank was useful to people trying to evade banks' anti-money-laundering controls as well as to people whom those banks excluded. In March 2013, [FinCEN applied money-transmitter registration, recordkeeping and reporting duties](https://www.fincen.gov/news/news-releases/fincen-issues-guidance-virtual-currencies-and-regulatory-responsibilities) to many virtual-currency exchangers and administrators. Exchanges increasingly became regulated gateways between pseudonymous addresses and legal identities. Bitcoin was discovering that permissionless settlement did not grant permission to ignore the laws surrounding its use.
+
+The same public ledger that appeared to offer anonymity also became a durable evidentiary trail. Bitcoin addresses do not contain names, but every confirmed movement remains available for later analysis and can sometimes be joined to exchange records, seized servers or a suspect's operational mistakes. Years after Silk Road closed, investigators followed its coins and in 2021 recovered more than 50,000 BTC stolen from the marketplace; the [US Department of Justice announced the conviction and seizure in 2022](https://www.justice.gov/usao-sdny/pr/us-attorney-announces-historic-336-billion-cryptocurrency-seizure-and-conviction). Mixers and privacy techniques made tracing harder, not necessarily impossible. Bitcoin did not overcome crime by preventing criminals from using it. It complicated the early belief that its transaction history was an anonymous void.
 
 At the individual level, initiative meant trying Bitcoin for speculation, remittances, commerce, donations or ideological exit. At the social level, it provoked guilt by association. Was Bitcoin responsible for every trade it enabled? Was a neutral protocol an accomplice, a tool or a public place? The durable sense of purpose that emerged was narrower and stronger than any single use: Bitcoin makes scarce digital bearer value transferable without requiring a central permission-giver. That purpose does not settle the morality of every transfer, just as the existence of roads does not vindicate every journey.
 
@@ -97,11 +106,18 @@ At the individual level, initiative meant trying Bitcoin for speculation, remitt
   <dt>Psychosocial crisis</dt><dd>Industry vs. inferiority</dd>
   <dt>Significant relationship</dt><dd>Neighbours and school → competing networks, regulators, financial markets and the wider internet</dd>
   <dt>Existential question</dt><dd>“Can I make it in the world of people and things?” → Can Bitcoin scale, govern change and compete?</dd>
-  <dt>Events in Erikson's model</dt><dd>School, sports</dd>
-  <dt>Bitcoin analogue</dt><dd>The scaling contest, SegWit, the Bitcoin Cash split, Lightning and regulated futures</dd>
+  <dt>Events</dt><dd>School, sports → The scaling contest, SegWit, the Bitcoin Cash split, Lightning and regulated futures</dd>
 </dl>
 
 School measures a child against peers. Bitcoin was now compared with payment networks, gold, banks, other cryptocurrencies and its own promises. The second halving arrived in 2016. The 2017 market boom brought millions of spectators, and its reversal delivered the familiar report card of a roughly eighty-percent drawdown.
+
+Energy became another humiliating comparison. Proof of work made Bitcoin's security physically expensive by design, while conventional payment networks appeared to process far more payments with far less electricity. As mining industrialised, headlines compared its consumption with that of entire countries. The criticism exposed a genuine cost, not merely a public-relations problem: miners could extend the life of fossil generation, compete with other electricity users and produce emissions and electronic waste. Efficiency gains did not guarantee lower total consumption because rising hash rate could absorb them. Inferiority here was the fear that Bitcoin had built technically formidable money using a mechanism the wider world would judge socially wasteful.
+
+Over time, the energy argument became less one-dimensional. Mining machines can operate almost anywhere electricity and communications are available, turn otherwise stranded electricity into a saleable product, and shut down far faster than most industrial loads. That makes mining a possible buyer for curtailed wind, solar or hydro generation, a source of early revenue for energy projects awaiting transmission or stable customers, and a controllable load during grid stress. ERCOT made the idea operational in 2022 with a [voluntary curtailment programme for large flexible customers, including bitcoin miners](https://www.ercot.com/news/release/2022-12-06-ercot-creates-voluntary). In that role, a miner consumes when supply is abundant and yields power when homes and essential industries need it more.
+
+The economics can also favour energy that would otherwise be wasted: remote generation with no economical route to market, excess renewable production that a grid must curtail, or natural gas that would otherwise be flared. By buying intermittent surplus, miners can improve a producer's utilisation and help subsidise additional capacity. But the benefit depends on location, generation mix and actual willingness to curtail. A mine attached to surplus hydro is not environmentally equivalent to one keeping a coal plant profitable, and consuming flared gas still emits carbon. “Flexible load” is a capability, not proof of virtuous operation.
+
+The evidence now reflects both sides. Cambridge's [2025 Digital Mining Industry Report](https://www.jbs.cam.ac.uk/faculty-research/centres/alternative-finance/publications/cambridge-digital-mining-industry-report/) estimated annual Bitcoin mining consumption at 138 TWh, about 0.54% of global electricity use, so the scale of the criticism remains material. The same survey found 52.4% sustainable energy use among participating miners, up from its 2022 estimate, and recorded 888 GWh of load curtailment during 2023. Bitcoin did not graduate from inferiority by proving that energy use is inherently good. It began to demonstrate a more adult competence: if its demand is price-sensitive, interruptible and placed beside underused supply, the very appetite once treated only as a defect can become a tool for energy producers and grids.
 
 The block-size war was the stage's defining examination. One camp prioritised larger blocks for immediate transaction capacity; another prioritised keeping validation affordable and deploying Segregated Witness as a less disruptive foundation for further scaling. SegWit activated in August 2017. Bitcoin Cash split onto a larger-block chain. A proposed SegWit2x hard fork was abandoned. There was no principal empowered to settle the dispute, so developers, miners, businesses and node operators discovered what their influence did—and did not—buy.
 
@@ -109,7 +125,7 @@ Competence did not mean consensus without conflict. It meant surviving conflict 
 
 For individuals, competence became a practice: understanding confirmations, fees, seed backups, custody trade-offs and the difference between owning bitcoin and an IOU. Socially, Bitcoin began to earn a peculiar institutional confidence. It could be slow, combative and awkward, yet it was very difficult for any faction to change quickly. What looked like poor management to a company could look like constitutional restraint in money.
 
-## Stage V: Adolescence
+## Stage V: Adolescence (now)
 
 <dl class="stage-facts">
   <dt>Years</dt><dd>2020–2029</dd>
@@ -118,8 +134,7 @@ For individuals, competence became a practice: understanding confirmations, fees
   <dt>Psychosocial crisis</dt><dd>Identity vs. role confusion</dd>
   <dt>Significant relationship</dt><dd>Peers and role models → states, corporations, funds, activists, critics and other monetary networks</dd>
   <dt>Existential question</dt><dd>“Who am I? Who can I be?” → Cash, collateral, reserve asset, settlement network, protest, speculation—or all of them?</dd>
-  <dt>Events in Erikson's model</dt><dd>Social relationships</dd>
-  <dt>Bitcoin analogue</dt><dd>Institutional ownership, national adoption, mining politics, Taproot, the “spam war,” custody failures, ETPs and state reserves</dd>
+  <dt>Events</dt><dd>Social relationships → Institutional ownership, national adoption, mining politics, Taproot, the “spam war,” custody failures, ETPs and state reserves</dd>
 </dl>
 
 Adolescence is not just growth. It is the collision of inherited values with the roles offered by society. Bitcoin entered the 2020s as each constituency's mirror. To some it was inflation insurance or “digital gold”; to others a censorship-resistant payment network, stranded-energy buyer, treasury asset, human-rights tool, casino chip or environmental threat.
@@ -146,6 +161,16 @@ This was not another exchange failure that self-custody could be invoked to expl
 
 The breach therefore injured more than individual balances. “Don't trust, verify” is an identity ideal, but almost no owner can personally audit a device's complete entropy path, reproduce its build and recognise a subtle failure before using it. Communities inevitably place provisional trust in specialists and institutions. Fidelity cannot mean blind loyalty to a pillar such as Coinkite, nor can it mean pretending that every user should have found the bug. It must mean telling the truth when a trusted institution fails, caring for those who acted reasonably, and rebuilding practices around layered entropy, reproducible review and avoiding single points of failure. Self-custody remains a right and a powerful capability; the COLDCARD thefts showed that it is not a magic spell which abolishes relationships of trust.
 
+This conflict between independence and dependence was present almost from birth. In December 2010, Hal Finney argued that Bitcoin could not place every financial transaction in the world on a ledger broadcast to every participant. He imagined a secondary level of lighter payment systems and Bitcoin-backed banks issuing redeemable digital cash, with institutions differing in their reserve policies and competing for trust. Bitcoin itself would become [“high-powered money”](https://bitcointalk.org/index.php?topic=2500.0): a scarce reserve asset used chiefly by banks to settle their net obligations.
+
+> I believe this will be the ultimate fate of Bitcoin, to be the "high-powered money" that serves as a reserve currency for banks that issue their own digital cash. Most Bitcoin transactions will occur between banks, to settle net transfers. Bitcoin transactions by private individuals will be as rare as... well, as Bitcoin based purchases are today.
+>
+> <cite>Hal Finney</cite>
+
+Finney's forecast makes the adolescent identity crisis harder, because it cannot simply be dismissed as a later betrayal by outsiders. The white paper called Bitcoin a “peer-to-peer electronic cash system,” and its opening promise concerned payments sent directly from one party to another. Many readers naturally understood those peers to be individual people. Yet “peer-to-peer” also describes the architecture of a network whose participants share rules without a privileged central server; it does not guarantee that every coffee purchase will be recorded on the base chain. If the scarce block space becomes a settlement court for institutions while individuals transact through Lightning channels, federations, custodians or bank-issued claims, has Bitcoin grown into its original purpose or away from it?
+
+Fidelity cannot settle that question by choosing the most flattering definition after the fact. A reserve layer may preserve Bitcoin's monetary rules while extending its reach, and non-custodial layers can add scale without simply recreating banks. But custodial claims can also insert permission, surveillance, counterparty risk and fractional reserves between a person and the protocol. The adolescent task is to decide which commitments are essential: universal direct use of the base chain, or universal *access* to a neutral base chain—including the practical ability to verify, withdraw and settle without an institution's consent.
+
 This is the present crisis. If Bitcoin defines itself only through rebellion, institutional acceptance feels like betrayal. If it defines itself only through price and portfolios, the peer-to-peer cash system fades behind custodians. Fidelity is the capacity to form commitments amid those competing roles. For an individual that may mean deciding whether bitcoin is something to trade, save, spend, custody or build upon. For the network it means retaining its core commitments—scarcity, verifiability, permissionless participation and resistance to unilateral change—while its social setting transforms.
 
 The adolescent stage still has more than two years to run. Expect role confusion: political capture attempts, fashionable layers and tokens, arguments over privacy and compliance, tension between self-custody and convenient custodians, and renewed debate about what belongs on scarce block space. The healthy outcome is not a single authorised identity. It is fidelity to rules sturdy enough to support several peaceful uses without becoming whatever the loudest peer demands.
@@ -159,13 +184,16 @@ The adolescent stage still has more than two years to run. Expect role confusion
   <dt>Psychosocial crisis</dt><dd>Intimacy vs. isolation</dd>
   <dt>Significant relationship</dt><dd>Friends and partners → households, businesses, financial institutions, states and complementary protocols</dd>
   <dt>Existential question</dt><dd>“Can I unite myself with another person?” → Can Bitcoin integrate without being absorbed?</dd>
-  <dt>Events in Erikson's model</dt><dd>Romantic relationships</dd>
-  <dt>Bitcoin analogue</dt><dd>Durable integration with everyday finance, law, energy and digital systems</dd>
+  <dt>Events</dt><dd>Romantic relationships → Durable integration with everyday finance, law, energy and digital systems</dd>
 </dl>
 
 From this point forward, the Bitcoin's future stages become speculation on my part.
 
 The adult challenge will be intimacy without loss of self. Bitcoin may become deeply coupled to banking, retirement funds, payment applications, energy grids and sovereign balance sheets. Layers could make it invisible in ordinary transactions: a person may use bitcoin-backed value without thinking about blocks, just as an internet user does not think about packets. Cross-border settlement may become a quiet institutional use even where retail payments remain denominated in local currency.
+
+This would resemble Finney's high-powered-money thesis, but adulthood would reveal what adolescence could only debate. Banks and other financial institutions could use bitcoin as reserve collateral and settle aggregated balances on-chain, while their customers exchange faster claims above it. In the best version, these relationships multiply choice: competing custodians publish verifiable reserves, non-custodial protocols remain viable, and anyone can leave an intermediary and return to the base asset. “Peer-to-peer” then expands across scales—from individuals on higher layers to institutions settling with one another—without any one class of peer owning the network.
+
+The darker version preserves the Bitcoin backing while hollowing out the freedom it was meant to provide. If fees, regulation and technical difficulty make direct possession exceptional, a small set of institutions could control practical access, censor transfers, issue more claims than they can redeem and ask the public to trust balances they cannot verify. Bitcoin would remain beneath the system while ordinary people once again held someone else's promise. An open settlement layer is not sufficient protection if exit from the layers above it exists only in theory.
 
 Love is riskier than recognition. An isolated Bitcoin could preserve ideological purity while becoming a collectible used mainly by existing holders. An engulfed Bitcoin could gain enormous nominal adoption while most people encounter it only as rehypothecated claims inside permissioned institutions. The mature balance would preserve an accessible base layer and the credible option of self-custody, even as most users choose relationships with service providers.
 
@@ -180,8 +208,7 @@ This era will also span several halvings. As the subsidy declines, transaction f
   <dt>Psychosocial crisis</dt><dd>Generativity vs. stagnation</dd>
   <dt>Significant relationship</dt><dd>Household and workmates → the generations born into a Bitcoin-shaped world</dd>
   <dt>Existential question</dt><dd>“Can I make my life count?” → What does Bitcoin give to people who did not build or buy it early?</dd>
-  <dt>Events in Erikson's model</dt><dd>Work, parenthood</dd>
-  <dt>Bitcoin analogue</dt><dd>Maintaining security, renewing institutions and passing stewardship to later generations</dd>
+  <dt>Events</dt><dd>Work, parenthood → Maintaining security, renewing institutions and passing stewardship to later generations</dd>
 </dl>
 
 Middle age asks whether accumulated power serves the next generation. By the 2050s nobody entering adulthood will remember a pre-Bitcoin world. The founding myths, early fortunes and culture wars will be inherited history. The important people may be maintainers, educators, energy operators and institutional stewards who receive little of the glamour attached to pioneers.
@@ -199,8 +226,7 @@ Stagnation would look like rent-seeking: incumbents defending wrappers and gatek
   <dt>Psychosocial crisis</dt><dd>Ego integrity vs. despair</dd>
   <dt>Significant relationship</dt><dd>Humankind, “my kind” → the civilisation keeping, replacing or remembering Bitcoin</dd>
   <dt>Existential question</dt><dd>“Is it okay to have been me?” → Did Bitcoin make monetary life more truthful and humane?</dd>
-  <dt>Events in Erikson's model</dt><dd>Reflection on life</dd>
-  <dt>Bitcoin analogue</dt><dd>Judging the ledger's legacy while confronting technical age, near-zero issuance and succession</dd>
+  <dt>Events</dt><dd>Reflection on life → Judging the ledger's legacy while confronting technical age, near-zero issuance and succession</dd>
 </dl>
 
 In 2074 the block subsidy will be tiny, though the final fractions are not expected to be mined until around 2140. Bitcoin will face old-age questions long before issuance formally ends. Did a fee-supported security model work? Did cryptography and hardware adapt to new threats without breaking continuity? Did decentralisation remain something people practised, or merely a word engraved on a custodial monument?
@@ -225,5 +251,3 @@ Its adulthood will depend less on whether everybody comes to love Bitcoin than o
 
 - The psychosocial categories, questions and age ranges come from the [Erikson stages table](https://en.wikipedia.org/wiki/Erikson%27s_stages_of_psychosocial_development#Stages). They are a lens for this essay, not a claim that a network possesses a human psyche.
 - Satoshi Nakamoto's announcement and release correspondence is preserved in the [Satoshi Nakamoto Institute email archive](https://satoshi.nakamotoinstitute.org/emails/threads/); the original design is in [*Bitcoin: A Peer-to-Peer Electronic Cash System*](https://bitcoin.org/bitcoin.pdf).
-- Contemporary institutional milestones are linked in the relevant sections to Bitcoin Optech, CME Group, the US Securities and Exchange Commission, the White House and the IMF.
-- Year boundaries are derived from the Genesis Block date and should be read as thematic periods, not precise psychological measurements.
