@@ -455,6 +455,14 @@ div.highlighter-rouge pre {
   line-height: 1;
 }
 
+.toc-heading-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  margin-left: auto;
+}
+
 .heading-anchor {
   color: var(--text-muted);
   font-size: 0.85rem;
@@ -462,7 +470,6 @@ div.highlighter-rouge pre {
 }
 
 .toc-jump {
-  margin-left: auto;
   color: var(--text-muted);
   font-size: 0.68rem;
   letter-spacing: 0.02em;
@@ -511,6 +518,13 @@ div.highlighter-rouge pre {
   letter-spacing: 0.015em;
 }
 
+.post-title-image {
+  width: 100%;
+  height: auto;
+  margin: 0 0 1.5rem;
+  object-fit: contain;
+}
+
 .post-page .site-main .container h2 {
   color: var(--post-heading);
   letter-spacing: 0.018em;
@@ -537,13 +551,107 @@ div.highlighter-rouge pre {
 }
 
 .post-page .site-main .container blockquote {
+  position: relative;
   margin: 1.4rem 0;
-  padding: 0.2rem 0 0.2rem 1.1rem;
+  padding: 1rem 1.25rem 1rem 4rem;
   border-left: 3px solid rgba(155, 213, 202, 0.6);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: rgba(155, 213, 202, 0.055);
+}
+
+.post-page .site-main .container blockquote::before {
+  content: "“";
+  position: absolute;
+  top: 0.3rem;
+  left: 0.85rem;
+  color: var(--post-heading);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 4.5rem;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.72;
+  pointer-events: none;
 }
 
 .post-page .site-main .container blockquote p {
+  margin: 0;
   color: #c8d0d2;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.08rem;
+  font-style: italic;
+  line-height: 1.7;
+}
+
+.post-page .site-main .container blockquote p + p {
+  margin-top: 0.75rem;
+}
+
+.post-page .site-main .container blockquote cite {
+  display: inline-block;
+  padding: 0.28rem 0.55rem;
+  border: 1px solid rgba(155, 213, 202, 0.32);
+  border-radius: 999px;
+  background: rgba(155, 213, 202, 0.09);
+  color: var(--post-heading);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 650;
+  letter-spacing: 0.045em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.post-page .site-main .container blockquote cite::before {
+  content: "— ";
+  opacity: 0.72;
+}
+
+/* Opt-in numbered citations, enabled with `references: true`. */
+.post-citation {
+  position: relative;
+  top: -0.1em;
+  margin-left: 0.12em;
+  font-family: var(--font-mono);
+  font-size: 0.68em;
+  font-style: normal;
+  line-height: 0;
+}
+
+.post-page .post-citation a,
+.post-page .post-reference-backlink {
+  border-bottom: 0;
+  color: var(--post-link);
+  font-weight: 600;
+}
+
+.post-references {
+  margin-top: 3rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--post-border);
+}
+
+.post-references-list {
+  padding-left: 1.7rem;
+}
+
+.post-references-list li {
+  margin-bottom: 0.65rem;
+  scroll-margin-top: 5rem;
+  overflow-wrap: anywhere;
+}
+
+.post-reference-host {
+  color: var(--post-muted);
+  font-family: var(--font-mono);
+  font-size: 0.76em;
+}
+
+.post-reference-backlink {
+  display: inline-block;
+  margin-left: 0.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.8em;
 }
 
 .post-page .site-main .container code {
@@ -617,7 +725,7 @@ div.highlighter-rouge pre {
     align-items: center;
   }
 
-  .toc-jump {
+  .toc-heading-nav {
     width: 100%;
     margin-left: 0;
     padding-top: 0.1rem;

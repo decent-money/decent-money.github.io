@@ -42,14 +42,34 @@
     anchor.title = `Link to ${title}`;
     heading.append(anchor);
 
-    const jump = document.createElement('a');
-    jump.className = 'toc-jump';
-    jump.href = '#table-of-contents';
-    jump.textContent = '↑ contents';
-    jump.setAttribute('aria-label', `Return to the table of contents from ${title}`);
-    heading.append(jump);
+    return { title, id: heading.id, heading };
+  });
 
-    return { title, id: heading.id };
+  sections.forEach((section, index) => {
+    const jumpNav = document.createElement('span');
+    jumpNav.className = 'toc-heading-nav';
+
+    const contentsJump = document.createElement('a');
+    contentsJump.className = 'toc-jump';
+    contentsJump.href = '#table-of-contents';
+    contentsJump.textContent = '↑ contents';
+    contentsJump.setAttribute(
+      'aria-label',
+      `Return to the table of contents from ${section.title}`
+    );
+    jumpNav.append(contentsJump);
+
+    const nextSection = sections[index + 1];
+    if (nextSection) {
+      const nextJump = document.createElement('a');
+      nextJump.className = 'toc-jump';
+      nextJump.href = `#${nextSection.id}`;
+      nextJump.textContent = '↓ next section';
+      nextJump.setAttribute('aria-label', `Jump to ${nextSection.title}`);
+      jumpNav.append(nextJump);
+    }
+
+    section.heading.append(jumpNav);
   });
 
   const nav = document.createElement('nav');
