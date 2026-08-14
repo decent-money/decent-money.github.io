@@ -67,7 +67,7 @@
 
   const visibleText = element => {
     const clone = element.cloneNode(true);
-    clone.querySelectorAll('.heading-anchor, .toc-jump').forEach(control => control.remove());
+    clone.querySelectorAll('.heading-anchor, .toc-jump, .post-citation').forEach(control => control.remove());
     return normalize(clone.textContent || '');
   };
 
