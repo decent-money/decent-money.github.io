@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "The Life and Times of the Thunderbolt Kid"
-published: false
+published: true
 description: "Bitcoin at seventeen: its past and possible future through Erik Erikson's eight stages of psychosocial development."
 toc: true
 toc_title: "Stages of a life"
@@ -14,6 +14,7 @@ references: true
 Satoshi Nakamoto conceived Bitcoin in 2007–08, [announced it on 31 October 2008](https://satoshi.nakamotoinstitute.org/emails/cryptography/1/), and gave it a public birth with the Genesis Block on 3 January 2009. The system has since behaved less like a finished invention and more like an growing organism: first utterly dependent on a caregiver, then stubbornly autonomous, experimental, industrious and, now, preoccupied with identity.
 
 [Erik Erikson's theory of psychosocial development](https://en.wikipedia.org/wiki/Erikson%27s_stages_of_psychosocial_development) supplies the frame to think about Bitcoin in this way. It describes eight stages of life, each organised around a crisis: trust or mistrust, autonomy or doubt, identity or confusion, and so on. Resolving a crisis does not mean eliminating the negative side of the coin. Healthy development finds a workable balance and carries a corresponding virtue into the next stage. The stages are cumulative, with old conflicts returning in new forms.
+
 
 However, the analogy is imperfect. Bitcoin has no mind, childhood or destiny. It is simultaneously software, network, monetary asset, payment rail, political symbol and the relationships among people who use it. When this essay asks what *Bitcoin* trusts or wants, it really asks how its participants relate to it—and how society relates to the institution they collectively produce.
 
@@ -245,10 +246,3 @@ Erikson's model is useful because it resists the idea that maturity is simply a 
 At seventeen, the Thunderbolt Kid has immense energy, famous friends, bitter rivals, sudden mood swings and a conviction that adults do not understand it. That is not proof it will grow into the world's money. It is evidence that it has lived long enough for the question to become serious.
 
 Its adulthood will depend less on whether everybody comes to love Bitcoin than on whether Bitcoin can enter lasting relationships without surrendering the reason it was born: allowing any two willing parties to transact under common rules, without requiring a trusted third party to stand between them.
-
----
-
-### Sources and notes
-
-- The psychosocial categories, questions and age ranges come from the [Erikson stages table](https://en.wikipedia.org/wiki/Erikson%27s_stages_of_psychosocial_development#Stages). They are a lens for this essay, not a claim that a network possesses a human psyche.
-- Satoshi Nakamoto's announcement and release correspondence is preserved in the [Satoshi Nakamoto Institute email archive](https://satoshi.nakamotoinstitute.org/emails/threads/); the original design is in [*Bitcoin: A Peer-to-Peer Electronic Cash System*](https://bitcoin.org/bitcoin.pdf).
