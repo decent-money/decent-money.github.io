@@ -167,6 +167,14 @@ class EditorHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(SITE), **kwargs)
 
+    def end_headers(self) -> None:
+        # Local editing should always reflect the latest Jekyll build, including
+        # overwritten assets whose public URL has not changed.
+        self.send_header("Cache-Control", "no-store, no-cache, must-revalidate")
+        self.send_header("Pragma", "no-cache")
+        self.send_header("Expires", "0")
+        super().end_headers()
+
     def _is_loopback_request(self) -> bool:
         host = (self.headers.get("Host") or "").split(":", 1)[0]
         return self.client_address[0] in {"127.0.0.1", "::1"} and host in {
@@ -186,7 +194,6 @@ class EditorHandler(SimpleHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(data)))
-        self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(data)
 
@@ -243,7 +250,6 @@ class EditorHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(data)))
-        self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(data)
 
