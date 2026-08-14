@@ -11,16 +11,16 @@
   transition: background 120ms ease, outline-color 120ms ease;
 }
 
-.local-editor-block.is-deleting {
+.local-editor-block.is-deleting,
+.local-editor-block.is-mutating {
   pointer-events: none;
   opacity: 0.45;
 }
 
-.local-editor-delete {
+.local-editor-delete,
+.local-editor-control {
   position: absolute;
   z-index: 2;
-  top: -0.55rem;
-  right: -0.55rem;
   display: grid;
   place-items: center;
   width: 1.25rem;
@@ -36,14 +36,40 @@
   transition: color 120ms ease, opacity 120ms ease, border-color 120ms ease;
 }
 
+.local-editor-delete {
+  top: -0.9rem;
+  right: -0.9rem;
+}
+
+.local-editor-move-up {
+  top: -0.9rem;
+  left: -0.9rem;
+}
+
+.local-editor-move-down {
+  bottom: -0.9rem;
+  left: -0.9rem;
+}
+
+.local-editor-insert {
+  bottom: -1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 .local-editor-block:hover > .local-editor-delete,
 .local-editor-block:focus-within > .local-editor-delete,
-.local-editor-delete:focus-visible {
+.local-editor-delete:focus-visible,
+.local-editor-block:hover > .local-editor-control,
+.local-editor-block:focus-within > .local-editor-control,
+.local-editor-control:focus-visible {
   opacity: 1;
 }
 
 .local-editor-delete:hover,
-.local-editor-delete:focus-visible {
+.local-editor-delete:focus-visible,
+.local-editor-control:hover,
+.local-editor-control:focus-visible {
   border-color: var(--accent);
   color: var(--accent);
   outline: 0;
@@ -74,6 +100,10 @@
 .local-editor-input.is-saving {
   cursor: wait;
   opacity: 0.65;
+}
+
+.local-editor-input.is-new-block {
+  min-height: calc(5 * 1.55em + 1.6rem + 2px);
 }
 
 .local-editor-notice,

@@ -26,6 +26,7 @@ EDITOR_SCRIPT = ROOT / "assets" / "js" / "local-editor.js"
 EDITOR_STYLES = ROOT / "assets" / "css" / "local-editor.scss"
 TOKEN = secrets.token_urlsafe(32)
 BUILD_COMMAND = ["bundle", "exec", "jekyll", "build"]
+EMPTY_BLOCK_PLACEHOLDER = "\u200b"
 
 
 def split_front_matter(text: str) -> tuple[str, str]:
@@ -254,7 +255,10 @@ class EditorHandler(SimpleHTTPRequestHandler):
         self.wfile.write(data)
 
     def do_POST(self) -> None:
-        if self.path not in {"/__editor/save", "/__editor/delete"} or not self._authorized():
+        endpoints = {
+            "/__editor/save", "/__editor/delete", "/__editor/move", "/__editor/insert"
+        }
+        if self.path not in endpoints or not self._authorized():
             self._json(403, {"error": "Local editor authorization failed"})
             return
         try:
@@ -265,10 +269,6 @@ class EditorHandler(SimpleHTTPRequestHandler):
             source = safe_post(str(payload.get("source", "")))
             block_index = int(payload.get("index", -1))
             revision = str(payload.get("revision", ""))
-            deleting = self.path == "/__editor/delete"
-            replacement = "" if deleting else str(payload.get("markdown", "")).rstrip("\n")
-            if not deleting and not replacement.strip():
-                raise ValueError("A text block cannot be empty; use its delete control instead")
 
             current = source.read_text(encoding="utf-8")
             blocks = markdown_blocks(current)
@@ -279,9 +279,50 @@ class EditorHandler(SimpleHTTPRequestHandler):
                 self._json(409, {"error": "This block changed on disk; reload before editing it"})
                 return
 
-            original = current[int(block["start"]):int(block["end"])]
-            trailing_newline = "" if deleting else ("\n" if original.endswith("\n") else "")
-            updated = current[:int(block["start"])] + replacement + trailing_newline + current[int(block["end"]):]
+            deleting = self.path == "/__editor/delete"
+            inserted_index: Optional[int] = None
+
+            if self.path == "/__editor/move":
+                target_index = int(payload.get("targetIndex", -1))
+                target_revision = str(payload.get("targetRevision", ""))
+                if target_index < 0 or target_index >= len(blocks) or target_index == block_index:
+                    raise ValueError("The adjacent text block no longer exists")
+                target = blocks[target_index]
+                if target["revision"] != target_revision:
+                    self._json(409, {"error": "The adjacent block changed on disk; reload first"})
+                    return
+
+                first, second = sorted(
+                    (block, target), key=lambda candidate: int(candidate["start"])
+                )
+                first_start, first_end = int(first["start"]), int(first["end"])
+                second_start, second_end = int(second["start"]), int(second["end"])
+                first_raw = current[first_start:first_end]
+                second_raw = current[second_start:second_end]
+                updated = (
+                    current[:first_start]
+                    + second_raw
+                    + current[first_end:second_start]
+                    + first_raw
+                    + current[second_end:]
+                )
+            elif self.path == "/__editor/insert":
+                end = int(block["end"])
+                separator = "\n" if current[:end].endswith("\n") else "\n\n"
+                updated = current[:end] + separator + EMPTY_BLOCK_PLACEHOLDER + "\n" + current[end:]
+                inserted_index = block_index + 1
+            else:
+                replacement = "" if deleting else str(payload.get("markdown", "")).rstrip("\n")
+                if not deleting and not replacement.strip():
+                    raise ValueError("A text block cannot be empty; use its delete control instead")
+                original = current[int(block["start"]):int(block["end"])]
+                trailing_newline = "" if deleting else ("\n" if original.endswith("\n") else "")
+                updated = (
+                    current[:int(block["start"])]
+                    + replacement
+                    + trailing_newline
+                    + current[int(block["end"]):]
+                )
 
             with tempfile.NamedTemporaryFile(
                 "w", encoding="utf-8", dir=source.parent, delete=False
@@ -295,9 +336,14 @@ class EditorHandler(SimpleHTTPRequestHandler):
             self._json(status, {
                 "saved": True,
                 "built": built,
+                "index": inserted_index,
                 "message": (
                     "Deleted and rebuilt" if deleting and built else
                     "Deleted, but the Jekyll rebuild failed" if deleting else
+                    "Moved and rebuilt" if self.path == "/__editor/move" and built else
+                    "Moved, but the Jekyll rebuild failed" if self.path == "/__editor/move" else
+                    "Added and rebuilt" if self.path == "/__editor/insert" and built else
+                    "Added, but the Jekyll rebuild failed" if self.path == "/__editor/insert" else
                     "Saved and rebuilt" if built else
                     "Saved, but the Jekyll rebuild failed"
                 ),

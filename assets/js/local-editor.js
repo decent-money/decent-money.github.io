@@ -81,6 +81,7 @@
     'X-Local-Editor-Token': config.token,
   };
   const pendingBlockKey = `local-editor-next:${config.source}`;
+  const emptyBlockPlaceholder = '\u200b';
   let activeEditor = null;
   let mappedBlocks = [];
 
@@ -102,14 +103,19 @@
     const renderedHeight = Math.ceil(element.getBoundingClientRect().height);
     const input = document.createElement('textarea');
     input.className = 'local-editor-input';
-    input.value = block.markdown;
+    const isNewBlock = block.markdown === emptyBlockPlaceholder;
+    input.value = isNewBlock ? '' : block.markdown;
+    if (isNewBlock) {
+      input.classList.add('is-new-block');
+      input.rows = 5;
+    }
     element.classList.add('local-editor-active');
     element.after(input);
     element.hidden = true;
 
     const fitInput = () => {
       input.style.height = 'auto';
-      input.style.height = `${Math.max(renderedHeight, input.scrollHeight)}px`;
+      input.style.height = `${Math.max(isNewBlock ? 0 : renderedHeight, input.scrollHeight)}px`;
     };
     requestAnimationFrame(() => {
       fitInput();
@@ -159,7 +165,7 @@
     activeEditor = {
       block,
       cancel,
-      isDirty: () => input.value !== block.markdown,
+      isDirty: () => input.value !== (isNewBlock ? '' : block.markdown),
       save,
     };
 
@@ -221,6 +227,39 @@
     }
   };
 
+  const mutateBlock = async (element, block, endpoint, extra = {}) => {
+    if (activeEditor) {
+      if (activeEditor.isDirty()) {
+        toast('Save or cancel the active edit before rearranging blocks');
+        return;
+      }
+      activeEditor.cancel();
+    }
+
+    element.classList.add('is-mutating');
+    try {
+      const response = await fetch(`/__editor/${endpoint}`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          source: config.source,
+          index: block.index,
+          revision: block.revision,
+          ...extra,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || result.message || 'Block operation failed');
+      if (endpoint === 'insert' && Number.isInteger(result.index)) {
+        sessionStorage.setItem(pendingBlockKey, String(result.index));
+      }
+      window.location.reload();
+    } catch (error) {
+      element.classList.remove('is-mutating');
+      toast(error.message);
+    }
+  };
+
   document.addEventListener('keydown', event => {
     if (event.key !== 'Escape' || !activeEditor) return;
     event.preventDefault();
@@ -250,6 +289,48 @@
         mappedBlocks.push({ element, block });
         element.classList.add('local-editor-block');
         element.title = 'Click to edit this Markdown block';
+
+      });
+
+      mappedBlocks.forEach(({ element, block }, mappedIndex) => {
+        const makeControl = (className, text, label, action) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = `local-editor-control ${className}`;
+          button.textContent = text;
+          button.title = label;
+          button.setAttribute('aria-label', label);
+          button.addEventListener('click', event => {
+            event.preventDefault();
+            event.stopPropagation();
+            action();
+          });
+          element.append(button);
+          return button;
+        };
+
+        const previous = mappedBlocks[mappedIndex - 1]?.block;
+        const next = mappedBlocks[mappedIndex + 1]?.block;
+        if (previous) {
+          makeControl('local-editor-move-up', '↑', 'Move this block up', () => {
+            mutateBlock(element, block, 'move', {
+              targetIndex: previous.index,
+              targetRevision: previous.revision,
+            });
+          });
+        }
+        if (next) {
+          makeControl('local-editor-move-down', '↓', 'Move this block down', () => {
+            mutateBlock(element, block, 'move', {
+              targetIndex: next.index,
+              targetRevision: next.revision,
+            });
+          });
+        }
+        makeControl('local-editor-insert', '+', 'Add a text block below', () => {
+          mutateBlock(element, block, 'insert');
+        });
+
         const deleteButton = document.createElement('button');
         deleteButton.type = 'button';
         deleteButton.className = 'local-editor-delete';
@@ -263,7 +344,7 @@
         });
         element.append(deleteButton);
         element.addEventListener('click', event => {
-          if (event.target.closest('.heading-anchor, .toc-jump')) return;
+          if (event.target.closest('.heading-anchor, .toc-jump, .local-editor-control, .local-editor-delete')) return;
           event.preventDefault();
           activate(element, block);
         });
