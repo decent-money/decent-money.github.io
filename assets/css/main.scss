@@ -1151,6 +1151,16 @@ div.highlighter-rouge pre {
     padding: 1.5rem 1.2rem;
   }
 
+  .post-page .site-main {
+    padding-inline: 0.35rem;
+  }
+
+  .post-page .site-main .container {
+    width: 100%;
+    max-width: 100%;
+    padding: 1.35rem 0.8rem;
+  }
+
   .header-inner {
     flex-direction: column;
     align-items: flex-start;
