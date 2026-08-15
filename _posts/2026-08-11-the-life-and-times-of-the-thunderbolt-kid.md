@@ -46,7 +46,7 @@ In this way the announcement, with the white paper, was an ultrasound. It let th
 
 In 2009 Satoshi nourished Bitcoin with energy, code, blocks, releases, answers to the community, and near-continuous care. With almost no market value and very few miners, the network was not yet self-supporting. [Its continued heartbeat depended disproportionately on its pseudonymous "mother" leaving a computer running](https://blog.lopp.net/was-satoshi-a-greedy-miner/).
 
-[Hal Finney was one of the first](https://1stbitcoinminer.com/) important relationships outside that bond]. He downloaded the software, mined, reported faults and received the first person-to-person bitcoin transaction. If Satoshi was the maternal source from which the system emerged, Finney was the father at the bedside: technically capable, receptive and willing to provide the newborn protocol with the care it needed.
+[Hal Finney was one of the first](https://1stbitcoinminer.com/) important relationships outside that bond. He downloaded the software, mined, reported faults and received the first person-to-person bitcoin transaction. If Satoshi was the maternal source from which the system emerged, Finney was the father at the bedside: technically capable, receptive and willing to provide the newborn protocol with the care it needed.
 
 For an individual encountering Bitcoin, the first question was literal trust. Would the program steal resources, lose coins or simply stop? At the social scale it was more radical: could people trust a system designed on the assumption that its participants need not trust one another? Bitcoin's answer was not “trust nobody.” It was to relocate trust from an operator's promise to inspectable and verifiable rules, replicated records and incentives.
 
