@@ -82,13 +82,45 @@
   };
   const pendingBlockKey = `local-editor-next:${config.source}`;
   const emptyBlockPlaceholder = '\u200b';
+  const reviewKey = block => `local-editor-reviewed:${config.source}:${block.revision}`;
   let activeEditor = null;
   let mappedBlocks = [];
 
   const notice = document.createElement('div');
   notice.className = 'local-editor-notice';
-  notice.innerHTML = '<strong>Local editing</strong><span>Click text to edit · Enter saves · Shift+Enter adds a line · Esc cancels</span>';
+  notice.innerHTML = `
+    <strong>Local editing</strong>
+    <span>Click text to edit · Enter saves · Shift+Enter adds a line · Esc cancels</span>
+    <span class="local-editor-review-progress">
+      <span class="local-editor-review-count">0/0</span>
+      <span class="local-editor-review-track" role="progressbar" aria-label="Proofreading progress" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0">
+        <span class="local-editor-review-fill"></span>
+      </span>
+      <button type="button" class="local-editor-review-nav" data-direction="-1">prev</button>
+      <button type="button" class="local-editor-review-nav" data-direction="1">next</button>
+    </span>`;
   document.body.append(notice);
+
+  const reviewCount = notice.querySelector('.local-editor-review-count');
+  const reviewTrack = notice.querySelector('.local-editor-review-track');
+  const reviewFill = notice.querySelector('.local-editor-review-fill');
+  const reviewNavButtons = Array.from(notice.querySelectorAll('.local-editor-review-nav'));
+  let lastReviewTarget = null;
+  const updateReviewProgress = () => {
+    const total = mappedBlocks.length;
+    const approved = mappedBlocks.reduce(
+      (count, item) => count + (localStorage.getItem(reviewKey(item.block)) === 'true' ? 1 : 0),
+      0
+    );
+    const percentage = total ? (approved / total) * 100 : 0;
+    reviewCount.textContent = `${approved}/${total}`;
+    reviewFill.style.width = `${percentage}%`;
+    reviewTrack.setAttribute('aria-valuemax', String(total));
+    reviewTrack.setAttribute('aria-valuenow', String(approved));
+    reviewNavButtons.forEach(button => {
+      button.disabled = total === 0 || approved === total;
+    });
+  };
 
   const toast = message => {
     const element = document.createElement('div');
@@ -97,6 +129,52 @@
     document.body.append(element);
     setTimeout(() => element.remove(), 3500);
   };
+
+  const navigateToUnreviewed = direction => {
+    if (!mappedBlocks.length) return;
+    const unreviewed = item => localStorage.getItem(reviewKey(item.block)) !== 'true';
+    if (!mappedBlocks.some(unreviewed)) {
+      toast('Every text block is marked final');
+      return;
+    }
+
+    let currentIndex = lastReviewTarget;
+    if (!Number.isInteger(currentIndex) && activeEditor) {
+      currentIndex = mappedBlocks.findIndex(item => item.block.index === activeEditor.block.index);
+    }
+    if (!Number.isInteger(currentIndex) || currentIndex < 0) {
+      const viewportCentre = window.innerHeight / 2;
+      currentIndex = mappedBlocks.reduce((nearest, item, index) => {
+        const rect = item.element.getBoundingClientRect();
+        const distance = Math.abs(rect.top + rect.height / 2 - viewportCentre);
+        return distance < nearest.distance ? { index, distance } : nearest;
+      }, { index: 0, distance: Infinity }).index;
+    }
+
+    let targetIndex = currentIndex;
+    for (let offset = 1; offset <= mappedBlocks.length; offset += 1) {
+      const candidate = (currentIndex + direction * offset + mappedBlocks.length) % mappedBlocks.length;
+      if (unreviewed(mappedBlocks[candidate])) {
+        targetIndex = candidate;
+        break;
+      }
+    }
+
+    lastReviewTarget = targetIndex;
+    const target = mappedBlocks[targetIndex].element;
+    article.querySelectorAll('.is-review-target').forEach(element => {
+      element.classList.remove('is-review-target');
+    });
+    target.classList.add('is-review-target');
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    window.setTimeout(() => target.classList.remove('is-review-target'), 1200);
+  };
+
+  reviewNavButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      navigateToUnreviewed(Number.parseInt(button.dataset.direction, 10));
+    });
+  });
 
   const edit = (element, block) => {
     if (activeEditor) return;
@@ -331,6 +409,31 @@
           mutateBlock(element, block, 'insert');
         });
 
+        let reviewed = localStorage.getItem(reviewKey(block)) === 'true';
+        let reviewButton;
+        const renderReviewState = () => {
+          reviewButton.textContent = reviewed ? '✓' : '−';
+          reviewButton.setAttribute('aria-pressed', String(reviewed));
+          reviewButton.title = reviewed ? 'Mark this block as not final' : 'Mark this block as final';
+          reviewButton.setAttribute('aria-label', reviewButton.title);
+        };
+        reviewButton = makeControl(
+          'local-editor-review',
+          '−',
+          'Mark this block as final',
+          () => {
+            reviewed = !reviewed;
+            if (reviewed) {
+              localStorage.setItem(reviewKey(block), 'true');
+            } else {
+              localStorage.removeItem(reviewKey(block));
+            }
+            renderReviewState();
+            updateReviewProgress();
+          }
+        );
+        renderReviewState();
+
         const deleteButton = document.createElement('button');
         deleteButton.type = 'button';
         deleteButton.className = 'local-editor-delete';
@@ -349,6 +452,8 @@
           activate(element, block);
         });
       });
+
+      updateReviewProgress();
 
       const pendingBlock = Number.parseInt(sessionStorage.getItem(pendingBlockKey), 10);
       sessionStorage.removeItem(pendingBlockKey);

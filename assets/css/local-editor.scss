@@ -57,11 +57,33 @@
   transform: translateX(-50%);
 }
 
+.local-editor-review {
+  top: 50%;
+  right: -1.85rem;
+  transform: translateY(-50%);
+}
+
+.local-editor-review::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 100%;
+  width: 0.65rem;
+  height: 100%;
+}
+
+.local-editor-review[aria-pressed="true"] {
+  border-color: rgba(155, 213, 202, 0.8);
+  color: #9bd5ca;
+  opacity: 1;
+}
+
 .local-editor-block:hover > .local-editor-delete,
 .local-editor-block:focus-within > .local-editor-delete,
 .local-editor-delete:focus-visible,
 .local-editor-block:hover > .local-editor-control,
 .local-editor-block:focus-within > .local-editor-control,
+.local-editor-review:hover,
 .local-editor-control:focus-visible {
   opacity: 1;
 }
@@ -135,6 +157,71 @@
 
 .local-editor-notice span {
   color: var(--text-muted);
+}
+
+.local-editor-notice .local-editor-review-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.55rem;
+}
+
+.local-editor-review-count {
+  min-width: 3.4rem;
+  color: var(--accent-cyan) !important;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+.local-editor-review-track {
+  position: relative;
+  width: 8rem;
+  max-width: 45vw;
+  height: 0.42rem;
+  overflow: hidden;
+  border: 1px solid rgba(50, 245, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(50, 245, 255, 0.07);
+}
+
+.local-editor-review-fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent-cyan), #9bd5ca);
+  box-shadow: 0 0 0.45rem rgba(50, 245, 255, 0.45);
+  transition: width 180ms ease;
+}
+
+.local-editor-review-nav {
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid rgba(50, 245, 255, 0.4);
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font: 600 0.65rem/1.2 var(--font-mono);
+}
+
+.local-editor-review-nav:hover,
+.local-editor-review-nav:focus-visible {
+  border-bottom-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  outline: 0;
+}
+
+.local-editor-review-nav:disabled {
+  border-bottom-color: transparent;
+  cursor: default;
+  opacity: 0.35;
+}
+
+.local-editor-block.is-review-target {
+  background: rgba(155, 213, 202, 0.08);
+  outline-color: rgba(155, 213, 202, 0.65);
 }
 
 .local-editor-toast {
